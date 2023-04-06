@@ -9,5 +9,5 @@ getRefPeaks <- function(meanSpec, method = "mad", SNR = 10, tolerance = 10, freq
     Cardinal::peakPick(method = method, SNR = SNR) |>
     Cardinal::peakAlign(ref = "mean", tolerance = tolerance, units = "ppm") |>
     Cardinal::peakFilter(freq.min = freq.min) |>
-    Cardinal::process(BPPARAM = SnowParam(workers = workers, progressbar = T))
+    Cardinal::process(BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = T))
 }

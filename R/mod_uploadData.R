@@ -221,7 +221,70 @@ mod_uploadData_ui <- function(id){
                shiny::verbatimTextOutput(outputId = ns("refPeakInfo")),
                plotly::plotlyOutput(outputId = ns("refPeakPlot"))
                )
-             )
+             ),
+
+      #(5.1) Process MSI Data ==================================================
+      column(width = 5,
+             box(
+               width = 12,
+               inputId = ns("input_card"),
+               title = strong("Process MSI Data"),
+               status = "primary",
+               solidHeader = FALSE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
+               strong(code("Step 1. Normalize ")),
+               br(),
+               br(),
+               radioButtons(inputId = ns("norMethod"),
+                            label = "1.1 Select normalization method",
+                            choices = list("tic" = "tic", "rms" = "rms"),
+                            selected = "tic",
+                            inline = TRUE,
+                            ),
+               strong(code("Step 2. Peak Binning")),
+               br(),
+               br(),
+               sliderInput(inputId = ns("pbTolerance"),
+                           label = "2.1 Choose peak binning tolerance (ppm)",
+                           min = 1,
+                           max = 100,
+                           value = 10,
+                           step = 1
+                           ),
+               strong("3. (optional) Choose number of workers for parallel computation"),
+               sliderInput(inputId = ns("getProcessMSIWorkers"),
+                           label = "",
+                           min = 1,
+                           max = 10,
+                           value = 1,
+                           step = 1
+                           ),
+               actionButton(inputId = ns("processMSIData"),
+                            label = "Process",
+                            icon = icon("paper-plane"),
+                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                            )
+               )
+      ),
+
+      #(5.2) Output ============================================================
+      column(width = 7,
+             box(
+               width = 12,
+               inputId = "report_card",
+               title = strong("Processed MSI Data Overview"),
+               status = "success",
+               solidHeader = FALSE,
+               collapsible = TRUE,
+               collapsed = FALSE,
+               closable = FALSE,
+               shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
+               shiny::plotOutput(outputId = ns("TICImage"))
+               )
+      )
+
 
       )
     )
@@ -302,7 +365,7 @@ mod_uploadData_server <- function(id, global){
                                fadeout = TRUE
       )
       w4$show()
-      #(3.1) Calculate reference peaks -----------------------------------------
+      #(4.1) Calculate reference peaks -----------------------------------------
       shiny::req(global$meanSpec)
       global$refPeaks <- getRefPeaks(meanSpec = global$meanSpec,
                                      method = input$ppMethod,
@@ -311,7 +374,7 @@ mod_uploadData_server <- function(id, global){
                                      freq.min = input$pfFreqmin,
                                      workers = input$getRefWorkers
                                      )
-      #(3.2) Plot reference spec -----------------------------------------------
+      #(4.2) Plot reference spec -----------------------------------------------
       output$refPeakInfo <- shiny::renderPrint({
         on.exit({w4$hide()})
         cat("Below is the reference peak information:\n")
@@ -320,6 +383,32 @@ mod_uploadData_server <- function(id, global){
       })
       output$refPeakPlot <- plotly::renderPlotly({
         plotMeanSpec(global$refPeaks, nth = 1)
+      })
+    })
+
+    #(5) Process MSI Data ======================================================
+    observeEvent(input$processMSIData,{
+      w5 <- waiter::Waiter$new(id = ns("processedMSIInfo"),
+                               html = h4("Be patient. Cardinal is running..."),
+                               image = 'www/img/cardinal.gif',
+                               fadeout = TRUE
+      )
+      w5$show()
+      #(5.1) process MSI data --------------------------------------------------
+      shiny::req(global$msiData)
+      shiny::req(global$refPeaks)
+      global$processedMSIData <- processMSIData(msiData = global$msiData,
+                                                method = input$norMethod,
+                                                ref = global$refPeaks,
+                                                tolerance = input$pbTolerance,
+                                                workers = input$getProcessMSIWorkers
+                                                )
+      #(5.2) Show processed MSI data information -------------------------------
+      output$processedMSIInfo <- shiny::renderPrint({
+        on.exit({w5$hide()})
+        cat("Below is the processed MSI information:\n")
+        cat("\n")
+        print(global$processedMSIData)
       })
     })
 

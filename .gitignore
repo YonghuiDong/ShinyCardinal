@@ -1,0 +1,10 @@
+.DS_Store
+**/.DS_Store
+.RDataTmp
+.Rbuildignore
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+inst/doc
+rawData

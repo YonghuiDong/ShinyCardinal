@@ -281,7 +281,7 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               #shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
+               shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
                shiny::plotOutput(outputId = ns("TICImage"))
                )
       )
@@ -411,10 +411,16 @@ mod_uploadData_server <- function(id, global){
         cat("Below is the processed MSI information:\n")
         cat("\n")
         print(global$processedMSIData)
+        cat("\n")
+        cat("Below is the TIC image of the processed MSI data:\n")
       })
 
       output$TICImage <- shiny::renderPlot({
-        Cardinal::image(global$processedMSIData, tic ~ x * y)
+        Cardinal::image(global$processedMSIData,
+                        tic ~ x * y,
+                        contrast.enhance="suppression",
+                        normalize.image = "linear"
+                        )
       })
     })
 

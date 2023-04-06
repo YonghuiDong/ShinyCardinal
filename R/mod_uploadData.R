@@ -234,9 +234,9 @@ mod_uploadData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    #(1) Load MSI Data =========================================================
+    #(2) Load MSI Data =========================================================
     observeEvent(input$loadData,{
-      #(1.1) Get data path -----------------------------------------------------
+      #(2.1) Get data path -----------------------------------------------------
       shiny::req(input$imzmlFile)
       oldName <- input$imzmlFile$datapath
       newName <- file.path(dirname(input$imzmlFile$datapath), input$imzmlFile$name)
@@ -245,7 +245,7 @@ mod_uploadData_server <- function(id, global){
       imzmlPath <- unique(grep(pattern = ".imzML", x = msiFiles, value = TRUE))
       ibdPath <- unique(grep(pattern = ".ibd", x = msiFiles, value = TRUE))
 
-      #(1.2) Load MSI data -----------------------------------------------------
+      #(2.2) Load MSI data -----------------------------------------------------
       shiny::req(imzmlPath)
       shiny::req(ibdPath)
       shiny::req(length(imzmlPath) == length(ibdPath))
@@ -273,23 +273,23 @@ mod_uploadData_server <- function(id, global){
       })
     })
 
-    #(2) Get Mean Spectrum =====================================================
+    #(3) Get Mean Spectrum =====================================================
     observeEvent(input$getMeanSpec,{
-      w2 <- waiter::Waiter$new(id = ns("meanSpecPlot"),
+      w3 <- waiter::Waiter$new(id = ns("meanSpecPlot"),
                                html = h4("Be patient. Cardinal is running..."),
                                image = 'www/img/cardinal.gif',
                                fadeout = TRUE
                                )
-      w2$show()
-      #(2.1) Calculate mean spec -----------------------------------------------
+      w3$show()
+      #(3.1) Calculate mean spec -----------------------------------------------
       shiny::req(global$msiData)
       global$meanSpec <<- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
         getMeanSpec(msiData = _,
                     worker = input$meanSpecWorkers
                     )
-      #(2.1) Plot mean spec ----------------------------------------------------
+      #(3.1) Plot mean spec ----------------------------------------------------
       output$meanSpecPlot <- plotly::renderPlotly({
-        on.exit({w2$hide()})
+        on.exit({w3$hide()})
         plotMeanSpec(global$meanSpec, shiny::isolate(input$nth))
       })
     })
@@ -302,7 +302,7 @@ mod_uploadData_server <- function(id, global){
                                fadeout = TRUE
       )
       w4$show()
-      #(2.1) Calculate reference peaks -----------------------------------------
+      #(3.1) Calculate reference peaks -----------------------------------------
       shiny::req(global$meanSpec)
       global$refPeaks <- getRefPeaks(meanSpec = global$meanSpec,
                                      method = input$ppMethod,
@@ -311,7 +311,7 @@ mod_uploadData_server <- function(id, global){
                                      freq.min = input$pfFreqmin,
                                      workers = input$getRefWorkers
                                      )
-      #(2.1) Plot reference spec -----------------------------------------------
+      #(3.2) Plot reference spec -----------------------------------------------
       output$refPeakInfo <- shiny::renderPrint({
         on.exit({w4$hide()})
         cat("Below is the reference peak information:\n")
@@ -322,6 +322,8 @@ mod_uploadData_server <- function(id, global){
         plotMeanSpec(global$refPeaks, nth = 1)
       })
     })
+
+
 
 
 

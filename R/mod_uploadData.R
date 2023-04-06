@@ -21,7 +21,7 @@ mod_uploadData_ui <- function(id){
                status = "warning",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE
                )
              ),
@@ -35,7 +35,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                fileInput(inputId = ns("imzmlFile"),
                          label = "1. Upload  files:",
@@ -141,6 +141,86 @@ mod_uploadData_ui <- function(id){
                closable = FALSE,
                plotly::plotlyOutput(outputId = ns("meanSpecPlot"))
                )
+             ),
+
+      column(width = 12),
+      #(4.1) Get Reference Peaks ===============================================
+      column(width = 5,
+             box(
+               width = 12,
+               inputId = ns("input_card"),
+               title = strong("Get Reference Peaks"),
+               status = "primary",
+               solidHeader = FALSE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
+               strong(code("Step 1. Peak Picking ")),
+               br(),
+               br(),
+               radioButtons(inputId = ns("ppMethod"),
+                            label = "1.1 Select peak picking method",
+                            choices = list("mad" = "mad", "simple" = "simple", "adaptive" = "adaptive"),
+                            selected = "mad",
+                            inline = TRUE,
+                            ),
+               sliderInput(inputId = ns("ppSNR"),
+                           label = "1.2 Choose signal to noise ratio",
+                           min = 1,
+                           max = 100,
+                           value = 10,
+                           step = 1
+                           ),
+               strong(code("Step 2. Peak Alignment")),
+               br(),
+               br(),
+               sliderInput(inputId = ns("paTolerance"),
+                           label = "2.1 Choose peak aligment tolerance (ppm)",
+                           min = 1,
+                           max = 100,
+                           value = 10,
+                           step = 1
+                           ),
+               strong(code("Step 3. Peak Filter")),
+               br(),
+               br(),
+               sliderInput(inputId = ns("pfFreqmin"),
+                           label = "3.1 Choose minimum frequencypeak to keep peaks",
+                           min = 0,
+                           max = 0.1,
+                           value = 0.01,
+                           step = 0.01
+                           ),
+               strong("4. (optional) Choose number of workers for parallel computation"),
+               sliderInput(inputId = ns("getRefWorkers"),
+                           label = "",
+                           min = 1,
+                           max = 10,
+                           value = 1,
+                           step = 1
+                           ),
+               actionButton(inputId = ns("getRefPeaks"),
+                            label = "Calculate",
+                            icon = icon("paper-plane"),
+                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                            )
+               )
+             ),
+
+      #(4.2) Output ============================================================
+      column(width = 7,
+             box(
+               width = 12,
+               inputId = "report_card",
+               title = strong("Reference Peak Overview"),
+               status = "success",
+               solidHeader = FALSE,
+               collapsible = TRUE,
+               collapsed = FALSE,
+               closable = FALSE,
+               shiny::verbatimTextOutput(outputId = ns("refPeakInfo")),
+               plotly::plotlyOutput(outputId = ns("refPeakPlot"))
+               )
              )
 
       )
@@ -153,6 +233,7 @@ mod_uploadData_ui <- function(id){
 mod_uploadData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+
     #(1) Load MSI Data =========================================================
     observeEvent(input$loadData,{
       #(1.1) Get data path -----------------------------------------------------
@@ -202,7 +283,7 @@ mod_uploadData_server <- function(id, global){
       w2$show()
       #(2.1) Calculate mean spec -----------------------------------------------
       shiny::req(global$msiData)
-      global$meanSpec <- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
+      global$meanSpec <<- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
         getMeanSpec(msiData = _,
                     worker = input$meanSpecWorkers
                     )
@@ -213,6 +294,34 @@ mod_uploadData_server <- function(id, global){
       })
     })
 
+    #(4) Get Reference Peaks ===================================================
+    observeEvent(input$getRefPeaks,{
+      w4 <- waiter::Waiter$new(id = ns("refPeakPlot"),
+                               html = h4("Be patient. Cardinal is running..."),
+                               image = 'www/img/cardinal.gif',
+                               fadeout = TRUE
+      )
+      w4$show()
+      #(2.1) Calculate reference peaks -----------------------------------------
+      shiny::req(global$meanSpec)
+      global$refPeaks <- getRefPeaks(meanSpec = global$meanSpec,
+                                     method = input$ppMethod,
+                                     SNR = input$ppSNR,
+                                     tolerance = input$paTolerance,
+                                     freq.min = input$pfFreqmin,
+                                     workers = input$getRefWorkers
+                                     )
+      #(2.1) Plot reference spec -----------------------------------------------
+      output$refPeakInfo <- shiny::renderPrint({
+        on.exit({w4$hide()})
+        cat("Below is the reference peak information:\n")
+        cat("\n")
+        print(global$refPeaks)
+      })
+      output$refPeakPlot <- plotly::renderPlotly({
+        plotMeanSpec(global$refPeaks, nth = 1)
+      })
+    })
 
 
 

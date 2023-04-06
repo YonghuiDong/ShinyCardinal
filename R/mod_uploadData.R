@@ -224,6 +224,7 @@ mod_uploadData_ui <- function(id){
              ),
 
       #(5.1) Process MSI Data ==================================================
+      column(width = 12),
       column(width = 5,
              box(
                width = 12,
@@ -280,7 +281,7 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
+               #shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
                shiny::plotOutput(outputId = ns("TICImage"))
                )
       )
@@ -388,11 +389,11 @@ mod_uploadData_server <- function(id, global){
 
     #(5) Process MSI Data ======================================================
     observeEvent(input$processMSIData,{
-      w5 <- waiter::Waiter$new(id = ns("processedMSIInfo"),
+      w5 <- waiter::Waiter$new(id = ns("TICImage"),
                                html = h4("Be patient. Cardinal is running..."),
                                image = 'www/img/cardinal.gif',
                                fadeout = TRUE
-      )
+                               )
       w5$show()
       #(5.1) process MSI data --------------------------------------------------
       shiny::req(global$msiData)
@@ -403,12 +404,17 @@ mod_uploadData_server <- function(id, global){
                                                 tolerance = input$pbTolerance,
                                                 workers = input$getProcessMSIWorkers
                                                 )
+      tic <- Cardinal::pixelApply(global$processedMSIData, sum)
       #(5.2) Show processed MSI data information -------------------------------
       output$processedMSIInfo <- shiny::renderPrint({
         on.exit({w5$hide()})
         cat("Below is the processed MSI information:\n")
         cat("\n")
         print(global$processedMSIData)
+      })
+
+      output$TICImage <- shiny::renderPlot({
+        Cardinal::image(global$processedMSIData, tic ~ x * y)
       })
     })
 

@@ -282,7 +282,11 @@ mod_uploadData_ui <- function(id){
                collapsed = FALSE,
                closable = FALSE,
                shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
-               shiny::plotOutput(outputId = ns("TICImage"))
+               shiny::plotOutput(outputId = ns("TICImage"),
+                                 click = ns("plot_click"),
+                                 hover = ns("plot_hover")
+                                 ),
+               shiny::verbatimTextOutput(outputId = ns("pixelInfo"))
                )
       )
 
@@ -414,14 +418,26 @@ mod_uploadData_server <- function(id, global){
         cat("\n")
         cat("Below is the TIC image of the processed MSI data:\n")
       })
-
       output$TICImage <- shiny::renderPlot({
+        Cardinal::darkmode()
         Cardinal::image(global$processedMSIData,
                         tic ~ x * y,
                         contrast.enhance="suppression",
                         normalize.image = "linear"
                         )
       })
+      output$pixelInfo <- shiny::renderText({
+        xy_str <- function(e) {
+          if(is.null(e)) return("NULL\n")
+          paste0("x = ", round(e$x, 0), " y = ", round(e$y, 0), "\n")
+        }
+        paste0(
+          paste0("Pixel information:", "\n"),
+          "click: ", xy_str(input$plot_click),
+          "hover: ", xy_str(input$plot_hover)
+          )
+      })
+
     })
 
 

@@ -21,7 +21,7 @@ app_ui <- function(request) {
             hr(),
             menuItem(text = strong("Load Data"), tabName = "upload", icon = icon("book")),
             hr(),
-            menuItem(text = strong("QCviewer"), tabName = "evaluate", icon = icon("check-square")),
+            menuItem(text = strong("Visualize Data"), tabName = "Visualize", icon = icon("check-square")),
             hr(),
             menuItem(text = strong("Contact"), tabName = "contact", icon = icon("smile"))
           )
@@ -31,8 +31,8 @@ app_ui <- function(request) {
         body = dashboardBody(
           tabItems(
             #tabItem(tabName = "home",  mod_home_ui("home_1")),
-            tabItem(tabName = "upload",  mod_uploadData_ui("uploadData_1"))
-            #tabItem(tabName = "evaluate",  mod_qcView_ui("qcView_1")),
+            tabItem(tabName = "upload",  mod_uploadData_ui("uploadData_1")),
+            tabItem(tabName = "Visualize",  mod_viewData_ui("viewData_1"))
             #tabItem(tabName = "contact", mod_contact_ui("contact_1"))
           )
         )

@@ -37,11 +37,11 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               fileInput(inputId = ns("msiIda"),
+               fileInput(inputId = ns("rdsMSI"),
                          label = "(optional) 1. Upload  data:",
                          multiple = TRUE,
-                         placeholder = "Pleaae select rda data",
-                         accept = c(".ida")
+                         placeholder = "Pleaae select rds data",
+                         accept = c(".rds")
                          ),
                textInput(inputId = "mzImage",
                          label = "Input m/z values to visualize",
@@ -98,6 +98,7 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
+               shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
                plotOutput(outputId = ns("msiImages"))
                )
              )
@@ -115,16 +116,22 @@ mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     observeEvent(input$viewImage,{
-      output$msiImages <- renderPlot({
-        plotImage(msiData = global$processedMSIData,
-                  mz = input$mzImage,
-                  smooth.image = input$smoothImage,
-                  plusminus = input$massWindow,
-                  colorscale = input$colorImage,
-                  normalize.image = input$normalizeImage,
-                  contrast.enhance = input$contrastImage
-                  )
+      if(!is.null(input$rdsMSI)){
+        global$processedMSIData <- readRDS(input$rdsMSI$datapath)
+        }
+      output$processedMSIInfo <- renderPrint({
+        global$processedMSIData
       })
+      # output$msiImages <- renderPlot({
+      #   plotImage(msiData = global$processedMSIData,
+      #             mz = input$mzImage,
+      #             smooth.image = input$smoothImage,
+      #             plusminus = input$massWindow,
+      #             colorscale = input$colorImage,
+      #             normalize.image = input$normalizeImage,
+      #             contrast.enhance = input$contrastImage
+      #             )
+      # })
     })
 
 

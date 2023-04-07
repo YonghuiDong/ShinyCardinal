@@ -35,7 +35,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = TRUE,
+               collapsed = FALSE,
                closable = FALSE,
                fileInput(inputId = ns("imzmlFile"),
                          label = "1. Upload  files:",
@@ -103,7 +103,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = TRUE,
+               collapsed = FALSE,
                closable = FALSE,
                sliderInput(inputId = ns("nth"),
                            label = "1. (Optional) Subset MSI Data by select every nth pixel",
@@ -153,7 +153,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = TRUE,
+               collapsed = FALSE,
                closable = FALSE,
                strong(code("Step 1. Peak Picking ")),
                br(),
@@ -233,7 +233,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = TRUE,
+               collapsed = FALSE,
                closable = FALSE,
                strong(code("Step 1. Normalize ")),
                br(),
@@ -281,6 +281,9 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
+               shiny::uiOutput(outputId = ns("downloadButton")),
+               br(),
+               br(),
                shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
                shiny::plotOutput(outputId = ns("TICImage"),
                                  click = ns("plot_click"),
@@ -344,14 +347,14 @@ mod_uploadData_server <- function(id, global){
     #(3) Get Mean Spectrum =====================================================
     observeEvent(input$getMeanSpec,{
       w3 <- waiter::Waiter$new(id = ns("meanSpecPlot"),
-                               html = h4("Be patient. Cardinal is running..."),
+                               html = strong("Please wait, running..."),
                                image = 'www/img/cardinal.gif',
                                fadeout = TRUE
                                )
       w3$show()
       #(3.1) Calculate mean spec -----------------------------------------------
       shiny::req(global$msiData)
-      global$meanSpec <<- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
+      global$meanSpec <- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
         getMeanSpec(msiData = _,
                     worker = input$meanSpecWorkers
                     )
@@ -365,7 +368,7 @@ mod_uploadData_server <- function(id, global){
     #(4) Get Reference Peaks ===================================================
     observeEvent(input$getRefPeaks,{
       w4 <- waiter::Waiter$new(id = ns("refPeakPlot"),
-                               html = h4("Be patient. Cardinal is running..."),
+                               html = strong("Please wait, running..."),
                                image = 'www/img/cardinal.gif',
                                fadeout = TRUE
       )
@@ -394,7 +397,7 @@ mod_uploadData_server <- function(id, global){
     #(5) Process MSI Data ======================================================
     observeEvent(input$processMSIData,{
       w5 <- waiter::Waiter$new(id = ns("TICImage"),
-                               html = h4("Be patient. Cardinal is running..."),
+                               html = strong("Please wait, running..."),
                                image = 'www/img/cardinal.gif',
                                fadeout = TRUE
                                )
@@ -410,6 +413,24 @@ mod_uploadData_server <- function(id, global){
                                                 )
       tic <- Cardinal::pixelApply(global$processedMSIData, sum)
       #(5.2) Show processed MSI data information -------------------------------
+
+      ## download processed data
+      output$downloadButton <- renderUI({
+        downloadButton(
+          outputId = ns("downloadProcessedData"),
+          label = "Download Processed MSI Data",
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+          )
+        })
+      output$downloadProcessedData <- downloadHandler(
+        filename = function() {
+          paste("processedMSIData", "Rdata", sep = ".") # example : iris.Rdata
+        },
+        content = function(file) {
+          saveRDS(global$processedMSIData, file)
+        }
+      )
+
       output$processedMSIInfo <- shiny::renderPrint({
         on.exit({w5$hide()})
         cat("Below is the processed MSI information:\n")

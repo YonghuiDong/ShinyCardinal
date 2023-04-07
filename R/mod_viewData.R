@@ -43,7 +43,7 @@ mod_viewData_ui <- function(id){
                          placeholder = "Pleaae select rds data",
                          accept = c(".rds")
                          ),
-               textInput(inputId = "mzImage",
+               textInput(inputId = ns("mzValues"),
                          label = "Input m/z values to visualize",
                          placeholder = "For multiple m/z values, separate them by a comma..."),
                sliderInput(inputId = ns("massWindow"),
@@ -75,8 +75,20 @@ mod_viewData_ui <- function(id){
                            label = "6. Slect color scale",
                            multiple = FALSE,
                            choices = list("cividis" = "cividis",
+                                          "viridis" = "viridis",
                                           "magma" = "magma",
-                                          "grayscale" = "grayscale"),
+                                          "inferno" = "inferno",
+                                          "plasma" = "plasma",
+                                          "rainbow" = "rainbow",
+                                          "darkrainbow" = "darkrainbow",
+                                          "jet" = "jet",
+                                          "hot" = "hot",
+                                          "cool" = "cool",
+                                          "redblack" = "redblack",
+                                          "greenblack" = "greenblack",
+                                          "blueblack" = "blueblack",
+                                          "grayscale" = "grayscale"
+                                          ),
                            selected = "cividis"
                            ),
                actionButton(inputId = ns("viewImage"),
@@ -116,22 +128,25 @@ mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     observeEvent(input$viewImage,{
+      shiny::validate(need(!is.null(input$mzValues), message = "Please add m/z values"))
       if(!is.null(input$rdsMSI)){
         global$processedMSIData <- readRDS(input$rdsMSI$datapath)
         }
       output$processedMSIInfo <- renderPrint({
         global$processedMSIData
+        input$mzValues
       })
-      # output$msiImages <- renderPlot({
-      #   plotImage(msiData = global$processedMSIData,
-      #             mz = input$mzImage,
-      #             smooth.image = input$smoothImage,
-      #             plusminus = input$massWindow,
-      #             colorscale = input$colorImage,
-      #             normalize.image = input$normalizeImage,
-      #             contrast.enhance = input$contrastImage
-      #             )
-      # })
+      output$msiImages <- renderPlot({
+        Cardinal::darkmode()
+        plotImage(msiData = global$processedMSIData,
+                  mz = isolate(input$mzValues),
+                  smooth.image = input$smoothImage,
+                  plusminus = input$massWindow,
+                  colorscale = input$colorImage,
+                  normalize.image = input$normalizeImage,
+                  contrast.enhance = input$contrastImage
+                  )
+      })
     })
 
 

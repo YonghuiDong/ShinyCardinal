@@ -34,6 +34,7 @@ golem::add_fct("plotMeanSpec", with_test = FALSE)
 golem::add_fct("getRefPeaks", with_test = FALSE)
 golem::add_fct("processMSIData", with_test = FALSE)
 golem::add_fct("plotImage", with_test = FALSE)
+golem::add_fct("plotPixelSpec", with_test = FALSE)
 ## External resources
 ## Creates .js and .css files at inst/app/www
 golem::add_js_file("script")

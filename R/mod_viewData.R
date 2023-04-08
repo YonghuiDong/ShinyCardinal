@@ -91,10 +91,17 @@ mod_viewData_ui <- function(id){
                                           ),
                            selected = "cividis"
                            ),
+               radioButtons(inputId = ns("modeImage"),
+                            label = "Do you want to light or dark mode?",
+                            choices = list("light" = "light", "dark" = "dark"),
+                            selected = "dark",
+                            inline = TRUE
+                            ),
                radioButtons(inputId = ns("superposeImage"),
                             label = "Do you want to superpose different m/z images",
                             choices = list("Yes" = 1, "NO" = 0),
-                            selected = 0
+                            selected = 0,
+                            inline = TRUE
                             ),
                actionButton(inputId = ns("viewImage"),
                             label = "Plot",
@@ -164,14 +171,24 @@ mod_viewData_server <- function(id, global){
           need(mzList != "", message = "m/z value is missing"),
           need(min(mzList) >= min(Cardinal::mz(global$processedMSIData)) &
                  max(mzList) <= max(Cardinal::mz(global$processedMSIData)),
-               message = "m/z valus out of range ")
+               message = paste("m/z valus out of range, it shoud between", min(Cardinal::mz(global$processedMSIData)),
+                                "and", max(Cardinal::mz(global$processedMSIData)),sep = " "))
           )
         cat(input$mzValues)
       })
 
       output$msiImages <- renderPlot({
-        shiny::validate(need(mzList != "", message = ""))
-        Cardinal::darkmode()
+        shiny::validate(
+          need(mzList != "", message = ""),
+          need(min(mzList) >= min(Cardinal::mz(global$processedMSIData)) &
+                 max(mzList) <= max(Cardinal::mz(global$processedMSIData)),
+               message = "")
+          )
+        if(input$modeImage == "light"){
+          Cardinal::lightmode()
+        } else {
+          Cardinal::darkmode()
+        }
         plotImage(msiData = global$processedMSIData,
                   mz = isolate(mzList),
                   smooth.image = input$smoothImage,

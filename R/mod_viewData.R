@@ -116,7 +116,17 @@ mod_viewData_ui <- function(id){
                collapsed = FALSE,
                closable = FALSE,
                shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
-               plotOutput(outputId = ns("msiImages"))
+               shiny::plotOutput(outputId = ns("msiImages"),
+                                 click = ns("plot_click"),
+                                 hover = ns("plot_hover")
+                                 ),
+               shiny::verbatimTextOutput(outputId = ns("info")),
+               column(width = 6,
+                      shiny::uiOutput(outputId = ns("resetButton"))
+                      ),
+               column(width = 6,
+                      shiny::uiOutput(outputId = ns("undoButton"))
+                      )
                )
              )
 
@@ -154,7 +164,7 @@ mod_viewData_server <- function(id, global){
                  max(mzList) <= max(Cardinal::mz(global$processedMSIData)),
                message = "m/z valus out of range ")
           )
-        print(input$mzValues)
+        cat(input$mzValues)
       })
 
       output$msiImages <- renderPlot({
@@ -169,8 +179,54 @@ mod_viewData_server <- function(id, global){
                   contrast.enhance = input$contrastImage,
                   superpose = as.logical(as.numeric(input$superposeImage))
                   )
+        })
+
+      output$message <- renderPrint({
+        cat("You can click over the image to select the pixels of interest")
       })
-    })
+
+      #(2.4) Display selected spectrum -----------------------------------------
+      output$resetButton <- renderUI({
+        actionButton(
+          inputId = ns("reset"),
+          label = "Reset",
+          icon = icon("circle"),
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+          )
+        })
+      output$undoButton <- renderUI({
+        actionButton(
+          inputId = ns("undo"),
+          label = "Undo",
+          icon = icon("undo"),
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+          )
+        })
+
+      ## click
+      rv_click <- reactiveValues(tb = data.frame(x = double(), y = double()))
+      observeEvent(input$plot_click, {
+        rv_click$tb <-
+          isolate(rv_click$tb) |>
+          rbind(data.frame(x = input$plot_click$x, y = input$plot_click$y))
+        })
+      observeEvent(input$undo, {
+        rv_click$tb <- head(isolate(rv_click$tb), -1)
+        })
+      observeEvent(input$reset, {
+        rv_click$tb <- data.frame(x = double(), y = double())
+        })
+      output$info <- renderText({
+        tb_click <- rv_click$tb
+        if (nrow(tb_click) == 0L) return("Please click on the image to select pixels of interest.")
+        paste0(
+          "click: ", sprintf("%02d", 1:nrow(tb_click)), " ",
+          "x: ", round(tb_click$x, 0), " ",
+          "y: ", round(tb_click$y, 0), "\n"
+          )
+        })
+
+      })
 
 
 

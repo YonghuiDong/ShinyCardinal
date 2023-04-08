@@ -212,7 +212,8 @@ mod_viewData_server <- function(id, global){
           rbind(data.frame(x = as.integer(round(input$plot_click$x, 0)),
                            y = as.integer(round(input$plot_click$y, 0))
                            )
-                )
+                ) |>
+          (\(x) x[!duplicated(x), ])()
         })
       observeEvent(input$undo, {
         rv_click$tb <- head(isolate(rv_click$tb), -1)
@@ -241,3 +242,6 @@ mod_viewData_server <- function(id, global){
 
 ## To be copied in the server
 # mod_viewData_server("viewData_1")
+
+
+

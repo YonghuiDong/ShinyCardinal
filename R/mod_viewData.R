@@ -91,6 +91,11 @@ mod_viewData_ui <- function(id){
                                           ),
                            selected = "cividis"
                            ),
+               radioButtons(inputId = ns("superposeImage"),
+                            label = "Do you want to superpose different m/z images",
+                            choices = list("Yes" = 1, "NO" = 0),
+                            selected = 0
+                            ),
                actionButton(inputId = ns("viewImage"),
                             label = "Plot",
                             icon = icon("paper-plane"),
@@ -127,24 +132,42 @@ mod_viewData_ui <- function(id){
 mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+    #(2) Visualize MS images ===================================================
     observeEvent(input$viewImage,{
-      shiny::validate(need(!is.null(input$mzValues), message = "Please add m/z values"))
+      #(2.1) Allow users to upload processed MSI data --------------------------
       if(!is.null(input$rdsMSI)){
         global$processedMSIData <- readRDS(input$rdsMSI$datapath)
-        }
+      }
+      shiny::req(!is.null(global$processedMSIData))
+
+      #(2.2) Format m/z values -------------------------------------------------
+      mzList <- gsub(" ", "", input$mzValues) |>
+        strsplit(x = _, ",", fixed = FALSE) |>
+        unlist(x = _) |>
+        as.numeric(x = _)
+
+      #(2.3) Plot Images -------------------------------------------------------
       output$processedMSIInfo <- renderPrint({
-        global$processedMSIData
-        input$mzValues
+        shiny::validate(
+          need(mzList != "", message = "m/z value is missing"),
+          need(min(mzList) >= min(Cardinal::mz(global$processedMSIData)) &
+                 max(mzList) <= max(Cardinal::mz(global$processedMSIData)),
+               message = "m/z valus out of range ")
+          )
+        print(input$mzValues)
       })
+
       output$msiImages <- renderPlot({
+        shiny::validate(need(mzList != "", message = ""))
         Cardinal::darkmode()
         plotImage(msiData = global$processedMSIData,
-                  mz = isolate(input$mzValues),
+                  mz = isolate(mzList),
                   smooth.image = input$smoothImage,
                   plusminus = input$massWindow,
                   colorscale = input$colorImage,
                   normalize.image = input$normalizeImage,
-                  contrast.enhance = input$contrastImage
+                  contrast.enhance = input$contrastImage,
+                  superpose = as.logical(as.numeric(input$superposeImage))
                   )
       })
     })

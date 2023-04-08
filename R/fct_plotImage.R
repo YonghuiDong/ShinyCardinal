@@ -8,12 +8,7 @@
 
 plotImage <- function(msiData, mz, smooth.image = "none", plusminus = 0.03,
                       colorscale = "cividis", normalize.image = "linear",
-                      contrast.enhance = "suppression"){
-
-  ## the input mz is text, so I need to convert into numeric values
-  mz <- gsub(" ", "", mz)
-  split <- strsplit(mz, ",", fixed = FALSE)
-  mz <- as.numeric(split)
+                      contrast.enhance = "suppression", superpose = FALSE){
 
   Cardinal::image(msiData,
                   mz = mz,
@@ -21,6 +16,7 @@ plotImage <- function(msiData, mz, smooth.image = "none", plusminus = 0.03,
                   plusminus = plusminus,
                   colorscale = Cardinal::col.map(colorscale),
                   contrast.enhance = contrast.enhance,
-                  normalize.image = normalize.image
+                  normalize.image = normalize.image,
+                  superpose = superpose
                   )
 }

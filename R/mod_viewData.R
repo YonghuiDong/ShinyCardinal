@@ -121,13 +121,14 @@ mod_viewData_ui <- function(id){
                                  hover = ns("plot_hover")
                                  ),
                shiny::verbatimTextOutput(outputId = ns("info")),
-               shiny::tableOutput(outputId = ns("pixelTable")),
                column(width = 6,
                       shiny::uiOutput(outputId = ns("resetButton"))
                       ),
                column(width = 6,
                       shiny::uiOutput(outputId = ns("undoButton"))
-                      )
+                      ),
+               shiny::tableOutput(outputId = ns("pixelTable")),
+               plotly::plotlyOutput(outputId = ns("selectedSpec"))
                )
              )
 
@@ -222,11 +223,15 @@ mod_viewData_server <- function(id, global){
         rv_click$tb <- data.frame(x = double(), y = double())
         })
       output$info <- renderText({
-        tb_click <- rv_click$tb
-        if (nrow(tb_click) == 0L) return("Please click on the image to select pixels of interest.")
+        print("Please click on the image to select pixels of interest.")
         })
       output$pixelTable <- renderTable({
         rv_click$tb
+        })
+      output$selectedSpec <- plotly::renderPlotly({
+        shiny::req(global$processedMSIData)
+        shiny::req(nrow(rv_click$tb) > 0)
+        plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$tb)
         })
 
       })

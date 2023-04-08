@@ -121,6 +121,7 @@ mod_viewData_ui <- function(id){
                                  hover = ns("plot_hover")
                                  ),
                shiny::verbatimTextOutput(outputId = ns("info")),
+               shiny::tableOutput(outputId = ns("pixelTable")),
                column(width = 6,
                       shiny::uiOutput(outputId = ns("resetButton"))
                       ),
@@ -208,7 +209,10 @@ mod_viewData_server <- function(id, global){
       observeEvent(input$plot_click, {
         rv_click$tb <-
           isolate(rv_click$tb) |>
-          rbind(data.frame(x = input$plot_click$x, y = input$plot_click$y))
+          rbind(data.frame(x = as.integer(round(input$plot_click$x, 0)),
+                           y = as.integer(round(input$plot_click$y, 0))
+                           )
+                )
         })
       observeEvent(input$undo, {
         rv_click$tb <- head(isolate(rv_click$tb), -1)
@@ -219,11 +223,9 @@ mod_viewData_server <- function(id, global){
       output$info <- renderText({
         tb_click <- rv_click$tb
         if (nrow(tb_click) == 0L) return("Please click on the image to select pixels of interest.")
-        paste0(
-          "click: ", sprintf("%02d", 1:nrow(tb_click)), " ",
-          "x: ", round(tb_click$x, 0), " ",
-          "y: ", round(tb_click$y, 0), "\n"
-          )
+        })
+      output$pixelTable <- renderTable({
+        rv_click$tb
         })
 
       })

@@ -29,7 +29,7 @@ mod_statistics_ui <- function(id){
            box(
              width = 12,
              inputId = "input_card",
-             title = strong("Pricipal Component Analysis"),
+             title = strong("Pricipal Component Analysis (PCA)"),
              status = "primary",
              solidHeader = FALSE,
              collapsible = TRUE,
@@ -149,8 +149,8 @@ mod_statistics_ui <- function(id){
                                  inline = TRUE
                                  )
                     ),
-             shiny::plotOutput(outputId = ns("pcaImages"))
-             # shiny::verbatimTextOutput(outputId = ns("info")),
+             shiny::verbatimTextOutput(outputId = ns("infoPCAImage")),
+             shiny::plotOutput(outputId = ns("pcaImages")),
              # column(width = 6,
              #        shiny::uiOutput(outputId = ns("resetButton"))
              #        ),
@@ -192,6 +192,9 @@ mod_statistics_server <- function(id, global){
                               scale = shiny::isolate(as.logical(as.numeric(input$scalePCA))),
                               worker = input$pcaWorkers
                               )
+      output$infoPCAImage <- shiny::renderPrint({
+        cat("Below are PCA images:")
+      })
       output$pcaImages <- shiny::renderPlot({
         on.exit({w2$hide()})
         if(input$modePCAImage == "light"){

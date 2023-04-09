@@ -10,7 +10,6 @@
 mod_viewData_ui <- function(id){
   ns <- NS(id)
   tagList(
-
     fluidRow(
       waiter::use_waiter(),
       #(1) User guide ==========================================================
@@ -92,7 +91,7 @@ mod_viewData_ui <- function(id){
                            selected = "cividis"
                            ),
                radioButtons(inputId = ns("modeImage"),
-                            label = "Do you want to light or dark mode?",
+                            label = "Do you prefer light or dark mode?",
                             choices = list("light" = "light", "dark" = "dark"),
                             selected = "dark",
                             inline = TRUE

@@ -14,4 +14,5 @@ app_server <- function(input, output, session) {
   # Your application server logic
   mod_uploadData_server("uploadData_1", global = global)
   mod_viewData_server("viewData_1", global = global)
+  mod_statistics_server("statistics_1", global = global)
 }

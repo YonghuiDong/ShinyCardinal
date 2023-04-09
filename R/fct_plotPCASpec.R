@@ -34,7 +34,15 @@ plotPCASpec <- function(msiData, pcaResult){
     plot_list[[i]] = p
   }
 
-  plotly::subplot(plot_list, nrows = ceiling(N/2), shareX = TRUE, shareY = TRUE, titleX = TRUE, titleY = TRUE)
+  plotly::subplot(plot_list,
+                  nrows = ceiling(N/2),
+                  shareX = TRUE,
+                  shareY = TRUE,
+                  titleX = TRUE,
+                  titleY = TRUE) %>%
+    plotly::config(
+      toImageButtonOptions = list(format = "svg", filename = "pcaLoadingSpec")
+    )
 }
 
 

@@ -371,7 +371,7 @@ mod_uploadData_server <- function(id, global){
                                html = strong("Please wait, running..."),
                                image = 'www/img/cardinal.gif',
                                fadeout = TRUE
-      )
+                               )
       w4$show()
       #(4.1) Calculate reference peaks -----------------------------------------
       shiny::req(global$meanSpec)

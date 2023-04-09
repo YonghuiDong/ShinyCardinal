@@ -31,3 +31,4 @@ plotPixelSpec <- function(msiData, pixelDF){
     }
   return(p)
   }
+

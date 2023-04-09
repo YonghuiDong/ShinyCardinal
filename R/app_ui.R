@@ -21,9 +21,9 @@ app_ui <- function(request) {
             hr(),
             menuItem(text = strong("Load Data"), tabName = "upload", icon = icon("book")),
             hr(),
-            menuItem(text = strong("Visualize Data"), tabName = "visualize", icon = icon("check-square")),
+            menuItem(text = strong("Image Visualization"), tabName = "visualize", icon = icon("check-square")),
             hr(),
-            menuItem(text = strong("Statistics"), tabName = "statistics", icon = icon("check-square")),
+            menuItem(text = strong("Image Segmentation"), tabName = "segmentation", icon = icon("check-square")),
             hr(),
             menuItem(text = strong("Contact"), tabName = "contact", icon = icon("smile"))
           )
@@ -35,7 +35,7 @@ app_ui <- function(request) {
             #tabItem(tabName = "home",  mod_home_ui("home_1")),
             tabItem(tabName = "upload",  mod_uploadData_ui("uploadData_1")),
             tabItem(tabName = "visualize",  mod_viewData_ui("viewData_1")),
-            tabItem(tabName = "statistics",  mod_statistics_ui("statistics_1"))
+            tabItem(tabName = "segmentation",  mod_segmentation_ui("segmentation_1"))
             #tabItem(tabName = "contact", mod_contact_ui("contact_1"))
           )
         )

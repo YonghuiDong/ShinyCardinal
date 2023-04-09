@@ -44,7 +44,8 @@ mod_viewData_ui <- function(id){
                          ),
                textInput(inputId = ns("mzValues"),
                          label = "Input m/z values to visualize",
-                         placeholder = "For multiple m/z values, separate them by a comma..."),
+                         placeholder = "For multiple m/z values, separate them by a comma..."
+                         ),
                sliderInput(inputId = ns("massWindow"),
                            label = "2. Set mass tolerance window (da)",
                            min = 0,

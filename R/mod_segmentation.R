@@ -313,8 +313,8 @@ mod_segmentation_ui <- function(id){
                     ),
              shiny::verbatimTextOutput(outputId = ns("infoSSCCImage")),
              shiny::plotOutput(outputId = ns("ssccImages")),
-             shiny::verbatimTextOutput(outputId = ns("infoSSCCLoadings")),
-             plotly::plotlyOutput(outputId = ns("ssccLoadingsSpec"))
+             shiny::verbatimTextOutput(outputId = ns("infoSSCCSpec")),
+             plotly::plotlyOutput(outputId = ns("ssccStatisticSpec"))
              )
            )
 
@@ -368,10 +368,14 @@ mod_segmentation_server <- function(id, global){
                         superpose = as.logical(as.numeric(input$superposePCAImage))
                         )
         })
+
+      #(2.3) Show PCA loading spectrum info ------------------------------------
       output$infoLoadings <- shiny::renderPrint({
         cat("Below are the loading plots:\n")
         cat("The loadings of the components show how each mass feature contributes to each component.")
       })
+
+      #(2.4) Show PCA loading spectrum -----------------------------------------
       output$pcaLoadingsSpec <- plotly::renderPlotly({
         shiny::req(
           !is.null(global$processedMSIData),
@@ -434,6 +438,23 @@ mod_segmentation_server <- function(id, global){
                         contrast.enhance = input$contrastSSCCImage,
                         superpose = as.logical(as.numeric(input$superposeSSCCImage))
                         )
+      })
+
+      ##(3.3) Show SSCC t-Statistic Spec infor ---------------------------------
+      output$infoSSCCSpec <- shiny::renderPrint({
+        cat("Below are the SSCC t-statistic Spectrum plot:\n")
+        cat("Mass features with t-statistics of zero do not contribute to the segmentation.\n")
+        cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.")
+      })
+
+      ##(3.4) Plot SSCC t-statistic Spec ---------------------------------------
+      output$ssccStatisticSpec <- plotly::renderPlotly({
+        shiny::req(getSSCC)
+        plotSSCCSpec(getSSCC = getSSCC,
+                     r = input$outputR,
+                     s = input$outputS,
+                     k = input$outputK
+                     )
       })
 
 

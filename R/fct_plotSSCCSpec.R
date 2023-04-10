@@ -9,7 +9,7 @@
 plotSSCCSpec <- function(getSSCC, r, s, k){
   #(1) Format input ------------------------------------------------------------
   DF <- as.data.frame(Cardinal::subset(Cardinal::topFeatures(
-    object = ssc1,
+    object = getSSCC,
     model = list(r = r, s = s, k = k),
     n = Inf))
     )
@@ -28,7 +28,7 @@ plotSSCCSpec <- function(getSSCC, r, s, k){
                            name = paste0("Segment", i)
                            ) %>%
       plotly::layout(xaxis = list(title = 'm/z'),
-                     yaxis = list(title = 'Statistic')
+                     yaxis = list(title = 't-statistic')
                      )
     plot_list[[i]] = p
   }

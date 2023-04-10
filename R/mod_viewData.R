@@ -160,7 +160,7 @@ mod_viewData_server <- function(id, global){
       shiny::req(!is.null(global$processedMSIData))
 
       #(2.2) Format m/z values -------------------------------------------------
-      mzList <- text2Num(input$mzValues)
+      mzList <- unique(text2Num(input$mzValues))
 
       #(2.3) Plot Images -------------------------------------------------------
       output$processedMSIInfo <- renderPrint({

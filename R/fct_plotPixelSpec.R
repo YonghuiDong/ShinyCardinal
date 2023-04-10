@@ -27,7 +27,10 @@ plotPixelSpec <- function(msiData, pixelDF){
                               y = 0,
                               yend = ~ Intensity,
                               name = pixelNames[k]
-                              )
+                              ) %>%
+      plotly::config(
+        toImageButtonOptions = list(format = "svg", filename = "pxielSpec")
+        )
     }
   return(p)
   }

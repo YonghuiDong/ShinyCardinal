@@ -170,19 +170,19 @@ mod_segmentation_ui <- function(id){
              collapsed = FALSE,
              closable = FALSE,
              textInput(inputId = ns("r"),
-                       label = "The spatial neighborhood radius of nearby pixels to consider.",
+                       label = "r: The spatial neighborhood radius of nearby pixels to consider.",
                        placeholder = "For multiple values, separate them by a comma...",
-                       value = "1"
-                       ),
-             textInput(inputId = ns("k"),
-                       label = "Enter the maximum number of segments (clusters)",
-                       placeholder = "For multiple values, separate them by a comma...",
-                       value = "3"
+                       value = "2"
                        ),
              textInput(inputId = ns("s"),
-                       label = "Enter the sparsity thresholding parameter by which to shrink the t-statistics",
+                       label = "s: Enter the sparsity thresholding parameter by which to shrink the t-statistics",
                        placeholder = "For multiple values, separate them by a comma...",
                        value = "0"
+                       ),
+             textInput(inputId = ns("k"),
+                       label = "k: Enter the maximum number of segments",
+                       placeholder = "For multiple values, separate them by a comma...",
+                       value = "2"
                        ),
              radioButtons(inputId = ns("ssccMethod"),
                           label = "Choose the method to use to calculate the spatial smoothing weights",
@@ -198,7 +198,7 @@ mod_segmentation_ui <- function(id){
                           inline = FALSE
                           ),
              strong("5. (optional) Choose number of workers for parallel computation"),
-             sliderInput(inputId = ns("pcaWorkers"),
+             sliderInput(inputId = ns("ssccWorkers"),
                          label = "",
                          min = 1,
                          max = 10,
@@ -282,9 +282,34 @@ mod_segmentation_ui <- function(id){
                     radioButtons(inputId = ns("superposeSSCCImage"),
                                  label = "Do you want to superpose different m/z images",
                                  choices = list("Yes" = 1, "No" = 0),
-                                 selected = 0,
+                                 selected = 1,
                                  inline = TRUE
                                  )
+                    ),
+             column(width = 12,
+                    h4("Subset SSCC images by selecting r, s, and k below:"),
+                    br()
+                    ),
+             column(width = 4,
+                    selectInput(inputId = ns("outputR"),
+                                label = "Select r:",
+                                choices = NULL,
+                                multiple = FALSE
+                                )
+                    ),
+             column(width = 4,
+                    selectInput(inputId = ns("outputS"),
+                                label = "Select s:",
+                                choices = NULL,
+                                multiple = FALSE
+                                )
+                    ),
+             column(width = 4,
+                    selectInput(inputId = ns("outputK"),
+                                label = "Select k:",
+                                choices = NULL,
+                                multiple = FALSE
+                                )
                     ),
              shiny::verbatimTextOutput(outputId = ns("infoSSCCImage")),
              shiny::plotOutput(outputId = ns("ssccImages")),
@@ -306,7 +331,7 @@ mod_segmentation_server <- function(id, global){
     #(2) PCA ===================================================================
     observeEvent(input$viewPCA,{
       w2 <- waiter::Waiter$new(id = ns("pcaImages"),
-                               html = strong("Please wait, running..."),
+                               html = strong(""),
                                image = 'www/img/cardinal.gif',
                                fadeout = TRUE
                                )
@@ -355,6 +380,65 @@ mod_segmentation_server <- function(id, global){
         plotPCASpec(msiData = global$processedMSIData, pcaResult = getPCA)
         })
       })
+
+    #(3) SSCC ==================================================================
+    observeEvent(input$viewSSCC,{
+      shiny::req(global$processedMSIData)
+      w3 <- waiter::Waiter$new(id = ns("ssccImages"),
+                               html = strong(""),
+                               image = 'www/img/cardinal.gif',
+                               fadeout = TRUE
+                               )
+      w3$show()
+
+      #(3.1) Format input parameters -------------------------------------------
+      r <- unique(text2Num(input$r))
+      s <- unique(text2Num(input$s))
+      k <- unique(text2Num(input$k))
+      observeEvent(input$r,{
+        updateSelectInput(session, inputId = 'outputR', choices = r)
+      })
+      observeEvent(input$s,{
+        updateSelectInput(session, inputId = 'outputS', choices = s)
+      })
+      observeEvent(input$k,{
+        updateSelectInput(session, inputId = 'outputK', choices = k)
+      })
+
+      #(3.2) Show SSCC images --------------------------------------------------
+      set.seed(2023)
+      getSSCC <- Cardinal::spatialShrunkenCentroids(x = global$processedMSIData,
+                                                    r = r,
+                                                    s = s,
+                                                    k = k,
+                                                    method = input$ssccMethod,
+                                                    #dist = input$ssccDist,
+                                                    BPPARAM = BiocParallel::SnowParam(workers = input$ssccWorkers, progressbar = T)
+                                                    )
+      output$infoSSCCImage <- shiny::renderPrint({
+        Cardinal::summary(getSSCC)
+      })
+
+      output$ssccImages <- shiny::renderPlot({
+        on.exit({w3$hide()})
+        if(input$modeSSCCImage == "light"){
+          Cardinal::lightmode()
+        } else {
+          Cardinal::darkmode()
+        }
+        Cardinal::image(getSSCC,
+                        model = list(r = input$outputR, s = input$outputS, k = input$outputK),
+                        smooth.image = input$smoothSSCCImage,
+                        colorscale = Cardinal::col.map(input$colorSSCCImage),
+                        normalize.image = input$normalizeSSCCImage,
+                        contrast.enhance = input$contrastSSCCImage,
+                        superpose = as.logical(as.numeric(input$superposeSSCCImage))
+                        )
+      })
+
+
+    })
+
 
 
     })}

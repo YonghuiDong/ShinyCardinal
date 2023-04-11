@@ -12,7 +12,7 @@ mod_segmentation_ui <- function(id){
   tagList(
     fluidRow(
     waiter::use_waiter(),
-    #(1) User guide ==========================================================
+    #(0) User guide ============================================================
     column(width = 12,
            box(
              width = 12,
@@ -25,6 +25,108 @@ mod_segmentation_ui <- function(id){
              )
            ),
 
+    #(1) Optional: upload MSI rds Data =========================================
+    column(width = 4,
+           box(
+             width = 12,
+             title = strong("(optional) Upload MSI Data"),
+             status = "primary",
+             solidHeader = FALSE,
+             collapsible = TRUE,
+             collapsed = FALSE,
+             closable = FALSE,
+             fileInput(inputId = ns("rdsMSI"),
+                       label = "If you directly start from this module, please upload the rds data",
+                       multiple = FALSE,
+                       placeholder = "Pleaae select rds data",
+                       accept = c(".rds")
+                       ),
+             actionButton(inputId = ns("loadData"),
+                          label = "Load",
+                          icon = icon("paper-plane"),
+                          style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                          )
+             )
+           ),
+    #(1.2) Upload MSI rds data result ------------------------------------------
+    column(width = 8,
+           box(
+             width = 12,
+             title = strong("Upload MSI Data Result"),
+             status = "primary",
+             solidHeader = FALSE,
+             collapsible = TRUE,
+             collapsed = FALSE,
+             closable = FALSE,
+             shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
+             )
+           ),
+
+    #(2) Background noise and matrix removal ===================================
+    column(width = 12),
+    column(width = 4,
+           box(
+             width = 12,
+             inputId = "input_card",
+             title = strong("(Optional) Remove Noises and Matrix"),
+             status = "primary",
+             solidHeader = FALSE,
+             collapsible = TRUE,
+             collapsed = FALSE,
+             closable = FALSE,
+             numericInput(inputId = ns("noisePeak"),
+                          label = "Enter a single noise or matrix m/z value",
+                          value = NULL,
+                          min = 0,
+                          max = 10000000
+                          ),
+             sliderInput(inputId = ns("colocThreshould"),
+                         label = "Select the threshold for colocalization correlation coefficient",
+                         min = 0.5,
+                         max = 1,
+                         value = 0.9,
+                         step = 0.01
+                         ),
+             sliderInput(inputId = ns("nth"),
+                         label = "(Optional) Subset MSI Data by select every nth pixel",
+                         min = 1,
+                         max = 10,
+                         value = 1,
+                         step = 1
+                         ),
+             strong("(optional) Choose number of workers for parallel computation"),
+             sliderInput(inputId = ns("colocWorkers"),
+                         label = "",
+                         min = 1,
+                         max = 10,
+                         value = 1,
+                         step = 1
+                         ),
+             actionButton(inputId = ns("noiseColoc"),
+                          label = "Start",
+                          icon = icon("paper-plane"),
+                          style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                          )
+             )
+           ),
+
+    ##(2.1) Background noise and matrix removal output -------------------------
+    column(width = 8,
+           box(
+             width = 12,
+             inputId = "input_card",
+             title = strong("Noises and Matrix Removal Result"),
+             status = "primary",
+             solidHeader = FALSE,
+             collapsible = TRUE,
+             collapsed = FALSE,
+             closable = FALSE,
+             shiny::verbatimTextOutput(outputId = ns("infoBNMR")),
+             shiny::tableOutput(outputId = ns("noiseTable"))
+               )
+           ),
+
+    column(width = 12),
     #(2) PCA ===================================================================
     column(width = 4,
            box(
@@ -36,12 +138,6 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = FALSE,
              closable = FALSE,
-             fileInput(inputId = ns("rdsMSI"),
-                       label = "(optional) 1. Upload rds data:",
-                       multiple = TRUE,
-                       placeholder = "Pleaae select rds data",
-                       accept = c(".rds")
-                       ),
              sliderInput(inputId = ns("nComp"),
                          label = "2. Select the number of principal components",
                          min = 2,
@@ -328,6 +424,62 @@ mod_segmentation_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
+    #(1) Load MSI rds Data =====================================================
+    observeEvent(input$loadData, {
+      if(!is.null(input$rdsMSI)){
+        global$processedMSIData <- readRDS(input$rdsMSI$datapath)
+      }
+
+      #(1.1) Show MSI data info ------------------------------------------------
+      output$infoMSIData <- shiny::renderPrint({
+        shiny::validate(need(!is.null(global$processedMSIData), message = "MSI data not found"))
+        cat("MSI data loaded successfully!")
+      })
+    })
+
+    #(2) Background Removal ====================================================
+    observeEvent(input$noiseColoc,{
+      w <- waiter::Waiter$new(id = ns("infoBNMR"),
+                               html = "",
+                               image = 'www/img/cardinal.gif',
+                               fadeout = TRUE
+                              )
+      w$show()
+
+      #(2.1) Check input -------------------------------------------------------
+      shiny::req(global$processedMSIData)
+      shiny::req(input$noisePeak)
+      shiny::req(is.numeric(input$noisePeak))
+
+      #(2.2) Perform colocalization --------------------------------------------
+      if(is.null(global$cleanedMSIData)){
+        global$cleanedMSIData <- global$processedMSIData
+      }
+      colocDF <- colocAnalysis(msiData = global$cleanedMSIData,
+                               precursor = input$noisePeak,
+                               nth = input$nth,
+                               worker = input$colocWorkers
+                               )
+      subDF <- colocDF[colocDF$correlation >= input$colocThreshould, 1:2]
+
+      #(2.2) Display cocolization information ----------------------------------
+      output$infoBNMR <- shiny::renderPrint({
+        shiny::validate(
+          need(!is.null(global$processedMSIData), message = "MSI data not found."),
+          need(!is.null(input$noisePeak), message = "The input m/z peak not found"),
+          need(is.numeric(input$noisePeak), message = "The input m/z peak should be numeric value"),
+          need(nrow(colocDF) > 0, message = "input m/z peak is out of range")
+        )
+        cat("The following features are to be removed:\n")
+      })
+
+      output$noiseTable <- shiny::renderTable({
+        shiny::validate(need(nrow(colocDF) > 0, message = ""))
+        on.exit({w$hide()})
+        subDF
+      })
+    })
+
     #(2) PCA ===================================================================
     observeEvent(input$viewPCA,{
       w2 <- waiter::Waiter$new(id = ns("pcaImages"),
@@ -337,11 +489,8 @@ mod_segmentation_server <- function(id, global){
                                )
       w2$show()
 
-      #(2.1) Allow users to upload processed MSI data --------------------------
-      if(!is.null(input$rdsMSI)){
-        global$processedMSIData <- readRDS(input$rdsMSI$datapath)
-        }
-      shiny::req(!is.null(global$processedMSIData))
+
+      shiny::req(global$processedMSIData)
 
       #(2.2) Show PCA images ---------------------------------------------------
       getPCA <- Cardinal::PCA(x = global$processedMSIData,

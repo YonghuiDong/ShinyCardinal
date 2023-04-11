@@ -29,16 +29,19 @@ mod_segmentation_ui <- function(id){
     column(width = 4,
            box(
              width = 12,
-             title = strong("(optional) Upload MSI Data"),
+             title = strong("Upload MSI Data"),
              status = "primary",
              solidHeader = FALSE,
              collapsible = TRUE,
              collapsed = FALSE,
              closable = FALSE,
+             p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+             p(style = "color:#C70039;", "1. This moduel is optional."),
+             p(style = "color:#C70039;", "2. If you're starting directly from this module, you need to upload the rds file."),
              fileInput(inputId = ns("rdsMSI"),
-                       label = "If you directly start from this module, please upload the rds data",
+                       label = "Please select the rds file.",
                        multiple = FALSE,
-                       placeholder = "Pleaae select rds data",
+                       placeholder = "",
                        accept = c(".rds")
                        ),
              actionButton(inputId = ns("loadData"),
@@ -53,7 +56,7 @@ mod_segmentation_ui <- function(id){
            box(
              width = 12,
              title = strong("Upload MSI Data Result"),
-             status = "primary",
+             status = "success",
              solidHeader = FALSE,
              collapsible = TRUE,
              collapsed = FALSE,
@@ -68,12 +71,20 @@ mod_segmentation_ui <- function(id){
            box(
              width = 12,
              inputId = "input_card",
-             title = strong("(Optional) Remove Noises and Matrix"),
+             title = strong("Remove Noises and Matrix"),
              status = "primary",
              solidHeader = FALSE,
              collapsible = TRUE,
              collapsed = FALSE,
              closable = FALSE,
+             p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+             p(style = "color:#C70039;", "1. This moduel is optional."),
+             p(style = "color:#C70039;", "2. Enter a noise or matrix m/z value below. The software
+               will detect its colocalized features and remove them based on the colocalization coefficient."),
+             p(style = "color:#C70039;", "3. You can improve the speed by subsetting the MSI data
+               and selecting multiple workers."),
+             p(style = "color:#C70039;", "4. You can run this step multiple times to efficiently remove noise-
+               and matrix-related features."),
              numericInput(inputId = ns("noisePeak"),
                           label = "Enter a single noise or matrix m/z value",
                           value = NULL,
@@ -88,7 +99,7 @@ mod_segmentation_ui <- function(id){
                          step = 0.01
                          ),
              sliderInput(inputId = ns("nth"),
-                         label = "(Optional) Subset MSI Data by select every nth pixel",
+                         label = "(Optional) Subset MSI Data by selecting every nth pixel",
                          min = 1,
                          max = 10,
                          value = 1,
@@ -116,14 +127,16 @@ mod_segmentation_ui <- function(id){
              width = 12,
              inputId = "input_card",
              title = strong("Noises and Matrix Removal Result"),
-             status = "primary",
+             status = "success",
              solidHeader = FALSE,
              collapsible = TRUE,
              collapsed = FALSE,
              closable = FALSE,
              shiny::verbatimTextOutput(outputId = ns("infoBNMR")),
-             shiny::tableOutput(outputId = ns("noiseTable"))
-               )
+             shiny::tableOutput(outputId = ns("noiseTable")),
+             shiny::uiOutput(outputId = ns("resetButton")),
+             shiny::verbatimTextOutput(outputId = ns("summaryBNMR"))
+             )
            ),
 
     column(width = 12),
@@ -424,6 +437,7 @@ mod_segmentation_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
+
     #(1) Load MSI rds Data =====================================================
     observeEvent(input$loadData, {
       if(!is.null(input$rdsMSI)){
@@ -433,7 +447,8 @@ mod_segmentation_server <- function(id, global){
       #(1.1) Show MSI data info ------------------------------------------------
       output$infoMSIData <- shiny::renderPrint({
         shiny::validate(need(!is.null(global$processedMSIData), message = "MSI data not found"))
-        cat("MSI data loaded successfully!")
+        cat("MSI data loaded successfully!\n")
+        global$processedMSIData
       })
     })
 
@@ -450,6 +465,9 @@ mod_segmentation_server <- function(id, global){
       shiny::req(global$processedMSIData)
       shiny::req(input$noisePeak)
       shiny::req(is.numeric(input$noisePeak))
+      shiny::req(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) &
+                   input$noisePeak <= max(Cardinal::mz(global$processedMSIData))
+                 )
 
       #(2.2) Perform colocalization --------------------------------------------
       if(is.null(global$cleanedMSIData)){
@@ -460,25 +478,65 @@ mod_segmentation_server <- function(id, global){
                                nth = input$nth,
                                worker = input$colocWorkers
                                )
-      subDF <- colocDF[colocDF$correlation >= input$colocThreshould, 1:2]
+      subDF <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
+      on.exit({w$hide()})
 
-      #(2.2) Display cocolization information ----------------------------------
+      #(2.3) Display buttons ---------------------------------------------------
+      output$deleteButton <- renderUI({
+        actionButton(
+          inputId = ns("deleteFeatures"),
+          label = "Delete",
+          icon = icon("circle"),
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+          )
+        })
+      output$resetButton <- renderUI({
+        actionButton(
+          inputId = ns("resetFeatures"),
+          label = "Reset",
+          icon = icon("undo"),
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+          )
+        })
+
+      #(2.4) Display cocolization information ----------------------------------
       output$infoBNMR <- shiny::renderPrint({
         shiny::validate(
           need(!is.null(global$processedMSIData), message = "MSI data not found."),
           need(!is.null(input$noisePeak), message = "The input m/z peak not found"),
           need(is.numeric(input$noisePeak), message = "The input m/z peak should be numeric value"),
           need(nrow(colocDF) > 0, message = "input m/z peak is out of range")
-        )
-        cat("The following features are to be removed:\n")
-      })
-
+          )
+        cat("The selected features are shown below:\n")
+        cat("You can click on the Reset button to restore the original MSI data.. \n")
+        })
       output$noiseTable <- shiny::renderTable({
         shiny::validate(need(nrow(colocDF) > 0, message = ""))
-        on.exit({w$hide()})
         subDF
+        })
+
+      #(2.5) Delete features ---------------------------------------------------
+      global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = subDF)
       })
-    })
+
+      #(2.6) Reset feature -----------------------------------------------------
+      observeEvent(input$resetFeatures,{
+        shiny::req(global$cleanedMSIData)
+        shiny::req(global$processedMSIData)
+        global$cleanedMSIData <- global$processedMSIData
+      })
+
+      #(2.7) Show summarized result --------------------------------------------
+      output$summaryBNMR <- shiny::renderPrint({
+        shiny::req(global$cleanedMSIData)
+        shiny::req(global$processedMSIData)
+        if(identical(global$processedMSIData, global$cleanedMSIData)){
+          cat("No noises or matrix related peaks were removed.\n")
+        } else{
+          cat("MSI data after noises and matrix related peaks removal: \n")
+          global$cleanedMSIData
+        }
+      })
 
     #(2) PCA ===================================================================
     observeEvent(input$viewPCA,{

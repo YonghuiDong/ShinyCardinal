@@ -132,10 +132,12 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = FALSE,
              closable = FALSE,
-             shiny::verbatimTextOutput(outputId = ns("infoBNMR")),
-             shiny::tableOutput(outputId = ns("noiseTable")),
-             shiny::uiOutput(outputId = ns("resetButton")),
-             shiny::verbatimTextOutput(outputId = ns("summaryBNMR"))
+             ## tagAppendAttributes is used to display waiter image in textOutput
+             tagAppendAttributes(shiny::verbatimTextOutput(outputId = ns("infoBNMR")), style = "height:400px;"),
+             column(width = 6, shiny::uiOutput(outputId = ns("deleteButton"))),
+             column(width = 6, shiny::uiOutput(outputId = ns("resetButton"))),
+             shiny::verbatimTextOutput(outputId = ns("summaryBNMR")),
+             shiny::verbatimTextOutput(outputId = ns("massList2"))
              )
            ),
 
@@ -457,13 +459,6 @@ mod_segmentation_server <- function(id, global){
     ## This may remove some unwanted mass features.
     massList <- reactiveValues(value = NULL)
     observeEvent(input$noiseColoc,{
-      w <- waiter::Waiter$new(id = ns("infoBNMR"),
-                               html = "",
-                               image = 'www/img/cardinal.gif',
-                               fadeout = TRUE
-                              )
-      w$show()
-
       #(2.1) Check input -------------------------------------------------------
       shiny::req(global$processedMSIData)
       shiny::req(input$noisePeak)
@@ -471,7 +466,13 @@ mod_segmentation_server <- function(id, global){
       shiny::req(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) &
                    input$noisePeak <= max(Cardinal::mz(global$processedMSIData))
                  )
-      shiny::req(!(input$noisePeak %in% massList$value))
+      shiny::req(!(isolate(input$noisePeak) %in% massList$value))
+      w <- waiter::Waiter$new(id = ns("infoBNMR"),
+                              html = "",
+                              image = 'www/img/cardinal.gif',
+                              fadeout = TRUE
+                              )
+      w$show()
 
       #(2.2) Perform colocalization --------------------------------------------
       if(is.null(global$cleanedMSIData)){
@@ -482,10 +483,18 @@ mod_segmentation_server <- function(id, global){
                                nth = input$nth,
                                worker = input$colocWorkers
                                )
-      subDF <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
+      global$subDF <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
       on.exit({w$hide()})
 
       #(2.3) Display buttons ---------------------------------------------------
+      output$deleteButton <- renderUI({
+        actionButton(
+          inputId = ns("deleteFeatures"),
+          label = "Delete",
+          icon = icon("trash"),
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+          )
+        })
       output$resetButton <- renderUI({
         actionButton(
           inputId = ns("resetFeatures"),
@@ -501,27 +510,22 @@ mod_segmentation_server <- function(id, global){
           need(!is.null(global$processedMSIData), message = "MSI data not found."),
           need(!is.null(input$noisePeak), message = "Input m/z peak not found."),
           need(is.numeric(input$noisePeak), message = "Input m/z peak should be numeric value."),
-          need(!(input$noisePeak %in% massList$value), message = "This feature has been removed."),
+          need(!(input$noisePeak %in% isolate(massList$value)), message = "This feature has been removed."),
           need(nrow(colocDF) > 0, message = "Input m/z peak is out of range.")
           )
         cat("The selected features are shown below:\n")
-        cat("You can click on the Reset button to restore the original MSI data.. \n")
-        cat(massList$value)
+        cat("You can click on the Reset button to restore the original MSI data. \n")
+        cat("\n")
+        global$subDF
         })
-      output$noiseTable <- shiny::renderTable({
-        shiny::validate(need(nrow(colocDF) > 0, message = ""))
-        subDF
-        })
-
-      #(2.5) Delete features ---------------------------------------------------
-      global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = subDF)
       })
 
-    #(2.6) Update massList -----------------------------------------------------
-    ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
-    massList$value <- reactive(
-      c(massList$value, input$noisePeak)
-      )
+    #(2.5) Delete features -----------------------------------------------------
+    observeEvent(input$deleteFeatures,{
+      global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = global$subDF)
+      ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
+      massList$value <- c(massList$value, input$noisePeak, global$subDF$mz)
+    })
 
       #(2.7) Reset feature -----------------------------------------------------
     observeEvent(input$resetFeatures,{
@@ -541,6 +545,10 @@ mod_segmentation_server <- function(id, global){
         cat("MSI data after noises and matrix related peaks removal: \n")
         global$cleanedMSIData
       }
+    })
+
+    output$massList2 <- shiny::renderPrint({
+      massList$value
     })
 
     #(2) PCA ===================================================================

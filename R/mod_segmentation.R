@@ -551,8 +551,14 @@ mod_segmentation_server <- function(id, global){
       massList$value
     })
 
-    #(2) PCA ===================================================================
+    #(3) PCA ===================================================================
     observeEvent(input$viewPCA,{
+
+      #(3.1) Check input -------------------------------------------------------
+      shiny::req(global$processedMSIData)
+      if(is.null(global$cleanedMSIData)){
+        global$cleanedMSIData <- global$processedMSIData
+        }
       w2 <- waiter::Waiter$new(id = ns("pcaImages"),
                                html = strong(""),
                                image = 'www/img/cardinal.gif',
@@ -560,11 +566,8 @@ mod_segmentation_server <- function(id, global){
                                )
       w2$show()
 
-
-      shiny::req(global$processedMSIData)
-
       #(2.2) Show PCA images ---------------------------------------------------
-      getPCA <- Cardinal::PCA(x = global$processedMSIData,
+      getPCA <- Cardinal::PCA(x = global$cleanedMSIData,
                               ncomp = input$nComp,
                               center = as.logical(as.numeric(input$centerPCA)),
                               scale = shiny::isolate(as.logical(as.numeric(input$scalePCA))),
@@ -598,10 +601,10 @@ mod_segmentation_server <- function(id, global){
       #(2.4) Show PCA loading spectrum -----------------------------------------
       output$pcaLoadingsSpec <- plotly::renderPlotly({
         shiny::req(
-          !is.null(global$processedMSIData),
+          !is.null(global$cleanedMSIData),
           !is.null(getPCA)
         )
-        plotPCASpec(msiData = global$processedMSIData, pcaResult = getPCA)
+        plotPCASpec(msiData = global$cleanedMSIData, pcaResult = getPCA)
         })
       })
 

@@ -453,6 +453,9 @@ mod_segmentation_server <- function(id, global){
     })
 
     #(2) Background Removal ====================================================
+    ## massList is used to ensure that user will not perform coloclaizaiton on the same m/z more than once.
+    ## This may remove some unwanted mass features.
+    massList <- reactiveValues(value = NULL)
     observeEvent(input$noiseColoc,{
       w <- waiter::Waiter$new(id = ns("infoBNMR"),
                                html = "",
@@ -468,6 +471,7 @@ mod_segmentation_server <- function(id, global){
       shiny::req(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) &
                    input$noisePeak <= max(Cardinal::mz(global$processedMSIData))
                  )
+      shiny::req(!(input$noisePeak %in% massList$value))
 
       #(2.2) Perform colocalization --------------------------------------------
       if(is.null(global$cleanedMSIData)){
@@ -482,19 +486,11 @@ mod_segmentation_server <- function(id, global){
       on.exit({w$hide()})
 
       #(2.3) Display buttons ---------------------------------------------------
-      output$deleteButton <- renderUI({
-        actionButton(
-          inputId = ns("deleteFeatures"),
-          label = "Delete",
-          icon = icon("circle"),
-          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
       output$resetButton <- renderUI({
         actionButton(
           inputId = ns("resetFeatures"),
           label = "Reset",
-          icon = icon("undo"),
+          icon = icon("circle"),
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
           )
         })
@@ -503,12 +499,14 @@ mod_segmentation_server <- function(id, global){
       output$infoBNMR <- shiny::renderPrint({
         shiny::validate(
           need(!is.null(global$processedMSIData), message = "MSI data not found."),
-          need(!is.null(input$noisePeak), message = "The input m/z peak not found"),
-          need(is.numeric(input$noisePeak), message = "The input m/z peak should be numeric value"),
-          need(nrow(colocDF) > 0, message = "input m/z peak is out of range")
+          need(!is.null(input$noisePeak), message = "Input m/z peak not found."),
+          need(is.numeric(input$noisePeak), message = "Input m/z peak should be numeric value."),
+          need(!(input$noisePeak %in% massList$value), message = "This feature has been removed."),
+          need(nrow(colocDF) > 0, message = "Input m/z peak is out of range.")
           )
         cat("The selected features are shown below:\n")
         cat("You can click on the Reset button to restore the original MSI data.. \n")
+        cat(massList$value)
         })
       output$noiseTable <- shiny::renderTable({
         shiny::validate(need(nrow(colocDF) > 0, message = ""))
@@ -519,24 +517,31 @@ mod_segmentation_server <- function(id, global){
       global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = subDF)
       })
 
-      #(2.6) Reset feature -----------------------------------------------------
-      observeEvent(input$resetFeatures,{
-        shiny::req(global$cleanedMSIData)
-        shiny::req(global$processedMSIData)
-        global$cleanedMSIData <- global$processedMSIData
-      })
+    #(2.6) Update massList -----------------------------------------------------
+    ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
+    massList$value <- reactive(
+      c(massList$value, input$noisePeak)
+      )
 
-      #(2.7) Show summarized result --------------------------------------------
-      output$summaryBNMR <- shiny::renderPrint({
-        shiny::req(global$cleanedMSIData)
-        shiny::req(global$processedMSIData)
-        if(identical(global$processedMSIData, global$cleanedMSIData)){
-          cat("No noises or matrix related peaks were removed.\n")
-        } else{
-          cat("MSI data after noises and matrix related peaks removal: \n")
-          global$cleanedMSIData
-        }
-      })
+      #(2.7) Reset feature -----------------------------------------------------
+    observeEvent(input$resetFeatures,{
+      shiny::req(global$cleanedMSIData)
+      shiny::req(global$processedMSIData)
+      global$cleanedMSIData <- global$processedMSIData
+      massList$value <- NULL
+    })
+
+      #(2.8) Show summarized result --------------------------------------------
+    output$summaryBNMR <- shiny::renderPrint({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(global$processedMSIData)
+      if(identical(global$processedMSIData, global$cleanedMSIData)){
+        cat("No noises or matrix related peaks were removed.\n")
+      } else{
+        cat("MSI data after noises and matrix related peaks removal: \n")
+        global$cleanedMSIData
+      }
+    })
 
     #(2) PCA ===================================================================
     observeEvent(input$viewPCA,{

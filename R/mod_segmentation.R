@@ -462,11 +462,10 @@ mod_segmentation_server <- function(id, global){
       #(2.1) Check input -------------------------------------------------------
       shiny::req(global$processedMSIData)
       shiny::req(input$noisePeak)
-      shiny::req(is.numeric(input$noisePeak))
       shiny::req(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) &
                    input$noisePeak <= max(Cardinal::mz(global$processedMSIData))
                  )
-      shiny::req(!(isolate(input$noisePeak) %in% massList$value))
+      shiny::req(!(isolate(input$noisePeak) %in% isolate(massList$value)))
       w <- waiter::Waiter$new(id = ns("infoBNMR"),
                               html = "",
                               image = 'www/img/cardinal.gif',
@@ -509,8 +508,8 @@ mod_segmentation_server <- function(id, global){
         shiny::validate(
           need(!is.null(global$processedMSIData), message = "MSI data not found."),
           need(!is.null(input$noisePeak), message = "Input m/z peak not found."),
-          need(is.numeric(input$noisePeak), message = "Input m/z peak should be numeric value."),
-          need(!(input$noisePeak %in% isolate(massList$value)), message = "This feature has been removed."),
+          need(!(isolate(input$noisePeak) %in% isolate(massList$value)),
+               message = "This input feature has been removed, Please choose another one."),
           need(nrow(colocDF) > 0, message = "Input m/z peak is out of range.")
           )
         cat("The selected features are shown below:\n")
@@ -524,7 +523,7 @@ mod_segmentation_server <- function(id, global){
     observeEvent(input$deleteFeatures,{
       global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = global$subDF)
       ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
-      massList$value <- c(massList$value, input$noisePeak, global$subDF$mz)
+      massList$value <- round(c(massList$value, input$noisePeak, global$subDF$mz), 3)
     })
 
       #(2.7) Reset feature -----------------------------------------------------
@@ -548,6 +547,7 @@ mod_segmentation_server <- function(id, global){
     })
 
     output$massList2 <- shiny::renderPrint({
+      print(input$noisePeak %in% massList$value)
       massList$value
     })
 

@@ -439,7 +439,6 @@ mod_segmentation_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-
     #(1) Load MSI rds Data =====================================================
     observeEvent(input$loadData, {
       if(!is.null(input$rdsMSI)){

@@ -13,7 +13,7 @@ readMSI <- function(path, massResolution = 10, massRange = NULL, workers = 6){
                           units = "ppm",
                           mass.range = massRange,
                           attach.only = TRUE,
-                          BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = T)
+                          BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = FALSE)
                           )
   )
 
@@ -24,6 +24,5 @@ readMSI <- function(path, massResolution = 10, massRange = NULL, workers = 6){
 
   #(3) Combine multiple files --------------------------------------------------
   msiCombined <- Cardinal::combine(msiData[1:length(msiData)])
-
   return(msiCombined)
 }

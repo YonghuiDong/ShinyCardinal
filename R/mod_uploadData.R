@@ -302,9 +302,11 @@ mod_uploadData_server <- function(id, global){
     ns <- session$ns
 
     #(2) Load MSI Data =========================================================
-    observeEvent(input$loadData,{
-      #(2.1) Get data path -----------------------------------------------------
-      shiny::req(input$imzmlFile)
+    output$dataInfo <- renderPrint({
+      #(2.1) validate input ----------------------------------------------------
+      shiny::validate(need(input$imzmlFile$datapath != "", message = "No files found."))
+
+      #(2.2) Get data path -----------------------------------------------------
       oldName <- input$imzmlFile$datapath
       newName <- file.path(dirname(input$imzmlFile$datapath), input$imzmlFile$name)
       file.rename(from = oldName, to = newName)
@@ -312,10 +314,12 @@ mod_uploadData_server <- function(id, global){
       imzmlPath <- unique(grep(pattern = ".imzML", x = msiFiles, value = TRUE))
       ibdPath <- unique(grep(pattern = ".ibd", x = msiFiles, value = TRUE))
 
-      #(2.2) Load MSI data -----------------------------------------------------
-      shiny::req(imzmlPath)
-      shiny::req(ibdPath)
-      shiny::req(length(imzmlPath) == length(ibdPath))
+      #(2.3) Load MSI data -----------------------------------------------------
+      shiny::validate(
+        need(imzmlPath != "", "imzML file missing!"),
+        need(ibdPath != "", "ibd file missing!"),
+        need(length(imzmlPath) == length(ibdPath), "The number of imzML and idb files are not the same!")
+        )
       if(input$setMass == "No"){
         selectedMassRange = NULL
       } else {
@@ -326,19 +330,11 @@ mod_uploadData_server <- function(id, global){
                                 massRange = selectedMassRange,
                                 workers = input$loadDataWorkers
                                 )
-
-      output$dataInfo <- renderPrint({
-        shiny::validate(
-          need(!is.null(imzmlPath), "imzML file missing!"),
-          need(!is.null(ibdPath), "ibd file missing!"),
-          need(length(imzmlPath) == length(ibdPath), "The number of imzML and idb files are not the same!"),
-          need(!is.null(global$msiData), "Files not loaded. Please check your raw data.")
-        )
-        cat("The files have been loaded successfully. Below is the MSI data information:\n")
-        cat("\n")
-        print(global$msiData)
-      })
-    })
+      cat("The files have been loaded successfully. Below is the MSI data information:\n")
+      cat("\n")
+      global$msiData
+    }) |>
+      bindEvent(input$loadData)
 
     #(3) Get Mean Spectrum =====================================================
     observeEvent(input$getMeanSpec,{

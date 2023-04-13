@@ -12,7 +12,7 @@ mod_viewData_ui <- function(id){
   tagList(
     fluidRow(
       waiter::use_waiter(),
-      #(1) User guide ==========================================================
+      #(0) User guide ==========================================================
       column(width = 12,
              box(
                width = 12,
@@ -25,7 +25,48 @@ mod_viewData_ui <- function(id){
                )
              ),
 
-      #(2.1) Image View ========================================================
+      #(1) Optional: upload MSI rds Data =======================================
+      column(width = 4,
+             box(
+               width = 12,
+               title = strong("Upload MSI Data"),
+               status = "primary",
+               solidHeader = FALSE,
+               collapsible = TRUE,
+               collapsed = FALSE,
+               closable = FALSE,
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. This moduel is optional."),
+               p(style = "color:#C70039;", "2. If you're starting directly from this module, you need to upload the rds file."),
+               fileInput(inputId = ns("rdsMSI"),
+                         label = "Please select the rds file.",
+                         multiple = FALSE,
+                         placeholder = "",
+                         accept = c(".rds")
+                         ),
+               actionButton(inputId = ns("loadData"),
+                            label = "Load",
+                            icon = icon("paper-plane"),
+                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                            )
+               )
+             ),
+      #(1.2) Upload MSI rds data result ----------------------------------------
+      column(width = 8,
+             box(
+               width = 12,
+               title = strong("Upload MSI Data Result"),
+               status = "success",
+               solidHeader = FALSE,
+               collapsible = TRUE,
+               collapsed = FALSE,
+               closable = FALSE,
+               shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
+               )
+             ),
+
+      #(3) Image View ==========================================================
+      column(width = 12),
       column(width = 4,
              box(
                width = 12,
@@ -36,14 +77,8 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               fileInput(inputId = ns("rdsMSI"),
-                         label = "(optional) 1. Upload  data:",
-                         multiple = TRUE,
-                         placeholder = "Pleaae select rds data",
-                         accept = c(".rds")
-                         ),
                textInput(inputId = ns("mzValues"),
-                         label = "Input m/z values to visualize",
+                         label = "1. Input m/z values to visualize",
                          placeholder = "For multiple m/z values, separate them by a comma..."
                          ),
                sliderInput(inputId = ns("massWindow"),
@@ -138,12 +173,7 @@ mod_viewData_ui <- function(id){
                plotly::plotlyOutput(outputId = ns("selectedSpec"))
                )
              )
-
-
-
-      )
-  )
-}
+      ))}
 
 #' viewData Server Functions
 #'
@@ -151,12 +181,23 @@ mod_viewData_ui <- function(id){
 mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
-    #(2) Visualize MS images ===================================================
-    observeEvent(input$viewImage,{
-      #(2.1) Allow users to upload processed MSI data --------------------------
+
+    #(1) Load MSI rds Data =====================================================
+    observeEvent(input$loadData, {
       if(!is.null(input$rdsMSI)){
         global$processedMSIData <- readRDS(input$rdsMSI$datapath)
-      }
+        }
+
+      #(1.1) Show MSI data info ------------------------------------------------
+      output$infoMSIData <- shiny::renderPrint({
+        shiny::validate(need(!is.null(global$processedMSIData), message = "MSI data not found"))
+        cat("MSI data loaded successfully!\n")
+        global$processedMSIData
+        })
+      })
+
+    #(2) Visualize MS images ===================================================
+    observeEvent(input$viewImage,{
       shiny::req(!is.null(global$processedMSIData))
 
       #(2.2) Format m/z values -------------------------------------------------

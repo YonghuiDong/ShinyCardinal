@@ -78,13 +78,13 @@ mod_viewData_ui <- function(id){
                collapsed = FALSE,
                closable = FALSE,
                textInput(inputId = ns("mzValues"),
-                         label = "1. Input m/z values to visualize",
+                         label = "1. Enter m/z values to visualize",
                          placeholder = "For multiple m/z values, separate them by a comma..."
                          ),
-               sliderInput(inputId = ns("massWindow"),
-                           label = "2. Set mass tolerance window (da)",
+               numericInput(inputId = ns("massWindow"),
+                           label = "2. Set mass tolerance window (Da)",
                            min = 0,
-                           max = 1,
+                           max = 10,
                            value = 0.001,
                            step = 0.001
                            ),
@@ -198,37 +198,43 @@ mod_viewData_server <- function(id, global){
     #(2) Visualize MS images ===================================================
     observeEvent(input$viewImage,{
       shiny::req(global$processedMSIData)
+      w <- waiter::Waiter$new(id = ns("msiImages"),
+                              image = 'www/img/cardinal.gif',
+                              fadeout = TRUE
+                              )
+      w$show()
 
       #(2.1) Format m/z values -------------------------------------------------
-      mzList <- unique(text2Num(input$mzValues))
+      mzList <- unique(text2Num(isolate(input$mzValues)))
       mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
       mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
 
-      #(2.3) Plot Images -------------------------------------------------------
+      #(2.2) Plot Info and Images ----------------------------------------------
       output$processedMSIInfo <- renderPrint({
         shiny::validate(
           need(mzList != "", message = "m/z value is missing"),
-          need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = paste("m/z value shoud between", mzMin, "and", mzMax, sep = " "))
+          need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = paste("m/z value shoud between", mzMin, "and", mzMax, sep = " ")),
+          need(isolate(input$massWindow) > 0, message = "mass tolerance should be positive value")
           )
-        cat(input$mzValues)
+        cat(mzList)
       })
 
       output$msiImages <- renderPlot({
         shiny::validate(
           need(mzList != "", message = ""),
-          need(min(mzList) >= min(Cardinal::mz(global$processedMSIData)) &
-                 max(mzList) <= max(Cardinal::mz(global$processedMSIData)),
-               message = "")
+          need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = ""),
+          need(isolate(input$massWindow) > 0, message = "")
           )
+        on.exit({w$hide()})
         if(input$modeImage == "light"){
           Cardinal::lightmode()
         } else {
           Cardinal::darkmode()
         }
         plotImage(msiData = global$processedMSIData,
-                  mz = isolate(mzList),
+                  mz = mzList,
                   smooth.image = input$smoothImage,
-                  plusminus = input$massWindow,
+                  plusminus = isolate(input$massWindow),
                   colorscale = input$colorImage,
                   normalize.image = input$normalizeImage,
                   contrast.enhance = input$contrastImage,
@@ -237,10 +243,10 @@ mod_viewData_server <- function(id, global){
         })
 
       output$message <- renderPrint({
-        cat("You can click over the image to select the pixels of interest")
+        cat("You can click over the image to select the pixels of interest.")
       })
 
-      #(2.4) Display selected spectrum -----------------------------------------
+      #(2.3) Display selected spectrum -----------------------------------------
       output$resetButton <- renderUI({
         actionButton(
           inputId = ns("reset"),
@@ -258,11 +264,11 @@ mod_viewData_server <- function(id, global){
           )
         })
 
-      ## click
-      rv_click <- reactiveValues(tb = data.frame(x = double(), y = double()))
+      ## click event
+      rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
       observeEvent(input$plot_click, {
-        rv_click$tb <-
-          isolate(rv_click$tb) |>
+        rv_click$df <-
+          isolate(rv_click$df) |>
           rbind(data.frame(x = as.integer(round(input$plot_click$x, 0)),
                            y = as.integer(round(input$plot_click$y, 0))
                            )
@@ -270,23 +276,20 @@ mod_viewData_server <- function(id, global){
           (\(x) x[!duplicated(x), ])()
         })
       observeEvent(input$undo, {
-        rv_click$tb <- head(isolate(rv_click$tb), -1)
+        rv_click$df <- head(isolate(rv_click$df), -1)
         })
       observeEvent(input$reset, {
-        rv_click$tb <- data.frame(x = double(), y = double())
+        rv_click$df <- data.frame(x = double(), y = double())
         })
       output$info <- renderText({
         print("Please click on the image to select pixels of interest.")
         })
       output$pixelTable <- renderTable({
-        rv_click$tb
+        rv_click$df
         })
       output$selectedSpec <- plotly::renderPlotly({
-        shiny::validate(
-          need(!is.null(global$processedMSIData), message = "MSI data not found."),
-          need(nrow(rv_click$tb) > 0, message = "No pixels selected.")
-          )
-        plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$tb)
+        shiny::validate(need(nrow(rv_click$df) > 0, message = "No pixels selected."))
+        plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$df)
         })
 
       })

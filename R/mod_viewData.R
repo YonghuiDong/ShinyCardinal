@@ -284,8 +284,10 @@ mod_viewData_server <- function(id, global){
         rv_click$tb
         })
       output$selectedSpec <- plotly::renderPlotly({
-        shiny::req(global$processedMSIData)
-        shiny::req(nrow(rv_click$tb) > 0)
+        shiny::validate(
+          need(!is.null(global$processedMSIData), message = "MSI data not found."),
+          need(nrow(rv_click$tb) > 0, message = "No pixels selected.")
+          )
         plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$tb)
         })
 

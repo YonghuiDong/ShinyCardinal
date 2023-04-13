@@ -26,7 +26,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(2.1) Data Input ==========================================================
+      #(2) Data Input ========================================================
       column(width = 5,
              box(
                width = 12,
@@ -76,9 +76,9 @@ mod_uploadData_ui <- function(id){
                             style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                             )
                )
-      ),
+             ),
 
-      #(2.2) Output ==============================================================
+      #(2.1) Load Data ---------------------------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -93,8 +93,8 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
+      #(3) Get Mean Spectrum ===================================================
       column(width = 12),
-      #(3.1) Get Mean Spectrum =================================================
       column(width = 5,
              box(
                width = 12,
@@ -106,7 +106,7 @@ mod_uploadData_ui <- function(id){
                collapsed = FALSE,
                closable = FALSE,
                sliderInput(inputId = ns("nth"),
-                           label = "1. (Optional) Subset MSI Data by select every nth pixel",
+                           label = "1. (Optional) Subset MSI data by select every nth pixel",
                            min = 1,
                            max = 10,
                            value = 1,
@@ -128,7 +128,7 @@ mod_uploadData_ui <- function(id){
                ),
              ),
 
-      #(3.2) Output ============================================================
+      #(3.2) Get Mean Spectrum Result ------------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -143,8 +143,8 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
+      #(4) Get Reference Peaks =================================================
       column(width = 12),
-      #(4.1) Get Reference Peaks ===============================================
       column(width = 5,
              box(
                width = 12,
@@ -207,7 +207,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(4.2) Output ============================================================
+      #(4.2) Get Reference Peaks Result ----------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -223,7 +223,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(5.1) Process MSI Data ==================================================
+      #(5) Process MSI Data ====================================================
       column(width = 12),
       column(width = 5,
              box(
@@ -268,9 +268,9 @@ mod_uploadData_ui <- function(id){
                             style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                             )
                )
-      ),
+             ),
 
-      #(5.2) Output ============================================================
+      #(5.2) Process MSI Data Result -------------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -291,12 +291,8 @@ mod_uploadData_ui <- function(id){
                                  ),
                shiny::verbatimTextOutput(outputId = ns("pixelInfo"))
                )
-      )
-
-
-      )
-    )
-  }
+             )
+      ))}
 
 
 #' uploadData Server Functions

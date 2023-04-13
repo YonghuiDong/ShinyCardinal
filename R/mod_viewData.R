@@ -187,7 +187,6 @@ mod_viewData_server <- function(id, global){
       if(!is.null(input$rdsMSI)){
         global$processedMSIData <- readRDS(input$rdsMSI$datapath)
         }
-
       #(1.1) Show MSI data info ------------------------------------------------
       output$infoMSIData <- shiny::renderPrint({
         shiny::validate(need(!is.null(global$processedMSIData), message = "MSI data not found"))
@@ -198,19 +197,18 @@ mod_viewData_server <- function(id, global){
 
     #(2) Visualize MS images ===================================================
     observeEvent(input$viewImage,{
-      shiny::req(!is.null(global$processedMSIData))
+      shiny::req(global$processedMSIData)
 
-      #(2.2) Format m/z values -------------------------------------------------
+      #(2.1) Format m/z values -------------------------------------------------
       mzList <- unique(text2Num(input$mzValues))
+      mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
+      mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
 
       #(2.3) Plot Images -------------------------------------------------------
       output$processedMSIInfo <- renderPrint({
         shiny::validate(
           need(mzList != "", message = "m/z value is missing"),
-          need(min(mzList) >= min(Cardinal::mz(global$processedMSIData)) &
-                 max(mzList) <= max(Cardinal::mz(global$processedMSIData)),
-               message = paste("m/z valus out of range, it shoud between", min(Cardinal::mz(global$processedMSIData)),
-                                "and", max(Cardinal::mz(global$processedMSIData)),sep = " "))
+          need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = paste("m/z value shoud between", mzMin, "and", mzMax, sep = " "))
           )
         cat(input$mzValues)
       })

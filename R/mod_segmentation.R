@@ -566,7 +566,7 @@ mod_segmentation_server <- function(id, global){
                                )
       w2$show()
 
-      #(2.2) Show PCA images ---------------------------------------------------
+      #(3.2) Show PCA images ---------------------------------------------------
       getPCA <- Cardinal::PCA(x = global$cleanedMSIData,
                               ncomp = input$nComp,
                               center = as.logical(as.numeric(input$centerPCA)),
@@ -592,13 +592,13 @@ mod_segmentation_server <- function(id, global){
                         )
         })
 
-      #(2.3) Show PCA loading spectrum info ------------------------------------
+      #(3.3) Show PCA loading spectrum info ------------------------------------
       output$infoLoadings <- shiny::renderPrint({
         cat("Below are the loading plots:\n")
         cat("The loadings of the components show how each mass feature contributes to each component.")
       })
 
-      #(2.4) Show PCA loading spectrum -----------------------------------------
+      #(3.4) Show PCA loading spectrum -----------------------------------------
       output$pcaLoadingsSpec <- plotly::renderPlotly({
         shiny::req(
           !is.null(global$cleanedMSIData),
@@ -608,9 +608,12 @@ mod_segmentation_server <- function(id, global){
         })
       })
 
-    #(3) SSCC ==================================================================
+    #(4) SSCC ==================================================================
     observeEvent(input$viewSSCC,{
       shiny::req(global$processedMSIData)
+      if(is.null(global$cleanedMSIData)){
+        global$cleanedMSIData <- global$processedMSIData
+      }
       w3 <- waiter::Waiter$new(id = ns("ssccImages"),
                                html = strong(""),
                                image = 'www/img/cardinal.gif',
@@ -618,7 +621,7 @@ mod_segmentation_server <- function(id, global){
                                )
       w3$show()
 
-      #(3.1) Format input parameters -------------------------------------------
+      #(4.1) Format input parameters -------------------------------------------
       r <- unique(text2Num(input$r))
       s <- unique(text2Num(input$s))
       k <- unique(text2Num(input$k))
@@ -634,7 +637,7 @@ mod_segmentation_server <- function(id, global){
 
       #(3.2) Show SSCC images --------------------------------------------------
       set.seed(2023)
-      getSSCC <- Cardinal::spatialShrunkenCentroids(x = global$processedMSIData,
+      getSSCC <- Cardinal::spatialShrunkenCentroids(x = global$cleanedMSIData,
                                                     r = r,
                                                     s = s,
                                                     k = k,
@@ -668,7 +671,7 @@ mod_segmentation_server <- function(id, global){
         cat("Below are the SSCC t-statistic Spectrum plot:\n")
         cat("Mass features with t-statistics of zero do not contribute to the segmentation.\n")
         cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.")
-      })
+        })
 
       ##(3.4) Plot SSCC t-statistic Spec ---------------------------------------
       output$ssccStatisticSpec <- plotly::renderPlotly({
@@ -678,10 +681,12 @@ mod_segmentation_server <- function(id, global){
                      s = input$outputS,
                      k = input$outputK
                      )
+        })
+
+
+
       })
 
-
-    })
 
 
 

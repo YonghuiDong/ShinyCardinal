@@ -407,12 +407,17 @@ mod_uploadData_server <- function(id, global){
       bindEvent(input$processMSIData)
 
     output$downloadProcessedData <- downloadHandler(
-      filename = paste("processedMSIData.rds", sep = ""),
-      content = function(file) {
+      filename = function(){
+        if(is.null(global$processedMSIData)){
+          paste("No_Data_Found.rds", sep = "")
+          } else {
+          paste("processedMSIData.rds", sep = "")
+          }
+        },
+      content = function(file){
         saveRDS(global$processedMSIData, file)
         }
       )
-
 })}
 
 ## To be copied in the UI

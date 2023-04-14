@@ -291,15 +291,12 @@ mod_uploadData_ui <- function(id){
                shiny::uiOutput(outputId = ns("downloadButton")),
                br(),
                br(),
-               shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
-               shiny::plotOutput(outputId = ns("TICImage"),
-                                 click = ns("plot_click"),
-                                 hover = ns("plot_hover")
-                                 ),
-               shiny::verbatimTextOutput(outputId = ns("pixelInfo"))
+               shinycssloaders::withSpinner(
+                 shiny::verbatimTextOutput(outputId = ns("processedMSIInfo"))
+                 )
                )
              )
-      ))}
+))}
 
 
 #' uploadData Server Functions
@@ -382,72 +379,43 @@ mod_uploadData_server <- function(id, global){
       })
 
     #(5) Process MSI Data ======================================================
-    observeEvent(input$processMSIData,{
-      w5 <- waiter::Waiter$new(id = ns("TICImage"),
-                               html = strong("Please wait, running..."),
-                               image = 'www/img/cardinal.gif',
-                               fadeout = TRUE
-                               )
-      w5$show()
-      #(5.1) process MSI data --------------------------------------------------
-      shiny::req(global$msiData)
-      shiny::req(global$refPeaks)
+    #(5.1) Process and display MSI data --------------------------------------
+    output$processedMSIInfo <- shiny::renderPrint({
+      shiny::validate(
+        need(global$msiData, message = "MSI data not found."),
+        need(global$refPeaks, message = "Reference spec not found.")
+        )
       global$processedMSIData <- processMSIData(msiData = global$msiData,
                                                 method = input$norMethod,
                                                 ref = global$refPeaks,
                                                 tolerance = input$pbTolerance,
                                                 workers = input$getProcessMSIWorkers
                                                 )
-      tic <- Cardinal::pixelApply(global$processedMSIData, sum)
-      #(5.2) Show processed MSI data information -------------------------------
+      cat("Below is the processed MSI information:\n")
+      cat("\n")
+      global$processedMSIData
+      }) |>
+      bindEvent(input$processMSIData)
 
+      #(5.2) Download processed MSI data ---------------------------------------
       ## download processed data
-      output$downloadButton <- renderUI({
-        downloadButton(
-          outputId = ns("downloadProcessedData"),
-          label = "Download Processed MSI Data",
-          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
-      output$downloadProcessedData <- downloadHandler(
-        filename = function() {
-          paste("processedMSIData.rds", sep = "")
-          },
-        content = function(file) {
-          saveRDS(global$processedMSIData, file)
+    output$downloadButton <- renderUI({
+      downloadButton(
+        outputId = ns("downloadProcessedData"),
+        label = "Download Processed MSI Data",
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+        )
+      }) |>
+      bindEvent(input$processMSIData)
+
+    output$downloadProcessedData <- downloadHandler(
+      filename = paste("processedMSIData.rds", sep = ""),
+      content = function(file) {
+        saveRDS(global$processedMSIData, file)
         }
       )
 
-      output$processedMSIInfo <- shiny::renderPrint({
-        on.exit({w5$hide()})
-        cat("Below is the processed MSI information:\n")
-        cat("\n")
-        print(global$processedMSIData)
-        cat("\n")
-        cat("Below is the TIC image of the processed MSI data:\n")
-      })
-      output$TICImage <- shiny::renderPlot({
-        Cardinal::darkmode()
-        Cardinal::image(global$processedMSIData,
-                        tic ~ x * y,
-                        contrast.enhance="suppression",
-                        normalize.image = "linear"
-                        )
-      })
-      output$pixelInfo <- shiny::renderText({
-        xy_str <- function(e) {
-          if(is.null(e)) return("NULL\n")
-          paste0("x = ", round(e$x, 0), " y = ", round(e$y, 0), "\n")
-        }
-        paste0(
-          paste0("Pixel information:", "\n"),
-          "click: ", xy_str(input$plot_click),
-          "hover: ", xy_str(input$plot_hover)
-          )
-        })
-      })
-
-    })}
+})}
 
 ## To be copied in the UI
 # mod_uploadData_ui("uploadData_1")

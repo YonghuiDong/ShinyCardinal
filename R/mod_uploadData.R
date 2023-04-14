@@ -88,7 +88,10 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               shinycssloaders::withSpinner(shiny::verbatimTextOutput(outputId = ns("dataInfo")))
+               shinycssloaders::withSpinner(
+                 shiny::verbatimTextOutput(outputId = ns("dataInfo")),
+                 type = 8
+                 )
                )
              ),
 
@@ -286,12 +289,13 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
-               shiny::uiOutput(outputId = ns("downloadButton")),
-               br(),
-               br(),
                shinycssloaders::withSpinner(
-                 shiny::verbatimTextOutput(outputId = ns("processedMSIInfo"))
-                 )
+                 shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
+                 type = 8
+                 ),
+               br(),
+               br(),
+               shiny::uiOutput(outputId = ns("downloadButton"))
                )
              )
 ))}
@@ -400,7 +404,7 @@ mod_uploadData_server <- function(id, global){
     output$downloadButton <- renderUI({
       downloadButton(
         outputId = ns("downloadProcessedData"),
-        label = "Download Processed MSI Data",
+        label = "Download rds Data",
         style="color: #fff; background-color: #a077b5; border-color: #a077b5"
         )
       }) |>

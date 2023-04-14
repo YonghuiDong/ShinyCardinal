@@ -9,5 +9,5 @@ processMSIData <- function(msiData, method = "tic", ref, tolerance = 15, workers
   msiData |>
     Cardinal::normalize(method = method) |>
     Cardinal::peakBin(ref = Cardinal::mz(ref), tolerance = tolerance, units = "ppm") |>
-    Cardinal::process(BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = T))
+    Cardinal::process(BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = FALSE))
 }

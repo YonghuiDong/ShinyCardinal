@@ -89,7 +89,6 @@ mod_uploadData_ui <- function(id){
                collapsed = FALSE,
                closable = FALSE,
                shinycssloaders::withSpinner(
-                 image = 'www/img/cardinal.gif',
                  verbatimTextOutput(outputId = ns("dataInfo"))
                  )
                )
@@ -223,8 +222,11 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               shiny::verbatimTextOutput(outputId = ns("refPeakInfo")),
-               plotly::plotlyOutput(outputId = ns("refPeakPlot"))
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 plotly::plotlyOutput(outputId = ns("refPeakPlot"))
+                 ),
+               shiny::verbatimTextOutput(outputId = ns("refPeakInfo"))
                )
              ),
 
@@ -344,7 +346,7 @@ mod_uploadData_server <- function(id, global){
     #(3) Get Mean Spectrum =====================================================
     output$meanSpecPlot <- plotly::renderPlotly({
       #(3.1) validate input --------------------------------------------------
-      shiny::validate(need(global$msiData, message = "MSI data not found"))
+      shiny::validate(need(global$msiData, message = "MSI data not found."))
 
       #(3.2) Calculate mean spectrum -----------------------------------------
       global$meanSpec <- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
@@ -357,15 +359,9 @@ mod_uploadData_server <- function(id, global){
 
 
     #(4) Get Reference Peaks ===================================================
-    observeEvent(input$getRefPeaks,{
-      w4 <- waiter::Waiter$new(id = ns("refPeakPlot"),
-                               html = strong("Please wait, running..."),
-                               image = 'www/img/cardinal.gif',
-                               fadeout = TRUE
-                               )
-      w4$show()
-      #(4.1) Calculate reference peaks -----------------------------------------
-      shiny::req(global$meanSpec)
+    #(4.1) Calculate and display reference spec --------------------------------
+    output$refPeakPlot <- plotly::renderPlotly({
+      shiny::validate(need(global$meanSpec, message = "Mean spec not found."))
       global$refPeaks <- getRefPeaks(meanSpec = global$meanSpec,
                                      method = input$ppMethod,
                                      SNR = input$ppSNR,
@@ -373,17 +369,17 @@ mod_uploadData_server <- function(id, global){
                                      freq.min = input$pfFreqmin,
                                      workers = input$getRefWorkers
                                      )
-      #(4.2) Plot reference spec -----------------------------------------------
-      output$refPeakInfo <- shiny::renderPrint({
-        on.exit({w4$hide()})
-        cat("Below is the reference peak information:\n")
-        cat("\n")
-        print(global$refPeaks)
+      plotMeanSpec(global$refPeaks, nth = 1)
+    })|>
+      bindEvent(input$getRefPeaks)
+
+    #(4.2) Show reference peak info --------------------------------------------
+    output$refPeakInfo <- shiny::renderPrint({
+      shiny::req(global$refPeaks)
+      cat("Below is the reference peak information:\n")
+      cat("\n")
+      global$refPeaks
       })
-      output$refPeakPlot <- plotly::renderPlotly({
-        plotMeanSpec(global$refPeaks, nth = 1)
-      })
-    })
 
     #(5) Process MSI Data ======================================================
     observeEvent(input$processMSIData,{

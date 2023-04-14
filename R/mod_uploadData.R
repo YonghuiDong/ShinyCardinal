@@ -89,8 +89,8 @@ mod_uploadData_ui <- function(id){
                collapsed = FALSE,
                closable = FALSE,
                shinycssloaders::withSpinner(
-                 shiny::verbatimTextOutput(outputId = ns("dataInfo")),
-                 type = 8
+                 image = 'www/img/cardinal.gif',
+                 shiny::verbatimTextOutput(outputId = ns("dataInfo"))
                  )
                )
              ),
@@ -290,8 +290,8 @@ mod_uploadData_ui <- function(id){
                collapsed = TRUE,
                closable = FALSE,
                shinycssloaders::withSpinner(
-                 shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
-                 type = 8
+                 image = 'www/img/cardinal.gif',
+                 shiny::verbatimTextOutput(outputId = ns("processedMSIInfo"))
                  ),
                br(),
                br(),

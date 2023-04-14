@@ -12,7 +12,6 @@ mod_uploadData_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
-      waiter::use_waiter(),
       #(1) User guide ==========================================================
       column(width = 12,
              box(
@@ -26,7 +25,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(2) Data Input ========================================================
+      #(2) Data Input ==========================================================
       column(width = 5,
              box(
                width = 12,
@@ -59,7 +58,7 @@ mod_uploadData_ui <- function(id){
                sliderInput(inputId = ns("massRange"),
                            label = "If Yes, please set mass range (Da)",
                            min = 0,
-                           max = 3000,
+                           max = 5000,
                            value = c(50, 1500)
                            ),
                strong("4. (optional) Choose number of workers for parallel computation"),
@@ -89,7 +88,10 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               verbatimTextOutput(outputId = ns("dataInfo"))
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 verbatimTextOutput(outputId = ns("dataInfo"))
+                 )
                )
              ),
 
@@ -139,7 +141,10 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               plotly::plotlyOutput(outputId = ns("meanSpecPlot"))
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 plotly::plotlyOutput(outputId = ns("meanSpecPlot"))
+                 )
                )
              ),
 
@@ -337,25 +342,19 @@ mod_uploadData_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(3) Get Mean Spectrum =====================================================
-    observeEvent(input$getMeanSpec,{
-      w3 <- waiter::Waiter$new(id = ns("meanSpecPlot"),
-                               html = strong("Please wait, running..."),
-                               image = 'www/img/cardinal.gif',
-                               fadeout = TRUE
-                               )
-      w3$show()
-      #(3.1) Calculate mean spec -----------------------------------------------
-      shiny::req(global$msiData)
+    output$meanSpecPlot <- plotly::renderPlotly({
+      #(3.1) validate input --------------------------------------------------
+      shiny::validate(need(global$msiData, message = "MSI data not found"))
+
+      #(3.2) Calculate mean spectrum -----------------------------------------
       global$meanSpec <- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
         getMeanSpec(msiData = _,
                     worker = input$meanSpecWorkers
                     )
-      #(3.1) Plot mean spec ----------------------------------------------------
-      output$meanSpecPlot <- plotly::renderPlotly({
-        on.exit({w3$hide()})
-        plotMeanSpec(global$meanSpec, shiny::isolate(input$nth))
-      })
-    })
+      plotMeanSpec(meanSpec = global$meanSpec, nth = input$nth)
+      }) |>
+      bindEvent(input$getMeanSpec)
+
 
     #(4) Get Reference Peaks ===================================================
     observeEvent(input$getRefPeaks,{
@@ -449,16 +448,10 @@ mod_uploadData_server <- function(id, global){
           "click: ", xy_str(input$plot_click),
           "hover: ", xy_str(input$plot_hover)
           )
+        })
       })
 
-    })
-
-
-
-
-
-  })
-}
+    })}
 
 ## To be copied in the UI
 # mod_uploadData_ui("uploadData_1")

@@ -88,9 +88,7 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               shinycssloaders::withSpinner(
-                 verbatimTextOutput(outputId = ns("dataInfo"))
-                 )
+               shinycssloaders::withSpinner(shiny::verbatimTextOutput(outputId = ns("dataInfo")))
                )
              ),
 
@@ -104,7 +102,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                sliderInput(inputId = ns("nth"),
                            label = "1. (Optional) Subset MSI data by select every nth pixel",
@@ -138,7 +136,7 @@ mod_uploadData_ui <- function(id){
                status = "success",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
@@ -157,7 +155,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                strong(code("Step 1. Peak Picking ")),
                br(),
@@ -220,7 +218,7 @@ mod_uploadData_ui <- function(id){
                status = "success",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
@@ -240,7 +238,7 @@ mod_uploadData_ui <- function(id){
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                strong(code("Step 1. Normalize ")),
                br(),
@@ -286,7 +284,7 @@ mod_uploadData_ui <- function(id){
                status = "success",
                solidHeader = FALSE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                shiny::uiOutput(outputId = ns("downloadButton")),
                br(),

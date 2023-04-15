@@ -412,9 +412,9 @@ mod_uploadData_server <- function(id, global){
     output$downloadProcessedData <- downloadHandler(
       filename = function(){
         if(is.null(global$processedMSIData)){
-          paste("No_Data_Found.rds", sep = "")
+          paste0("No_Data_Found.rds")
           } else {
-          paste("processedMSIData.rds", sep = "")
+          paste0("processedMSIData", Sys.time(), ".rds")
           }
         },
       content = function(file){

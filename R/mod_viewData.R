@@ -183,20 +183,19 @@ mod_viewData_ui <- function(id){
 mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+
     #(1) Load MSI rds Data =====================================================
     output$infoMSIData <- shiny::renderPrint({
       shiny::validate(need(!is.null(input$rdsMSI), message = "rds file not found"))
       global$processedMSIData <- readRDS(input$rdsMSI$datapath)
       if(is.null(global$processedMSIData)){
         cat("MSI data not loaded, please check if your rds file is empty.\n")
-      } else {
+        } else {
         cat("MSI data loaded successfully!\n")
         global$processedMSIData
-      }
-    }) |>
+        }
+      }) |>
       bindEvent(input$loadData)
-
-
 
     #(2) Visualize MS images ===================================================
     observeEvent(input$viewImage,{

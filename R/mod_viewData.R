@@ -11,7 +11,6 @@ mod_viewData_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
-      waiter::use_waiter(),
       #(0) User guide ==========================================================
       column(width = 12,
              box(
@@ -61,11 +60,14 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
+                 )
                )
              ),
 
-      #(3) Image View ==========================================================
+      #(2) Image View ==========================================================
       column(width = 12),
       column(width = 4,
              box(
@@ -79,7 +81,7 @@ mod_viewData_ui <- function(id){
                closable = FALSE,
                textInput(inputId = ns("mzValues"),
                          label = "1. Enter m/z values to visualize",
-                         placeholder = "For multiple m/z values, separate them by a comma..."
+                         placeholder = "For multiple m/z values, separate them by a comma."
                          ),
                numericInput(inputId = ns("massWindow"),
                            label = "2. Set mass tolerance window (Da)",
@@ -89,19 +91,19 @@ mod_viewData_ui <- function(id){
                            step = 0.001
                            ),
                selectInput(inputId = ns("normalizeImage"),
-                           label = "3. Apply normalization to the image",
+                           label = "3. Select normalization method to the image.",
                            multiple = FALSE,
                            choices = list("none" = "none", "linear" = "linear"),
                            selected = "linear"
                            ),
                selectInput(inputId = ns("contrastImage"),
-                           label = "4. Apply contrast enhancement to the image",
+                           label = "4. Select contrast enhancement method to the image.",
                            multiple = FALSE,
                            choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
                            selected = "suppression"
                            ),
                selectInput(inputId = ns("smoothImage"),
-                           label = "5. Apply smoothing to the image",
+                           label = "5. Select smoothing method to the image.",
                            multiple = FALSE,
                            choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
                            selected = "none"
@@ -181,19 +183,20 @@ mod_viewData_ui <- function(id){
 mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
-
     #(1) Load MSI rds Data =====================================================
-    observeEvent(input$loadData, {
-      if(!is.null(input$rdsMSI)){
-        global$processedMSIData <- readRDS(input$rdsMSI$datapath)
-        }
-      #(1.1) Show MSI data info ------------------------------------------------
-      output$infoMSIData <- shiny::renderPrint({
-        shiny::validate(need(!is.null(global$processedMSIData), message = "MSI data not found"))
+    output$infoMSIData <- shiny::renderPrint({
+      shiny::validate(need(!is.null(input$rdsMSI), message = "rds file not found"))
+      global$processedMSIData <- readRDS(input$rdsMSI$datapath)
+      if(is.null(global$processedMSIData)){
+        cat("MSI data not loaded, please check if your rds file is empty.\n")
+      } else {
         cat("MSI data loaded successfully!\n")
         global$processedMSIData
-        })
-      })
+      }
+    }) |>
+      bindEvent(input$loadData)
+
+
 
     #(2) Visualize MS images ===================================================
     observeEvent(input$viewImage,{
@@ -294,11 +297,7 @@ mod_viewData_server <- function(id, global){
 
       })
 
-
-
-
-  })
-}
+  })}
 
 ## To be copied in the UI
 # mod_viewData_ui("viewData_1")

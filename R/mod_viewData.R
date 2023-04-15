@@ -159,6 +159,11 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
+               downloadButton(outputId = ns("saveImage"),
+                              label = "Download Image",
+                              icon = icon("download"),
+                              style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                              ),
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("mzInfo"))
@@ -217,22 +222,18 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$viewImage)
 
+    #(2.2) Plot MSI images -----------------------------------------------------
     ## observeEvent() is used here because it is easier to show several different outputs
     observeEvent(input$viewImage, {
-      #(2.2) Plot MSI images ---------------------------------------------------
-      output$msiImages <- renderPlot({
-        shiny::req(global$processedMSIData)
-        shiny::req(isolate(input$mzValues) != "")
-        shiny::req(isolate(input$massWindow) > 0)
-        mzList <- unique(text2Num(isolate(input$mzValues)))
-        mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
-        mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
-        shiny::req(min(mzList) >= mzMin & max(mzList) <= mzMax)
-        if(input$modeImage == "light"){
-          Cardinal::lightmode()
-          } else {
-            Cardinal::darkmode()
-          }
+      #(2.3) Check input and plot MSI images -----------------------------------
+      shiny::req(global$processedMSIData)
+      shiny::req(isolate(input$mzValues) != "")
+      shiny::req(isolate(input$massWindow) > 0)
+      mzList <- unique(text2Num(isolate(input$mzValues)))
+      mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
+      mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
+      shiny::req(min(mzList) >= mzMin & max(mzList) <= mzMax)
+      msiImage <- reactive({
         plotImage(msiData = global$processedMSIData,
                   mz = mzList,
                   smooth.image = input$smoothImage,
@@ -244,7 +245,29 @@ mod_viewData_server <- function(id, global){
                   )
         })
 
-      #(2.3) Display selected  spectrum ----------------------------------------
+      #(2.4) Show MSI images ---------------------------------------------------
+      output$msiImages <- renderPlot({
+        if(input$modeImage == "light"){
+          Cardinal::lightmode()
+          } else {
+            Cardinal::darkmode()
+          }
+        msiImage()
+        })
+
+      #(2.5) Download MSI images -----------------------------------------------
+      output$saveImage <- downloadHandler(
+        filename = function(){
+          paste0("ionImage.", Sys.time(), ".pdf")
+          },
+        content = function(file){
+            pdf(file)
+            print(msiImage())
+            dev.off()
+          }
+        )
+
+      #(2.6) Display selected  spectrum ----------------------------------------
       output$resetButton <- renderUI({
         actionButton(
           inputId = ns("reset"),

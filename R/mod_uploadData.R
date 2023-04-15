@@ -400,7 +400,6 @@ mod_uploadData_server <- function(id, global){
       bindEvent(input$processMSIData)
 
       #(5.2) Download processed MSI data ---------------------------------------
-      ## download processed data
     output$downloadButton <- renderUI({
       downloadButton(
         outputId = ns("downloadProcessedData"),

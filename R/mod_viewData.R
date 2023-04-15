@@ -159,7 +159,10 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               shiny::verbatimTextOutput(outputId = ns("processedMSIInfo")),
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 shiny::verbatimTextOutput(outputId = ns("mzInfo"))
+                 ),
                shiny::plotOutput(outputId = ns("msiImages"),
                                  click = ns("plot_click"),
                                  hover = ns("plot_hover")
@@ -198,41 +201,38 @@ mod_viewData_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(2) Visualize MS images ===================================================
-    observeEvent(input$viewImage,{
-      shiny::req(global$processedMSIData)
-      w <- waiter::Waiter$new(id = ns("msiImages"),
-                              image = 'www/img/cardinal.gif',
-                              fadeout = TRUE
-                              )
-      w$show()
-
-      #(2.1) Format m/z values -------------------------------------------------
-      mzList <- unique(text2Num(isolate(input$mzValues)))
+    #(2.1) Show Input m/z Info  ------------------------------------------------
+    ## bindEvent() is used here to show users the feedback messages
+    output$mzInfo <- renderPrint({
+      shiny::validate(
+        need(global$processedMSIData, message = "MSI data not found."),
+        need(input$mzValues != "", message = "m/z value is missing."),
+        need(input$massWindow > 0, message = "mass tolerance should be positive value.")
+        )
+      mzList <- unique(text2Num(input$mzValues))
       mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
       mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
+      shiny::validate(need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = paste("m/z value shoud between", mzMin, "and", mzMax, sep = " ")))
+      cat(mzList)
+    }) |>
+      bindEvent(input$viewImage)
 
-      #(2.2) Plot Info and Images ----------------------------------------------
-      output$processedMSIInfo <- renderPrint({
-        shiny::validate(
-          need(mzList != "", message = "m/z value is missing"),
-          need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = paste("m/z value shoud between", mzMin, "and", mzMax, sep = " ")),
-          need(isolate(input$massWindow) > 0, message = "mass tolerance should be positive value")
-          )
-        cat(mzList)
-      })
-
+    ## observeEvent() is used here because it is easier to show several different outputs
+    observeEvent(input$viewImage, {
+      #(2.2) Plot MSI images ---------------------------------------------------
       output$msiImages <- renderPlot({
-        shiny::validate(
-          need(mzList != "", message = ""),
-          need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = ""),
-          need(isolate(input$massWindow) > 0, message = "")
-          )
-        on.exit({w$hide()})
+        shiny::req(global$processedMSIData)
+        shiny::req(isolate(input$mzValues) != "")
+        shiny::req(isolate(input$massWindow) > 0)
+        mzList <- unique(text2Num(isolate(input$mzValues)))
+        mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
+        mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
+        shiny::req(min(mzList) >= mzMin & max(mzList) <= mzMax)
         if(input$modeImage == "light"){
           Cardinal::lightmode()
-        } else {
-          Cardinal::darkmode()
-        }
+          } else {
+            Cardinal::darkmode()
+          }
         plotImage(msiData = global$processedMSIData,
                   mz = mzList,
                   smooth.image = input$smoothImage,
@@ -244,11 +244,7 @@ mod_viewData_server <- function(id, global){
                   )
         })
 
-      output$message <- renderPrint({
-        cat("You can click over the image to select the pixels of interest.")
-      })
-
-      #(2.3) Display selected spectrum -----------------------------------------
+      #(2.3) Display selected  spectrum ----------------------------------------
       output$resetButton <- renderUI({
         actionButton(
           inputId = ns("reset"),
@@ -265,8 +261,7 @@ mod_viewData_server <- function(id, global){
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
           )
         })
-
-      ## click event
+      ## initiate click event
       rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
       observeEvent(input$plot_click, {
         rv_click$df <-
@@ -291,12 +286,12 @@ mod_viewData_server <- function(id, global){
         })
       output$selectedSpec <- plotly::renderPlotly({
         shiny::validate(need(nrow(rv_click$df) > 0, message = "No pixels selected."))
+        shiny::req(global$processedMSIData)
         plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$df)
         })
+    })
 
-      })
-
-  })}
+})}
 
 ## To be copied in the UI
 # mod_viewData_ui("viewData_1")

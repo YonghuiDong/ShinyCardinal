@@ -357,61 +357,36 @@ mod_viewData_server <- function(id, global){
     })
 
     #(3) Image Analysis --------------------------------------------------------
-    # locROI <- reactiveValues(x = NULL, y = NULL)
-    # draw <- reactiveVal(FALSE)
-    # observeEvent(input$click, handlerExpr = {
-    #   temp <- draw(); draw(!temp)
-    #   if(!draw()) {
-    #     locROI$x <- c(locROI$x, NA)
-    #     locROI$y <- c(locROI$y, NA)
-    #     }
-    #   })
-    # observeEvent(input$reset, handlerExpr = {
-    #   locROI$x <- NULL
-    #   locROI$y <- NULL
-    #   })
-    # observeEvent(input$hover, {
-    #   if(draw()) {
-    #     locROI$x <- c(locROI$x, locROI$hover$x)
-    #     locROI$y <- c(locROI$y, locROI$hover$y)
-    #     }
-    #   })
-    vals = reactiveValues(x=NULL, y=NULL)
-    draw = reactiveVal(FALSE)
-    observeEvent(input$click, handlerExpr = {
-      temp <- draw(); draw(!temp)
+    inxROI <- reactiveValues(x = double(), y = double())
+    draw <- reactiveVal(FALSE)
+    observeEvent(input$click, {
+      temp <- draw()
+      draw(!temp)
       if(!draw()) {
-        vals$x <- c(vals$x, NA)
-        vals$y <- c(vals$y, NA)
+        inxROI$x <- c(inxROI$x, NA)
+        inxROI$y <- c(inxROI$y, NA)
       }})
-    observeEvent(input$reset, handlerExpr = {
-      vals$x <- NULL; vals$y <- NULL
-    })
+    observeEvent(input$resetROI, {
+      inxROI$x <- double()
+      inxROI$y <- double()
+      })
 
     observeEvent(input$hover, {
       if (draw()) {
-        vals$x <- c(vals$x, input$hover$x)
-        vals$y <- c(vals$y, input$hover$y)
-      }})
+        inxROI$x <- c(inxROI$x, input$hover$x)
+        inxROI$y <- c(inxROI$y, input$hover$y)
+        }
+      })
 
     output$ionImageROI <- renderPlot({
-      # shiny::req(global$processedMSIData)
-      # shiny::req(msiInfo$ionImage)
-      # print(msiInfo$ionImage)
-      # par(new = TRUE)
-      # plot(x = locROI$x, y = locROI$y,
-      #      xlim = c(min(Cardinal::coord(global$processedMSIData)$x), max(Cardinal::coord(global$processedMSIData)$x)),
-      #      ylim = c(min(Cardinal::coord(global$processedMSIData)$y), max(Cardinal::coord(global$processedMSIData)$y)),
-      #      ylab = "y",
-      #      xlab = "x",
-      #      type = "l",
-      #      lwd = 4
-      #      )
+      shiny::req(global$processedMSIData)
+      shiny::req(msiInfo$ionImage)
       print(msiInfo$ionImage)
       par(new = TRUE)
-      plot(x = vals$x, y = vals$y,
+      plot(x = inxROI$x,
+           y = inxROI$y,
            xlim = range(Cardinal::coord(global$processedMSIData)$x),
-           ylim = rev(range(Cardinal::coord(global$processedMSIData)$y)),
+           ylim = range(Cardinal::coord(global$processedMSIData)$y),
            ylab = "y",
            xlab = "x",
            type = "l",
@@ -423,9 +398,10 @@ mod_viewData_server <- function(id, global){
       })
 
     output$info22 <- renderPrint({
-      req(vals$x)
-      req(vals$y)
-      data.frame(x = floor(vals$x), y = floor(vals$y)) |>
+      cat(range(Cardinal::coord(global$processedMSIData)$x))
+      req(inxROI$x)
+      req(inxROI$y)
+      data.frame(x = ceiling(inxROI$x), y = ceiling(inxROI$y)) |>
         (\(x) x[!duplicated(x), ])() |>
         na.omit(object = _)
     })

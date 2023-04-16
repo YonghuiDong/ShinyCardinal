@@ -386,22 +386,23 @@ mod_viewData_server <- function(id, global){
       plot(x = inxROI$x,
            y = inxROI$y,
            xlim = range(Cardinal::coord(global$processedMSIData)$x),
-           ylim = range(Cardinal::coord(global$processedMSIData)$y),
+           ylim = rev(range(Cardinal::coord(global$processedMSIData)$y)),
            ylab = "y",
            xlab = "x",
            type = "l",
            lwd = 4,
            xaxt = 'n',
            yaxt = 'n',
-           ann = FALSE
+           ann = FALSE,
+           asp = 1
            )
       })
 
     output$info22 <- renderPrint({
-      cat(range(Cardinal::coord(global$processedMSIData)$x))
+      cat("\n")
       req(inxROI$x)
       req(inxROI$y)
-      data.frame(x = ceiling(inxROI$x), y = ceiling(inxROI$y)) |>
+      data.frame(x = round(inxROI$x, 0), y = round(inxROI$y, 0)) |>
         (\(x) x[!duplicated(x), ])() |>
         na.omit(object = _)
     })

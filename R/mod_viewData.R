@@ -382,20 +382,11 @@ mod_viewData_server <- function(id, global){
       shiny::req(global$processedMSIData)
       shiny::req(msiInfo$ionImage)
       print(msiInfo$ionImage)
-      par(new = TRUE)
-      plot(x = inxROI$x,
-           y = inxROI$y,
-           xlim = range(Cardinal::coord(global$processedMSIData)$x),
-           ylim = rev(range(Cardinal::coord(global$processedMSIData)$y)),
-           ylab = "y",
-           xlab = "x",
-           type = "l",
-           lwd = 4,
-           xaxt = 'n',
-           yaxt = 'n',
-           ann = FALSE,
-           asp = 1
-           )
+      points(x = inxROI$x,
+             y = inxROI$y,
+             type = "o",
+             lwd = 4
+             )
       })
 
     output$info22 <- renderPrint({

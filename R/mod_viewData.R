@@ -168,7 +168,7 @@ mod_viewData_ui <- function(id){
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("mzList"))
                  ),
-               shiny::plotOutput(outputId = ns("msiImages"),
+               shiny::plotOutput(outputId = ns("ionImage"),
                                  click = ns("plot_click"),
                                  hover = ns("plot_hover")
                                  ),
@@ -188,43 +188,43 @@ mod_viewData_ui <- function(id){
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("Image Analysis Result"),
+               title = strong("Image Analysis"),
                status = "primary",
                solidHeader = FALSE,
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
-               h4("Click on plot to start drawing, click it again to finsh"),
-               br(),
-               br(),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. In this module, you can draw a line or select
+                 a region of interest (ROI) to display ion intensities of the selected ions."),
+               p(style = "color:#C70039;", "2. Click on the Ion image to start selecting ROI, and click it again to finsh."),
+               p(style = "color:#C70039;", "3. Click on Reset button to reset ROI selection."),
                actionButton(inputId  = ns("resetROI"),
-                            label = "Reset ROI Selection",
+                            label = "Reset ROI",
                             icon = icon("circle"),
-                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                            style="color: #fff; background-color: #a077b5; border-color: #a077b5"
                             ),
-               shiny::plotOutput(outputId = ns("msiImages2"),
+               shiny::plotOutput(outputId = ns("ionImageROI"),
                                  hover = hoverOpts(id = ns("hover"),
                                                    delay = 1000,
                                                    delayType = "throttle",
                                                    clip = TRUE,
                                                    nullOutside = TRUE),
-                                 click = "click"
+                                 click = ns("click")
                                  ),
-               h4("Click on plot to start drawing, click it again to finsh"),
-               br(),
-               br(),
+               shiny::verbatimTextOutput(outputId = ns("info22")),
                column(width = 6,
                       actionButton(inputId = ns("profileROI"),
                                    label = "Plot",
                                    icon = icon("paper-plane"),
-                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   style="color: #fff; background-color: #a077b5; border-color: #a077b5"
                                    )
                       ),
                column(width = 6,
                       actionButton(inputId = ns("sumROI"),
                                   label = "Sum",
                                   icon = icon("paper-plane"),
-                                  style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                  style="color: #fff; background-color: #a077b5; border-color: #a077b5"
                                   )
                       )
                )
@@ -283,7 +283,7 @@ mod_viewData_server <- function(id, global){
       bindEvent(input$viewImage)
 
     #(2.2) Show MSI images -----------------------------------------------------
-    output$msiImages <- renderPlot({
+    output$ionImage <- renderPlot({
       shiny::req(msiInfo$ionImage)
       if(input$modeImage == "light"){
         Cardinal::lightmode()
@@ -357,10 +357,78 @@ mod_viewData_server <- function(id, global){
     })
 
     #(3) Image Analysis --------------------------------------------------------
-    output$msiImages2 <- renderPlot({
-      shiny::req(msiInfo$ionImage)
-      msiInfo$ionImage
+    # locROI <- reactiveValues(x = NULL, y = NULL)
+    # draw <- reactiveVal(FALSE)
+    # observeEvent(input$click, handlerExpr = {
+    #   temp <- draw(); draw(!temp)
+    #   if(!draw()) {
+    #     locROI$x <- c(locROI$x, NA)
+    #     locROI$y <- c(locROI$y, NA)
+    #     }
+    #   })
+    # observeEvent(input$reset, handlerExpr = {
+    #   locROI$x <- NULL
+    #   locROI$y <- NULL
+    #   })
+    # observeEvent(input$hover, {
+    #   if(draw()) {
+    #     locROI$x <- c(locROI$x, locROI$hover$x)
+    #     locROI$y <- c(locROI$y, locROI$hover$y)
+    #     }
+    #   })
+    vals = reactiveValues(x=NULL, y=NULL)
+    draw = reactiveVal(FALSE)
+    observeEvent(input$click, handlerExpr = {
+      temp <- draw(); draw(!temp)
+      if(!draw()) {
+        vals$x <- c(vals$x, NA)
+        vals$y <- c(vals$y, NA)
+      }})
+    observeEvent(input$reset, handlerExpr = {
+      vals$x <- NULL; vals$y <- NULL
+    })
+
+    observeEvent(input$hover, {
+      if (draw()) {
+        vals$x <- c(vals$x, input$hover$x)
+        vals$y <- c(vals$y, input$hover$y)
+      }})
+
+    output$ionImageROI <- renderPlot({
+      # shiny::req(global$processedMSIData)
+      # shiny::req(msiInfo$ionImage)
+      # print(msiInfo$ionImage)
+      # par(new = TRUE)
+      # plot(x = locROI$x, y = locROI$y,
+      #      xlim = c(min(Cardinal::coord(global$processedMSIData)$x), max(Cardinal::coord(global$processedMSIData)$x)),
+      #      ylim = c(min(Cardinal::coord(global$processedMSIData)$y), max(Cardinal::coord(global$processedMSIData)$y)),
+      #      ylab = "y",
+      #      xlab = "x",
+      #      type = "l",
+      #      lwd = 4
+      #      )
+      print(msiInfo$ionImage)
+      par(new = TRUE)
+      plot(x = vals$x, y = vals$y,
+           xlim = range(Cardinal::coord(global$processedMSIData)$x),
+           ylim = rev(range(Cardinal::coord(global$processedMSIData)$y)),
+           ylab = "y",
+           xlab = "x",
+           type = "l",
+           lwd = 4,
+           xaxt = 'n',
+           yaxt = 'n',
+           ann = FALSE
+           )
       })
+
+    output$info22 <- renderPrint({
+      req(vals$x)
+      req(vals$y)
+      data.frame(x = floor(vals$x), y = floor(vals$y)) |>
+        (\(x) x[!duplicated(x), ])() |>
+        na.omit(object = _)
+    })
 
 })}
 

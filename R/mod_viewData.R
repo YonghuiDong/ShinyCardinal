@@ -166,7 +166,7 @@ mod_viewData_ui <- function(id){
                               ),
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
-                 shiny::verbatimTextOutput(outputId = ns("mzInfo"))
+                 shiny::verbatimTextOutput(outputId = ns("mzList"))
                  ),
                shiny::plotOutput(outputId = ns("msiImages"),
                                  click = ns("plot_click"),
@@ -182,7 +182,54 @@ mod_viewData_ui <- function(id){
                shiny::tableOutput(outputId = ns("pixelTable")),
                plotly::plotlyOutput(outputId = ns("selectedSpec"))
                )
+             ),
+      #(3) Image Analysis ======================================================
+      column(width = 12,
+             box(
+               width = 12,
+               inputId = "report_card",
+               title = strong("Image Analysis Result"),
+               status = "primary",
+               solidHeader = FALSE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
+               h4("Click on plot to start drawing, click it again to finsh"),
+               br(),
+               br(),
+               actionButton(inputId  = ns("resetROI"),
+                            label = "Reset ROI Selection",
+                            icon = icon("circle"),
+                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                            ),
+               shiny::plotOutput(outputId = ns("msiImages2"),
+                                 hover = hoverOpts(id = ns("hover"),
+                                                   delay = 1000,
+                                                   delayType = "throttle",
+                                                   clip = TRUE,
+                                                   nullOutside = TRUE),
+                                 click = "click"
+                                 ),
+               h4("Click on plot to start drawing, click it again to finsh"),
+               br(),
+               br(),
+               column(width = 6,
+                      actionButton(inputId = ns("profileROI"),
+                                   label = "Plot",
+                                   icon = icon("paper-plane"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+                      ),
+               column(width = 6,
+                      actionButton(inputId = ns("sumROI"),
+                                  label = "Sum",
+                                  icon = icon("paper-plane"),
+                                  style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                  )
+                      )
+               )
              )
+
       ))}
 
 #' viewData Server Functions
@@ -206,68 +253,63 @@ mod_viewData_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(2) Visualize MS images ===================================================
+    msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL, ionImage = NULL)
+
     #(2.1) Show Input m/z Info  ------------------------------------------------
     ## bindEvent() is used here to show users the feedback messages
-    output$mzInfo <- renderPrint({
+    output$mzList <- renderPrint({
       shiny::validate(
         need(global$processedMSIData, message = "MSI data not found."),
         need(input$mzValues != "", message = "m/z value is missing."),
         need(input$massWindow > 0, message = "mass tolerance should be positive value.")
         )
-      mzList <- unique(text2Num(input$mzValues))
-      mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
-      mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
-      shiny::validate(need(min(mzList) >= mzMin & max(mzList) <= mzMax, message = paste("m/z value shoud between", mzMin, "and", mzMax, sep = " ")))
-      cat(mzList)
+      msiInfo$mzList <- unique(text2Num(input$mzValues))
+      msiInfo$mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
+      msiInfo$mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
+      shiny::validate(need(min(msiInfo$mzList) >= msiInfo$mzMin & max(msiInfo$mzList) <= msiInfo$mzMax,
+                           message = paste("m/z value shoud between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " ")))
+      ## Get ion images
+      msiInfo$ionImage <- plotImage(msiData = global$processedMSIData,
+                                    mz = msiInfo$mzList,
+                                    smooth.image = input$smoothImage,
+                                    plusminus = input$massWindow,
+                                    colorscale = input$colorImage,
+                                    normalize.image = input$normalizeImage,
+                                    contrast.enhance = input$contrastImage,
+                                    superpose = as.logical(as.numeric(input$superposeImage))
+                                    )
+      cat(msiInfo$mzList)
     }) |>
       bindEvent(input$viewImage)
 
-    #(2.2) Plot MSI images -----------------------------------------------------
-    ## observeEvent() is used here because it is easier to show several different outputs
+    #(2.2) Show MSI images -----------------------------------------------------
+    output$msiImages <- renderPlot({
+      shiny::req(msiInfo$ionImage)
+      if(input$modeImage == "light"){
+        Cardinal::lightmode()
+      } else {
+        Cardinal::darkmode()
+      }
+      msiInfo$ionImage
+      })
+
+    #(2.3) Download MSI images -------------------------------------------------
+    output$saveImage <- downloadHandler(
+      filename = function(){
+        if(is.null(print(msiInfo$ionImage))){
+          paste0(Sys.Date(), "_no_image_found", ".pdf")
+        } else {
+          paste0(Sys.Date(), "_ionImage", ".pdf")
+        }
+      },
+      content = function(file){
+        pdf(file)
+        print(msiInfo$ionImage)
+        dev.off()
+      })
+
+    #(2.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {
-      #(2.3) Check input and plot MSI images -----------------------------------
-      shiny::req(global$processedMSIData)
-      shiny::req(isolate(input$mzValues) != "")
-      shiny::req(isolate(input$massWindow) > 0)
-      mzList <- unique(text2Num(isolate(input$mzValues)))
-      mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
-      mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
-      shiny::req(min(mzList) >= mzMin & max(mzList) <= mzMax)
-      msiImage <- reactive({
-        plotImage(msiData = global$processedMSIData,
-                  mz = mzList,
-                  smooth.image = input$smoothImage,
-                  plusminus = isolate(input$massWindow),
-                  colorscale = input$colorImage,
-                  normalize.image = input$normalizeImage,
-                  contrast.enhance = input$contrastImage,
-                  superpose = as.logical(as.numeric(input$superposeImage))
-                  )
-        })
-
-      #(2.4) Show MSI images ---------------------------------------------------
-      output$msiImages <- renderPlot({
-        if(input$modeImage == "light"){
-          Cardinal::lightmode()
-          } else {
-            Cardinal::darkmode()
-          }
-        msiImage()
-        })
-
-      #(2.5) Download MSI images -----------------------------------------------
-      output$saveImage <- downloadHandler(
-        filename = function(){
-          paste0("ionImage.", Sys.time(), ".pdf")
-          },
-        content = function(file){
-            pdf(file)
-            print(msiImage())
-            dev.off()
-          }
-        )
-
-      #(2.6) Display selected  spectrum ----------------------------------------
       output$resetButton <- renderUI({
         actionButton(
           inputId = ns("reset"),
@@ -313,6 +355,12 @@ mod_viewData_server <- function(id, global){
         plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$df)
         })
     })
+
+    #(3) Image Analysis --------------------------------------------------------
+    output$msiImages2 <- renderPlot({
+      shiny::req(msiInfo$ionImage)
+      msiInfo$ionImage
+      })
 
 })}
 

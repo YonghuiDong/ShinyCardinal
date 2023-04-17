@@ -199,6 +199,12 @@ mod_viewData_ui <- function(id){
                  a region of interest (ROI) to display ion intensities of the selected ions."),
                p(style = "color:#C70039;", "2. Click on the Ion image to start selecting ROI, and click it again to finsh."),
                p(style = "color:#C70039;", "3. Click on Reset button to reset ROI selection."),
+               textInput(inputId = ns("roiName"),
+                         label = "Enter a name of ROI",
+                         value = NULL,
+                         placeholder = "e.g., roi1",
+                         width = "40%"
+                         ),
                column(width = 6,
                       actionButton(inputId  = ns("resetROI"),
                                    label = "Reset ROI",
@@ -209,7 +215,7 @@ mod_viewData_ui <- function(id){
                column(width = 6,
                       actionButton(inputId  = ns("processROI"),
                                    label = "Show Result",
-                                   icon = icon("circle"),
+                                   icon = icon("paper-plane"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
                       ),
@@ -381,12 +387,13 @@ mod_viewData_server <- function(id, global){
       lines(x = inxROI$x,
             y = inxROI$y,
             type = "b",
-            lwd = 4
+            lwd = 1
             )
       })
 
     #(3.2) Show Result ---------------------------------------------------------
-    roiData <- reactiveValues(roiDF = NULL, roiMSIData = NULL)
+    roiData <- reactiveValues(roiDF = NULL, roiMSIData = list())
+    myList <- reactiveVal(list())
     output$infoROI <- renderPrint({
       ## get the x,y coordinates of ROI
       roiData$roiDF <- data.frame(x = round(inxROI$x, 0), y = round(inxROI$y, 0)) |>
@@ -401,9 +408,13 @@ mod_viewData_server <- function(id, global){
              message = "Selected ROI is out of y-aixs range")
         )
       ## subset global$processedMSIData
-      roiData$roiMSIData <- subsetMSIData(msiData = global$processedMSIData, mzValues = NULL, roiDF = roiData$roiDF)
+      new_name <- isolate(input$roiName)
+      roiData$roiMSIData <- append(roiData$roiMSIData,
+                                   setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), input$roiName)
+                                   )
       cat("\n")
       cat("ROI selected successfully\n")
+      #roiData$roiMSIData
       roiData$roiMSIData
       }) |>
       bindEvent(input$processROI)

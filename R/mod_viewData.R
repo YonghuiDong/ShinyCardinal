@@ -199,38 +199,33 @@ mod_viewData_ui <- function(id){
                  a region of interest (ROI) to display ion intensities of the selected ions."),
                p(style = "color:#C70039;", "2. Click on the Ion image to start selecting ROI, and click it again to finsh."),
                p(style = "color:#C70039;", "3. Click on Reset button to reset ROI selection."),
-               actionButton(inputId  = ns("resetROI"),
-                            label = "Reset ROI",
-                            icon = icon("circle"),
-                            style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-                            ),
+               column(width = 6,
+                      actionButton(inputId  = ns("resetROI"),
+                                   label = "Reset ROI",
+                                   icon = icon("circle"),
+                                   style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                                   )
+                      ),
+               column(width = 6,
+                      actionButton(inputId  = ns("processROI"),
+                                   label = "Show Result",
+                                   icon = icon("circle"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+                      ),
                shiny::plotOutput(outputId = ns("ionImageROI"),
                                  hover = hoverOpts(id = ns("hover"),
-                                                   delay = 1000,
+                                                   delay = 500,
                                                    delayType = "throttle",
                                                    clip = TRUE,
                                                    nullOutside = TRUE),
                                  click = ns("click")
                                  ),
-               shiny::verbatimTextOutput(outputId = ns("info22")),
-               column(width = 6,
-                      actionButton(inputId = ns("profileROI"),
-                                   label = "Plot",
-                                   icon = icon("paper-plane"),
-                                   style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-                                   )
-                      ),
-               column(width = 6,
-                      actionButton(inputId = ns("sumROI"),
-                                  label = "Sum",
-                                  icon = icon("paper-plane"),
-                                  style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-                                  )
-                      )
+               shiny::verbatimTextOutput(outputId = ns("infoROI"))
+
                )
              )
-
-      ))}
+))}
 
 #' viewData Server Functions
 #'
@@ -356,47 +351,62 @@ mod_viewData_server <- function(id, global){
         })
     })
 
-    #(3) Image Analysis --------------------------------------------------------
+    #(3) Image Analysis ========================================================
+
+    ##(3.1) Select ROI ---------------------------------------------------------
     inxROI <- reactiveValues(x = double(), y = double())
-    draw <- reactiveVal(FALSE)
+    draw <- reactiveVal(value = FALSE)
     observeEvent(input$click, {
       temp <- draw()
       draw(!temp)
       if(!draw()) {
         inxROI$x <- c(inxROI$x, NA)
         inxROI$y <- c(inxROI$y, NA)
-      }})
+        }
+      })
     observeEvent(input$resetROI, {
       inxROI$x <- double()
       inxROI$y <- double()
       })
-
     observeEvent(input$hover, {
       if (draw()) {
         inxROI$x <- c(inxROI$x, input$hover$x)
         inxROI$y <- c(inxROI$y, input$hover$y)
         }
       })
-
     output$ionImageROI <- renderPlot({
       shiny::req(global$processedMSIData)
       shiny::req(msiInfo$ionImage)
       print(msiInfo$ionImage)
-      points(x = inxROI$x,
-             y = inxROI$y,
-             type = "o",
-             lwd = 4
-             )
+      lines(x = inxROI$x,
+            y = inxROI$y,
+            type = "b",
+            lwd = 4
+            )
       })
 
-    output$info22 <- renderPrint({
-      cat("\n")
-      req(inxROI$x)
-      req(inxROI$y)
-      data.frame(x = round(inxROI$x, 0), y = round(inxROI$y, 0)) |>
+    #(3.2) Show Result ---------------------------------------------------------
+    roiData <- reactiveValues(roiDF = NULL, roiMSIData = NULL)
+    output$infoROI <- renderPrint({
+      ## get the x,y coordinates of ROI
+      roiData$roiDF <- data.frame(x = round(inxROI$x, 0), y = round(inxROI$y, 0)) |>
         (\(x) x[!duplicated(x), ])() |>
         na.omit(object = _)
-    })
+      cat("\n")
+      shiny::validate(
+        need(nrow(roiData$roiDF) > 0, message = "No ROI selected!"),
+        need(all(roiData$roiDF$x >= min(Cardinal::coord(global$processedMSIData)$x) & all(roiData$roiDF$x <= max(Cardinal::coord(global$processedMSIData)$x))),
+             message = "Selected ROI is out of x-aixs range"),
+        need(all(roiData$roiDF$y >= min(Cardinal::coord(global$processedMSIData)$y) & all(roiData$roiDF$y <= max(Cardinal::coord(global$processedMSIData)$y))),
+             message = "Selected ROI is out of y-aixs range")
+        )
+      ## subset global$processedMSIData
+      roiData$roiMSIData <- subsetMSIData(msiData = global$processedMSIData, mzValues = NULL, roiDF = roiData$roiDF)
+      cat("\n")
+      cat("ROI selected successfully\n")
+      roiData$roiMSIData
+      }) |>
+      bindEvent(input$processROI)
 
 })}
 

@@ -340,8 +340,8 @@ mod_viewData_server <- function(id, global){
 
     #(2.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {
-      shiny::req(msiInfo$ionImage)
       output$resetButton <- renderUI({
+        shiny::req(msiInfo$ionImage)
         actionButton(
           inputId = ns("reset"),
           label = "Reset",
@@ -350,6 +350,7 @@ mod_viewData_server <- function(id, global){
           )
         })
       output$undoButton <- renderUI({
+        shiny::req(msiInfo$ionImage)
         actionButton(
           inputId = ns("undo"),
           label = "Undo",
@@ -375,13 +376,16 @@ mod_viewData_server <- function(id, global){
         rv_click$df <- data.frame(x = double(), y = double())
         })
       output$info <- renderText({
+        shiny::req(msiInfo$ionImage)
         print("Please click on the image to select pixels of interest.")
         })
       output$pixelTable <- renderTable({
+        shiny::req(msiInfo$ionImage)
+        shiny::req(nrow(rv_click$df) > 0)
         rv_click$df
         })
       output$selectedSpec <- plotly::renderPlotly({
-        shiny::validate(need(nrow(rv_click$df) > 0, message = "No pixels selected."))
+        shiny::req(nrow(rv_click$df) > 0)
         shiny::req(global$processedMSIData)
         plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$df)
         })

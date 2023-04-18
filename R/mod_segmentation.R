@@ -466,7 +466,7 @@ mod_segmentation_server <- function(id, global){
                  )
       shiny::req(!(isolate(input$noisePeak) %in% isolate(massList$value)))
       w <- waiter::Waiter$new(id = ns("infoBNMR"),
-                              html = "",
+                              html = "Please wait, running...",
                               image = 'www/img/cardinal.gif',
                               fadeout = TRUE
                               )

@@ -1,0 +1,126 @@
+/* logo */
+/*
+.skin-blue .main-header .logo {
+  background-color: #90A5A7;
+}
+*/
+
+/* logo when hovered */
+/*
+.skin-blue .main-header .logo:hover {
+  background-color: #90A5A7;
+}
+*/
+
+/* navbar (rest of the header) */
+/*
+.skin-blue .main-header .navbar {
+  background-color: #90A5A7;
+}
+*/
+
+/* main sidebar */
+/*
+.skin-blue .main-sidebar {
+  background-color: #f4b943;
+}
+*/
+
+/* active selected tab in the sidebarmenu */
+/*
+.skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+  background-color: #A86355;
+}
+
+
+/* other links in the sidebarmenu */
+/*
+.skin-blue .main-sidebar .sidebar .sidebar-menu a{
+  background-color: #585958;
+  color: #adad2b;
+}
+*/
+
+
+/* other links in the sidebarmenu when hovered */
+/*
+.skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+  background-color: #A86355;
+}
+
+/* toggle button when hovered  */
+/*
+.skin-blue .main-header .navbar .sidebar-toggle:hover{
+  background-color: #A86355;
+}
+*/
+
+/* Box color: primary*/
+
+.box.box-solid.box-primary>.box-header {
+  color:#333333;
+  background:#CCD2CC;
+}
+.box.box-solid.box-primary{
+  border-bottom-color:#CCD2CC;
+  border-left-color:#CCD2CC;
+  border-right-color:#CCD2CC;
+  border-top-color:#CCD2CC;
+}
+
+/* Box color: success*/
+
+.box.box-solid.box-success>.box-header {
+  color:#333333;
+  background:#b8c4d9;
+}
+.box.box-solid.box-success{
+  border-bottom-color:#DBD2C9;
+  border-left-color:#DBD2C9;
+  border-right-color:#DBD2C9;
+  border-top-color:#DBD2C9;
+}
+
+/* Box color: warning*/
+
+.box.box-solid.box-warning>.box-header {
+  color:#333333;
+  background:#e3e5e8;
+}
+.box.box-solid.box-warning{
+  border-bottom-color:#e3e5e8;
+  border-left-color:#e3e5e8;
+  border-right-color:#e3e5e8;
+  border-top-color:#e3e5e8;
+}
+
+H6{
+  font-size: 14pt;
+  font-weight: bold;
+  text-align: left;
+  display: block;
+  color: #ab7d3c;
+}
+
+H6:before {
+  content: "𓅪";
+  color: #e34f4f;
+  text-shadow: #e34f4f 0 0 5px;
+  margin:0 10px;
+}
+
+H5{
+  font-size: 14pt;
+  font-weight: bold;
+  text-align: left;
+  display: block;
+  color: #ab7d3c;
+}
+
+H5:before {
+  content: "•";
+  color: #556fc2;
+  text-shadow: #556fc2 0 0 5px;
+  margin:0 10px;
+}
+

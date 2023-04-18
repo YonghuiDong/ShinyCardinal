@@ -393,7 +393,6 @@ mod_viewData_server <- function(id, global){
 
     #(3.2) Show Result ---------------------------------------------------------
     roiData <- reactiveValues(roiDF = NULL, roiMSIData = list())
-    myList <- reactiveVal(list())
     output$infoROI <- renderPrint({
       ## get the x,y coordinates of ROI
       roiData$roiDF <- data.frame(x = round(inxROI$x, 0), y = round(inxROI$y, 0)) |>
@@ -405,7 +404,9 @@ mod_viewData_server <- function(id, global){
         need(all(roiData$roiDF$x >= min(Cardinal::coord(global$processedMSIData)$x) & all(roiData$roiDF$x <= max(Cardinal::coord(global$processedMSIData)$x))),
              message = "Selected ROI is out of x-aixs range"),
         need(all(roiData$roiDF$y >= min(Cardinal::coord(global$processedMSIData)$y) & all(roiData$roiDF$y <= max(Cardinal::coord(global$processedMSIData)$y))),
-             message = "Selected ROI is out of y-aixs range")
+             message = "Selected ROI is out of y-aixs range"),
+        need(input$roiName != "", message = "Please enter an ROI name"),
+        need(!(input$roiName %in% names(roiData$roiMSIData)), message = "The entered ROI name already exist, please user another one.")
         )
       ## subset global$processedMSIData
       new_name <- isolate(input$roiName)
@@ -415,7 +416,7 @@ mod_viewData_server <- function(id, global){
       cat("\n")
       cat("ROI selected successfully\n")
       #roiData$roiMSIData
-      roiData$roiMSIData
+      length(roiData$roiMSIData)
       }) |>
       bindEvent(input$processROI)
 

@@ -19,7 +19,7 @@ app_ui <- function(request) {
             id = "sidebarmenu",
             menuItem(text = strong("Home"), tabName = "home", icon = icon("home")),
             hr(),
-            menuItem(text = strong("Data Cleaning"), tabName = "upload", icon = icon("shower")),
+            menuItem(text = strong("Data Preprocessing"), tabName = "upload", icon = icon("shower")),
             hr(),
             menuItem(text = strong("Image Visualization"), tabName = "visualize", icon = icon("eye")),
             hr(),

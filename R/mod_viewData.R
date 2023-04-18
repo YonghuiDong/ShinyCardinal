@@ -403,7 +403,7 @@ mod_viewData_server <- function(id, global){
       lines(x = inxROI$x,
             y = inxROI$y,
             type = "b",
-            lwd = 1
+            lwd = 2
             )
       })
 
@@ -432,7 +432,7 @@ mod_viewData_server <- function(id, global){
                                    )
       cat("\n")
       cat(paste0(input$roiName, " is successfully recorded.\n"))
-      cat(paste0("Current recorded ROIs: ", names(roiData$roiMSIData), "\n"))
+      cat(names(roiData$roiMSIData))
       }) |>
       bindEvent(input$recordROI)
 

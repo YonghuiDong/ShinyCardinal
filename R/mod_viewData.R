@@ -25,7 +25,7 @@ mod_viewData_ui <- function(id){
              ),
 
       #(1) Optional: upload MSI rds Data =======================================
-      column(width = 12, h5("Upload MSI Data (Optional)")),
+      column(width = 12, h5("Upload MSI Data Panel (Optional)")),
       column(width = 4,
              box(
                width = 12,
@@ -69,7 +69,7 @@ mod_viewData_ui <- function(id){
              ),
 
       #(2) Image View ==========================================================
-      column(width = 12, h6("View MSI Images")),
+      column(width = 12, h6("View MSI Image Panel")),
       column(width = 4,
              box(
                width = 12,
@@ -185,7 +185,7 @@ mod_viewData_ui <- function(id){
                )
              ),
       #(3) Image Analysis ======================================================
-      column(width = 12, h6("Image Analysis")),
+      column(width = 12, h6("Image Analysis Panel")),
       column(width = 4,
              box(
                width = 12,
@@ -202,7 +202,7 @@ mod_viewData_ui <- function(id){
                p(style = "color:#C70039;", "2. Click on the Ion image to start selecting ROI, and click it again to finsh."),
                p(style = "color:#C70039;", "3. Click on New ROI button to start selecting another ROI."),
                textInput(inputId = ns("roiName"),
-                         label = "Enter a name of ROI",
+                         label = "1. Enter a name of ROI",
                          value = NULL,
                          placeholder = "use a concise and unique roi name",
                          ),
@@ -219,7 +219,19 @@ mod_viewData_ui <- function(id){
                                    icon = icon("pencil"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
+                      ),
+               br(),
+               strong("2. Display Selected ROIs"),
+               br(),
+               br(),
+               column(width = 12,
+                      actionButton(inputId  = ns("displayROI"),
+                                   label = "Display",
+                                   icon = icon("eye"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
                       )
+
                )
              ),
       #(3.2) Image analysis Output ---------------------------------------------
@@ -243,12 +255,8 @@ mod_viewData_ui <- function(id){
                                  ),
                br(),
                shiny::verbatimTextOutput(outputId = ns("infoROI")),
-               column(width = 6,
-                      shiny::uiOutput(outputId = ns("resetROIButton"))
-                      ),
-               column(width = 6,
-                      shiny::uiOutput(outputId = ns("undoROIButton"))
-                      )
+               shiny::uiOutput(outputId = ns("resetROIButton")),
+               shiny::verbatimTextOutput(outputId = ns("modifyROI"))
                )
              )
 
@@ -332,6 +340,7 @@ mod_viewData_server <- function(id, global){
 
     #(2.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {
+      shiny::req(msiInfo$ionImage)
       output$resetButton <- renderUI({
         actionButton(
           inputId = ns("reset"),
@@ -412,7 +421,7 @@ mod_viewData_server <- function(id, global){
             )
       })
 
-    #(3.2) Show Result ---------------------------------------------------------
+    #(3.2) Select ROI ----------------------------------------------------------
     roiData <- reactiveValues(roiDF = NULL, roiMSIData = list())
     output$infoROI <- renderPrint({
       ## get the x,y coordinates of ROI
@@ -438,8 +447,32 @@ mod_viewData_server <- function(id, global){
       cat("\n")
       cat(paste0(input$roiName, " is successfully recorded.\n"))
       cat(names(roiData$roiMSIData))
+
+      #(3.3) Display Reset button ----------------------------------------------
+      output$resetROIButton <- renderUI({
+        actionButton(
+          inputId = ns("resetROI"),
+          label = "Reset selected ROI",
+          icon = icon("circle"),
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+          )
+        })
       }) |>
       bindEvent(input$recordROI)
+
+    ##(3.4) Modify ROI ---------------------------------------------------------
+    output$modifyROI <- renderPrint({
+      shiny::validate(
+        need(!is.null(roiData$roiMSIData), message = "No ROIs found")
+        )
+      roiData$roiMSIData <- list()
+      cat("All selected ROIs are removed.")
+      }) |>
+      bindEvent(input$resetROI)
+
+
+
+
 
 })}
 

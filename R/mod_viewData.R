@@ -207,7 +207,7 @@ mod_viewData_ui <- function(id){
                          placeholder = "use a concise and unique roi name",
                          ),
                column(width = 6,
-                      actionButton(inputId  = ns("resetROI"),
+                      actionButton(inputId  = ns("newROI"),
                                    label = "New ROI",
                                    icon = icon("circle"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
@@ -242,8 +242,13 @@ mod_viewData_ui <- function(id){
                                  click = ns("click")
                                  ),
                br(),
-               shiny::verbatimTextOutput(outputId = ns("infoROI"))
-
+               shiny::verbatimTextOutput(outputId = ns("infoROI")),
+               column(width = 6,
+                      shiny::uiOutput(outputId = ns("resetROIButton"))
+                      ),
+               column(width = 6,
+                      shiny::uiOutput(outputId = ns("undoROIButton"))
+                      )
                )
              )
 
@@ -386,7 +391,7 @@ mod_viewData_server <- function(id, global){
         inxROI$y <- c(inxROI$y, NA)
         }
       })
-    observeEvent(input$resetROI, {
+    observeEvent(input$newROI, {
       inxROI$x <- double()
       inxROI$y <- double()
       })

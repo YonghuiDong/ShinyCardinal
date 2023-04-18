@@ -25,14 +25,15 @@ mod_viewData_ui <- function(id){
              ),
 
       #(1) Optional: upload MSI rds Data =======================================
+      column(width = 12, h5("Upload MSI Data (Optional)")),
       column(width = 4,
              box(
                width = 12,
-               title = strong("Upload MSI Data"),
+               title = strong("Input Parameters"),
                status = "primary",
-               solidHeader = FALSE,
+               solidHeader = TRUE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. This moduel is optional."),
@@ -54,11 +55,11 @@ mod_viewData_ui <- function(id){
       column(width = 8,
              box(
                width = 12,
-               title = strong("Upload MSI Data Result"),
+               title = strong("Result"),
                status = "success",
-               solidHeader = FALSE,
+               solidHeader = TRUE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
@@ -68,16 +69,16 @@ mod_viewData_ui <- function(id){
              ),
 
       #(2) Image View ==========================================================
-      column(width = 12),
+      column(width = 12, h6("View MSI Images")),
       column(width = 4,
              box(
                width = 12,
                inputId = "input_card",
-               title = strong("Image View Panel"),
+               title = strong("Input Parameters"),
                status = "primary",
-               solidHeader = FALSE,
+               solidHeader = TRUE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                textInput(inputId = ns("mzValues"),
                          label = "1. Enter m/z values to visualize",
@@ -153,11 +154,11 @@ mod_viewData_ui <- function(id){
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("MSI Images"),
+               title = strong("Result"),
                status = "success",
-               solidHeader = FALSE,
+               solidHeader = TRUE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                downloadButton(outputId = ns("saveImage"),
                               label = "Download Image",
@@ -184,13 +185,14 @@ mod_viewData_ui <- function(id){
                )
              ),
       #(3) Image Analysis ======================================================
-      column(width = 12,
+      column(width = 12, h6("Image Analysis")),
+      column(width = 4,
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("Image Analysis"),
+               title = strong("Select ROI"),
                status = "primary",
-               solidHeader = FALSE,
+               solidHeader = TRUE,
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
@@ -198,27 +200,39 @@ mod_viewData_ui <- function(id){
                p(style = "color:#C70039;", "1. In this module, you can draw a line or select
                  a region of interest (ROI) to display ion intensities of the selected ions."),
                p(style = "color:#C70039;", "2. Click on the Ion image to start selecting ROI, and click it again to finsh."),
-               p(style = "color:#C70039;", "3. Click on Reset button to reset ROI selection."),
+               p(style = "color:#C70039;", "3. Click on New ROI button to start selecting another ROI."),
                textInput(inputId = ns("roiName"),
                          label = "Enter a name of ROI",
                          value = NULL,
-                         placeholder = "e.g., roi1",
-                         width = "40%"
+                         placeholder = "use a concise and unique roi name",
                          ),
                column(width = 6,
                       actionButton(inputId  = ns("resetROI"),
-                                   label = "Reset ROI",
+                                   label = "New ROI",
                                    icon = icon("circle"),
-                                   style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-                                   )
-                      ),
-               column(width = 6,
-                      actionButton(inputId  = ns("processROI"),
-                                   label = "Show Result",
-                                   icon = icon("paper-plane"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
                       ),
+               column(width = 6,
+                      actionButton(inputId  = ns("recordROI"),
+                                   label = "Record ROI",
+                                   icon = icon("pencil"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+                      )
+               )
+             ),
+      #(3.2) Image analysis Output ---------------------------------------------
+      column(width = 8,
+             box(
+               width = 12,
+               inputId = "report_card",
+               title = strong("Result"),
+               status = "success",
+               solidHeader = TRUE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
                shiny::plotOutput(outputId = ns("ionImageROI"),
                                  hover = hoverOpts(id = ns("hover"),
                                                    delay = 500,
@@ -227,11 +241,13 @@ mod_viewData_ui <- function(id){
                                                    nullOutside = TRUE),
                                  click = ns("click")
                                  ),
+               br(),
                shiny::verbatimTextOutput(outputId = ns("infoROI"))
 
                )
              )
-))}
+
+      ))}
 
 #' viewData Server Functions
 #'
@@ -398,7 +414,8 @@ mod_viewData_server <- function(id, global){
       roiData$roiDF <- data.frame(x = round(inxROI$x, 0), y = round(inxROI$y, 0)) |>
         (\(x) x[!duplicated(x), ])() |>
         na.omit(object = _)
-      cat("\n")
+      ## check input
+      shiny::req(msiInfo$ionImage)
       shiny::validate(
         need(nrow(roiData$roiDF) > 0, message = "No ROI selected!"),
         need(all(roiData$roiDF$x >= min(Cardinal::coord(global$processedMSIData)$x) & all(roiData$roiDF$x <= max(Cardinal::coord(global$processedMSIData)$x))),
@@ -414,11 +431,10 @@ mod_viewData_server <- function(id, global){
                                    setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), input$roiName)
                                    )
       cat("\n")
-      cat("ROI selected successfully\n")
-      #roiData$roiMSIData
-      length(roiData$roiMSIData)
+      cat(paste0(input$roiName, " is successfully recorded.\n"))
+      cat(paste0("Current recorded ROIs: ", names(roiData$roiMSIData), "\n"))
       }) |>
-      bindEvent(input$processROI)
+      bindEvent(input$recordROI)
 
 })}
 

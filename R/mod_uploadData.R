@@ -26,15 +26,16 @@ mod_uploadData_ui <- function(id){
              ),
 
       #(2) Data Input ==========================================================
+      column(width = 12, h6("Upload MSI Data")),
       column(width = 5,
              box(
                width = 12,
                inputId = "input_card",
-               title = strong("Upload Data Panel"),
+               title = strong("Input Parameters"),
                status = "primary",
                solidHeader = TRUE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                fileInput(inputId = ns("imzmlFile"),
                          label = "1. Upload  files:",
@@ -82,11 +83,11 @@ mod_uploadData_ui <- function(id){
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("MSI Data Overview"),
+               title = strong("Result"),
                status = "success",
                solidHeader = TRUE,
                collapsible = TRUE,
-               collapsed = FALSE,
+               collapsed = TRUE,
                closable = FALSE,
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
@@ -96,12 +97,12 @@ mod_uploadData_ui <- function(id){
              ),
 
       #(3) Get Mean Spectrum ===================================================
-      column(width = 12),
+      column(width = 12, h6("Calculate Mean Spectrum")),
       column(width = 5,
              box(
                width = 12,
                inputId = ns("input_card"),
-               title = strong("Calculate Mean Spectrum"),
+               title = strong("Input Parameters"),
                status = "primary",
                solidHeader = TRUE,
                collapsible = TRUE,
@@ -135,7 +136,7 @@ mod_uploadData_ui <- function(id){
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("Mean Spectrum Overview"),
+               title = strong("Result"),
                status = "success",
                solidHeader = TRUE,
                collapsible = TRUE,
@@ -149,12 +150,12 @@ mod_uploadData_ui <- function(id){
              ),
 
       #(4) Get Reference Peaks =================================================
-      column(width = 12),
+      column(width = 12, h6("Calculate Reference Peaks")),
       column(width = 5,
              box(
                width = 12,
                inputId = ns("input_card"),
-               title = strong("Calculate Reference Peaks"),
+               title = strong("Input Parameters"),
                status = "primary",
                solidHeader = TRUE,
                collapsible = TRUE,
@@ -217,7 +218,7 @@ mod_uploadData_ui <- function(id){
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("Reference Peaks Overview"),
+               title = strong("Result"),
                status = "success",
                solidHeader = TRUE,
                collapsible = TRUE,
@@ -232,12 +233,12 @@ mod_uploadData_ui <- function(id){
              ),
 
       #(5) Process MSI Data ====================================================
-      column(width = 12),
+      column(width = 12, h6("Process MSI Data")),
       column(width = 5,
              box(
                width = 12,
                inputId = ns("input_card"),
-               title = strong("Process MSI Data"),
+               title = strong("Input Parameters"),
                status = "primary",
                solidHeader = TRUE,
                collapsible = TRUE,
@@ -283,7 +284,7 @@ mod_uploadData_ui <- function(id){
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("Processed MSI Data Overview"),
+               title = strong("Result"),
                status = "success",
                solidHeader = TRUE,
                collapsible = TRUE,

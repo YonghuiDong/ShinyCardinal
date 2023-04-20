@@ -1,7 +1,7 @@
 #' @title Calculate mean spectrum
 #' @description Calculate mean spectrum of MSI data.
 #' @param msiData MSI dataset, an object of class 'MSContinuousImagingExperiment'.
-#' @param worker number of workers used for parallel computation.
+#' @param workers Number of workers used for parallel computation.
 #' @return an object of class 'MSContinuousImagingExperiment' containing the mean features and 1 pixel.
 #' @noRd
 #' @examples
@@ -12,9 +12,9 @@
 #' getMeanSpec(msiData = mse)
 
 
-getMeanSpec <- function(msiData, worker = 1){
+getMeanSpec <- function(msiData, workers = 1){
   Cardinal::summarizeFeatures(x = msiData,
                               FUN = "mean",
-                              BPPARAM = BiocParallel::SnowParam(workers = worker, progressbar = T)
+                              BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = T)
                               )
 }

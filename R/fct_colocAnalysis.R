@@ -1,6 +1,10 @@
 #' @title Perform colocalization analysis
-#' @description A fct function
-#' @return The return value, if any, from executing the function.
+#' @description Perform colocalization analysis on MSI dataset.
+#' @param msiData MSI dataset, an object of class 'MSContinuousImagingExperiment'.
+#' @param precursor m/z value of the precursor ion used for colocalization analysis.
+#' @param nth every nth pixel will be used for colocalization analysis. This could improve the speed.
+#' @param worker number of workers used for parallel computation.
+#' @return a dataframe
 #' @noRd
 #' @examples
 #' library(Cardinal)

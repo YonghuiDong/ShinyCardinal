@@ -415,7 +415,7 @@ mod_uploadData_server <- function(id, global){
         if(is.null(global$processedMSIData)){
           paste0("No_Data_Found.rds")
           } else {
-          paste0("processedMSIData", Sys.time(), ".rds")
+          paste0("processedMSIData", Sys.Date(), ".rds")
           }
         },
       content = function(file){

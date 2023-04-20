@@ -19,7 +19,7 @@ readMSI <- function(path, massResolution = 10, massRange = NULL, workers = 6){
 
   #(2) make centroid information consistent among different files --------------
   for(i in 1:length(msiData)){
-    Cardinal::centroided(msiData[[i]]) <- FALSE
+    Cardinal::centroided(msiData[[i]]) <- TRUE
   }
 
   #(3) Combine multiple files --------------------------------------------------

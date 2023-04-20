@@ -1,14 +1,18 @@
-#' @title plotMeanSpec
-#' @description A fct function
-#' @param meanSpec An object of class 'MSImagingSummary' obtained from summarizeFeatures function.
+#' @title Plot mean spectrum
+#' @description Plot mean specrum
+#' @param meanSpec An object of class 'MSImagingSummary' obtained from getMeanSpec function.
 #' @param nth Every nth pixel
 #' @importFrom plotly %>%
 #' @return The return value, if any, from executing the function.
 #' @noRd
-#'
+#' @examples
+#' library(Cardinal)
+#' set.seed(2020)
+#' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 1, baseline = 1)
+#' meanSpec <- getMeanSpec(msiData = mse)
+#' plotMeanSpec(meanSpec, nth = 2)
+
 plotMeanSpec <- function(meanSpec, nth = 1){
-  #data <- data.frame(Cardinal::featureData(meanSpec))
-  ## this is more robust
   data <- data.frame(mz = meanSpec@featureData@mz, mean = Cardinal::iData(meanSpec)[,1])
 
   ## define title
@@ -28,3 +32,4 @@ plotMeanSpec <- function(meanSpec, nth = 1){
                    title = title
                    )
 }
+

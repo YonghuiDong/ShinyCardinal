@@ -25,7 +25,7 @@ mod_viewData_ui <- function(id){
              ),
 
       #(1) Optional: upload MSI rds Data =======================================
-      column(width = 12, h5("Upload MSI Data Panel (Optional)")),
+      column(width = 12, h5("Upload MSI rds Data (Optional)")),
       column(width = 4,
              box(
                width = 12,
@@ -69,7 +69,7 @@ mod_viewData_ui <- function(id){
              ),
 
       #(2) Image View ==========================================================
-      column(width = 12, h6("View MSI Image Panel")),
+      column(width = 12, h6("View MSI Images")),
       column(width = 4,
              box(
                width = 12,
@@ -80,6 +80,11 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
+               selectInput(inputId = ns('msiRun'),
+                           label = '(optional) Select a MSI run to display.',
+                           choices = NULL,
+                           selected = NULL
+                           ),
                textInput(inputId = ns("mzValues"),
                          label = "1. Enter m/z values to visualize",
                          placeholder = "For multiple m/z values, separate them by a comma."
@@ -185,7 +190,7 @@ mod_viewData_ui <- function(id){
                )
              ),
       #(3) Image Analysis ======================================================
-      column(width = 12, h6("Image Analysis Panel")),
+      column(width = 12, h6("Image Analysis")),
       column(width = 4,
              box(
                width = 12,
@@ -283,6 +288,14 @@ mod_viewData_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(2) Visualize MS images ===================================================
+    #(2.0) Update MSI run ------------------------------------------------------
+    observeEvent(global$processedMSIData,{
+      updateSelectInput(session = session,
+                        inputId = "msiRun", ## no name space
+                        choices = Cardinal::run(global$processedMSIData)
+                        )
+      })
+
     msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL, ionImage = NULL)
 
     #(2.1) Show Input m/z Info  ------------------------------------------------
@@ -313,6 +326,7 @@ mod_viewData_server <- function(id, global){
       bindEvent(input$viewImage)
 
     #(2.2) Show MSI images -----------------------------------------------------
+
     output$ionImage <- renderPlot({
       shiny::req(msiInfo$ionImage)
       if(input$modeImage == "light"){
@@ -361,6 +375,12 @@ mod_viewData_server <- function(id, global){
       ## initiate click event
       rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
       observeEvent(input$plot_click, {
+        shiny::req(input$plot_click$x >= min(Cardinal::coord(global$processedMSIData)$x) &
+                     input$plot_click$x <= max(Cardinal::coord(global$processedMSIData)$x)
+                   )
+        shiny::req(input$plot_click$y >= min(Cardinal::coord(global$processedMSIData)$y)
+                   & input$plot_click$y <= max(Cardinal::coord(global$processedMSIData)$y)
+                   )
         rv_click$df <-
           isolate(rv_click$df) |>
           rbind(data.frame(x = as.integer(round(input$plot_click$x, 0)),
@@ -444,7 +464,6 @@ mod_viewData_server <- function(id, global){
         need(!(input$roiName %in% names(roiData$roiMSIData)), message = "The entered ROI name already exist, please user another one.")
         )
       ## subset global$processedMSIData
-      new_name <- isolate(input$roiName)
       roiData$roiMSIData <- append(roiData$roiMSIData,
                                    setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), input$roiName)
                                    )

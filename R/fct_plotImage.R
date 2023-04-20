@@ -14,35 +14,35 @@
 #' @examples
 #' library(Cardinal)
 #' set.seed(2020)
-#' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 1, baseline = 1)
-#' plotImage(msiData = mse, mz = 426.529)
+#' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
+#' plotImage(msiData = mse, mz = 426.529, msiRun = "run0")
 
 
 plotImage <- function(msiData, mz, smooth.image = "none", plusminus = 0.003,
                       colorscale = "cividis", normalize.image = "linear",
-                      contrast.enhance = "suppression", superpose = FALSE, run = "All"){
+                      contrast.enhance = "suppression", superpose = FALSE, msiRun = "All"){
 
-  if(run == "All"){
-    Cardinal::image(msiData,
-                    mz = mz,
-                    smooth.image = smooth.image,
-                    plusminus = plusminus,
-                    colorscale = Cardinal::col.map(colorscale),
-                    contrast.enhance = contrast.enhance,
-                    normalize.image = normalize.image,
-                    superpose = superpose
-                    )
-  } else {
-    Cardinal::image(msiData,
-                    mz = mz,
-                    smooth.image = smooth.image,
-                    plusminus = plusminus,
-                    colorscale = Cardinal::col.map(colorscale),
-                    contrast.enhance = contrast.enhance,
-                    normalize.image = normalize.image,
-                    superpose = superpose,
-                    subset = Cardinal::run(msiData) == run
-                    )
+    if(msiRun == "All"){
+      Cardinal::image(msiData,
+                      mz = mz,
+                      smooth.image = smooth.image,
+                      plusminus = plusminus,
+                      colorscale = Cardinal::col.map(colorscale),
+                      contrast.enhance = contrast.enhance,
+                      normalize.image = normalize.image,
+                      superpose = superpose
+                      )
+    } else {
+      msiData <- msiData[run(msiData) == msiRun]
+      Cardinal::image(msiData,
+                      mz = mz,
+                      smooth.image = smooth.image,
+                      plusminus = plusminus,
+                      colorscale = Cardinal::col.map(colorscale),
+                      contrast.enhance = contrast.enhance,
+                      normalize.image = normalize.image,
+                      superpose = superpose
+                      )
 
     }
 }

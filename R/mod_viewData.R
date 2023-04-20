@@ -321,7 +321,8 @@ mod_viewData_server <- function(id, global){
                                     colorscale = input$colorImage,
                                     normalize.image = input$normalizeImage,
                                     contrast.enhance = input$contrastImage,
-                                    superpose = as.logical(as.numeric(input$superposeImage))
+                                    superpose = as.logical(as.numeric(input$superposeImage)),
+                                    msiRun = input$msiRun
                                     )
       cat(msiInfo$mzList)
     }) |>

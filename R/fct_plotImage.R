@@ -33,7 +33,7 @@ plotImage <- function(msiData, mz, smooth.image = "none", plusminus = 0.003,
                       superpose = superpose
                       )
     } else {
-      msiData <- msiData[run(msiData) == msiRun]
+      msiData <- msiData[Cardinal::run(msiData) == msiRun]
       Cardinal::image(msiData,
                       mz = mz,
                       smooth.image = smooth.image,

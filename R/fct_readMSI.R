@@ -24,5 +24,6 @@ readMSI <- function(path, massResolution = 10, massRange = NULL, workers = 6){
 
   #(3) Combine multiple files --------------------------------------------------
   msiCombined <- Cardinal::combine(msiData[1:length(msiData)])
+  Cardinal::coord(msiCombined)["z"] <- NULL
   return(msiCombined)
 }

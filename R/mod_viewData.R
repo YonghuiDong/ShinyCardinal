@@ -288,11 +288,13 @@ mod_viewData_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(2) Visualize MS images ===================================================
+
     #(2.0) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData,{
       updateSelectInput(session = session,
                         inputId = "msiRun", ## no name space
-                        choices = Cardinal::run(global$processedMSIData)
+                        choices = c("All" = "All", levels(Cardinal::run(global$processedMSIData))),
+                        selected = "All"
                         )
       })
 

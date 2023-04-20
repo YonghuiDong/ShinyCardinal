@@ -8,6 +8,7 @@
 #' @param normalize.image Normalization function to be applied to each image.
 #' @param contrast.enhance Contrast enhancement function to be applied to each image.
 #' @param superpose Should different feature images superposed on the same plot?
+#' @param run Which MSI run to display?
 #' @return MSI image
 #' @noRd
 #' @examples
@@ -19,15 +20,29 @@
 
 plotImage <- function(msiData, mz, smooth.image = "none", plusminus = 0.003,
                       colorscale = "cividis", normalize.image = "linear",
-                      contrast.enhance = "suppression", superpose = FALSE){
+                      contrast.enhance = "suppression", superpose = FALSE, run = "All"){
 
-  Cardinal::image(msiData,
-                  mz = mz,
-                  smooth.image = smooth.image,
-                  plusminus = plusminus,
-                  colorscale = Cardinal::col.map(colorscale),
-                  contrast.enhance = contrast.enhance,
-                  normalize.image = normalize.image,
-                  superpose = superpose
-                  )
+  if(run == "All"){
+    Cardinal::image(msiData,
+                    mz = mz,
+                    smooth.image = smooth.image,
+                    plusminus = plusminus,
+                    colorscale = Cardinal::col.map(colorscale),
+                    contrast.enhance = contrast.enhance,
+                    normalize.image = normalize.image,
+                    superpose = superpose
+                    )
+  } else {
+    Cardinal::image(msiData,
+                    mz = mz,
+                    smooth.image = smooth.image,
+                    plusminus = plusminus,
+                    colorscale = Cardinal::col.map(colorscale),
+                    contrast.enhance = contrast.enhance,
+                    normalize.image = normalize.image,
+                    superpose = superpose,
+                    subset = Cardinal::run(msiData) == run
+                    )
+
+    }
 }

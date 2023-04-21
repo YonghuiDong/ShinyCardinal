@@ -474,12 +474,12 @@ mod_viewData_server <- function(id, global){
              message = "Selected ROI is out of y-aixs range"),
         need(input$roiName != "", message = "Please enter an ROI name"),
         need(input$msiRun != "All", message = "Please select only one MSI run when selecting ROI."),
-        need(!(paste(input$roiName, input$msiRun, sep = ":") %in% names(roiData$roiMSIData)),
+        need(!(paste(input$roiName, input$msiRun, sep = ".") %in% names(roiData$roiMSIData)),
              message = "The entered ROI name already exist, please user another one.")
         )
       ## subset global$processedMSIData
       roiData$roiMSIData <- append(roiData$roiMSIData,
-                                   setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
+                                   setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = "."))
                                    )
       cat("\n")
       cat(paste0(input$roiName, " is successfully recorded.\n"))

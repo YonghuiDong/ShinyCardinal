@@ -132,7 +132,7 @@ mod_viewData_ui <- function(id){
                                           "blueblack" = "blueblack",
                                           "grayscale" = "grayscale"
                                           ),
-                           selected = "cividis"
+                           selected = "viridis"
                            ),
                radioButtons(inputId = ns("modeImage"),
                             label = "Do you prefer light or dark mode?",
@@ -464,11 +464,13 @@ mod_viewData_server <- function(id, global){
         need(all(roiData$roiDF$y >= min(Cardinal::coord(global$processedMSIData)$y) & all(roiData$roiDF$y <= max(Cardinal::coord(global$processedMSIData)$y))),
              message = "Selected ROI is out of y-aixs range"),
         need(input$roiName != "", message = "Please enter an ROI name"),
-        need(!(input$roiName %in% names(roiData$roiMSIData)), message = "The entered ROI name already exist, please user another one.")
+        need(input$msiRun != "All", message = "Please select only one MSI run when selecting ROI."),
+        need(!(paste(input$roiName, input$msiRun, sep = ":") %in% names(roiData$roiMSIData)),
+             message = "The entered ROI name already exist, please user another one.")
         )
       ## subset global$processedMSIData
       roiData$roiMSIData <- append(roiData$roiMSIData,
-                                   setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), input$roiName)
+                                   setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
                                    )
       cat("\n")
       cat(paste0(input$roiName, " is successfully recorded.\n"))

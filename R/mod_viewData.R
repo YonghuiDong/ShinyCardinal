@@ -291,12 +291,21 @@ mod_viewData_server <- function(id, global){
 
     #(2.0) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData,{
-      updateSelectInput(session = session,
-                        inputId = "msiRun", ## no name space
-                        choices = c("All" = "All", levels(Cardinal::run(global$processedMSIData))),
-                        selected = "All"
-                        )
-      })
+      if(length(levels(Cardinal::run(global$processedMSIData))) == 1){
+        ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.
+        updateSelectInput(session = session,
+                          inputId = "msiRun", ## no name space
+                          choices = levels(Cardinal::run(global$processedMSIData)),
+                          selected = levels(Cardinal::run(global$processedMSIData))
+                          )
+      } else {
+        updateSelectInput(session = session,
+                          inputId = "msiRun", ## no name space
+                          choices = c("All" = "All", levels(Cardinal::run(global$processedMSIData))),
+                          selected = "All"
+                          )
+        }
+    })
 
     msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL, ionImage = NULL)
 

@@ -20,7 +20,7 @@ mod_uploadData_ui <- function(id){
                status = "warning",
                solidHeader = TRUE,
                collapsible = TRUE,
-               collapsed = TRUE,
+               collapsed = FALSE,
                closable = FALSE
                )
              ),

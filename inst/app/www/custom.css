@@ -96,31 +96,29 @@
 
 H6{
   font-size: 14pt;
-  font-weight: bold;
+  font-weight: 600;
   text-align: left;
   display: block;
-  color: #ab7d3c;
+  color: #c79440;
 }
 
 H6:before {
-  content: "𓅪";
+  content: "*";
   color: #e34f4f;
-  text-shadow: #e34f4f 0 0 5px;
   margin:0 10px;
 }
 
 H5{
   font-size: 14pt;
-  font-weight: bold;
+  font-weight: 600;
   text-align: left;
   display: block;
-  color: #ab7d3c;
+  color: #c79440;
 }
 
 H5:before {
-  content: "•";
+  content: "*";
   color: #556fc2;
-  text-shadow: #556fc2 0 0 5px;
   margin:0 10px;
 }
 

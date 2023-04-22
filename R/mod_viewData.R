@@ -226,6 +226,8 @@ mod_viewData_ui <- function(id){
                                    )
                       ),
                br(),
+               br(),
+               br(),
                strong("2. Display Selected ROIs"),
                br(),
                br(),
@@ -261,7 +263,8 @@ mod_viewData_ui <- function(id){
                br(),
                shiny::verbatimTextOutput(outputId = ns("infoROI")),
                shiny::uiOutput(outputId = ns("resetROIButton")),
-               shiny::verbatimTextOutput(outputId = ns("modifyROI"))
+               shiny::verbatimTextOutput(outputId = ns("modifiedROIMessage")),
+               shiny::plotOutput(outputId = ns("selectedROIPlot"))
                )
              )
 
@@ -479,7 +482,7 @@ mod_viewData_server <- function(id, global){
         )
       ## subset global$processedMSIData
       roiData$roiMSIData <- append(roiData$roiMSIData,
-                                   setNames(list(getROI(msiData = global$processedMSIData, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
+                                   setNames(list(getROI(msiData = global$processedMSIData, selectedRun = input$msiRun, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
                                    )
       cat("\n")
       cat(paste0(input$roiName, " is successfully recorded.\n"))
@@ -497,15 +500,23 @@ mod_viewData_server <- function(id, global){
       }) |>
       bindEvent(input$recordROI)
 
-    ##(3.4) Modify ROI ---------------------------------------------------------
-    output$modifyROI <- renderPrint({
-      shiny::validate(
-        need(!is.null(roiData$roiMSIData), message = "No ROIs found")
-        )
+    ##(3.4) Reset and show message----------------------------------------------
+    output$modifiedROIMessage <- renderPrint({
+      shiny::validate(need(!is.null(roiData$roiMSIData), message = "No ROIs found"))
       roiData$roiMSIData <- list()
       cat("All selected ROIs are removed.")
       }) |>
       bindEvent(input$resetROI)
+
+    ##(3.5) Undo and show message ----------------------------------------------
+    ##(3.6) Plot selected ROIs -------------------------------------------------
+    output$selectedROIPlot <- renderPlot({
+      shiny::req(global$processedMSIData)
+      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
+      region <- makeFactor2(roiData$roiMSIData)
+      Cardinal::image(global$processedMSIData, region ~ x*y)
+    }) |>
+      bindEvent(input$displayROI)
 
 
 

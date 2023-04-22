@@ -514,7 +514,7 @@ mod_viewData_server <- function(id, global){
       shiny::req(global$processedMSIData)
       shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
       region <- makeFactor2(roiData$roiMSIData)
-      Cardinal::image(global$processedMSIData, region ~ x*y, key = TRUE)
+      Cardinal::image(global$processedMSIData, region ~ x*y, key = TRUE, xlab = "Selected ROIs")
     }) |>
       bindEvent(input$displayROI)
 

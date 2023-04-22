@@ -18,7 +18,7 @@ mod_segmentation_ui <- function(id){
              width = 12,
              title = strong("User Guide"),
              status = "warning",
-             solidHeader = FALSE,
+             solidHeader = TRUE,
              collapsible = TRUE,
              collapsed = FALSE,
              closable = FALSE,

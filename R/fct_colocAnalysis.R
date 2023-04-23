@@ -18,6 +18,6 @@ colocAnalysis <- function(msiData, precursor, nth = 1,  workers = 1){
     Cardinal::colocalized(object = _,
                           mz = precursor,
                           n = 100,
-                          BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = T)
+                          BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = F)
                           )
 }

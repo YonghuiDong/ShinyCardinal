@@ -68,7 +68,83 @@ mod_viewData_ui <- function(id){
                )
              ),
 
-      #(2) Image View ==========================================================
+      #(2) Background noise and matrix removal ===================================
+      column(width = 12, h5("Remove Background Noises and Matrix Peaks (Optional)")),
+      column(width = 4,
+             box(
+               width = 12,
+               inputId = "input_card",
+               title = strong("Input Parameters"),
+               status = "primary",
+               solidHeader = TRUE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. This moduel is optional."),
+               p(style = "color:#C70039;", "2. Enter a noise or matrix m/z value below. The software
+               will detect its colocalized features and remove them based on the colocalization coefficient."),
+               p(style = "color:#C70039;", "3. You can improve the speed by subsetting the MSI data
+               and selecting multiple workers."),
+               p(style = "color:#C70039;", "4. You can run this step multiple times to efficiently remove noise-
+               and matrix-related features."),
+               numericInput(inputId = ns("noisePeak"),
+                            label = "Enter a single noise or matrix m/z value",
+                            value = NULL,
+                            min = 0,
+                            max = 10000000
+                            ),
+               sliderInput(inputId = ns("colocThreshould"),
+                           label = "Select the threshold for colocalization correlation coefficient",
+                           min = 0.5,
+                           max = 1,
+                           value = 0.9,
+                           step = 0.01
+                           ),
+               sliderInput(inputId = ns("nth"),
+                           label = "(Optional) Subset MSI Data by selecting every nth pixel",
+                           min = 1,
+                           max = 10,
+                           value = 1,
+                           step = 1
+                           ),
+               strong("(optional) Choose number of workers for parallel computation"),
+               sliderInput(inputId = ns("colocWorkers"),
+                           label = "",
+                           min = 1,
+                           max = 10,
+                           value = 1,
+                           step = 1
+                           ),
+               actionButton(inputId = ns("noiseColoc"),
+                            label = "Start",
+                            icon = icon("paper-plane"),
+                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                            )
+               )
+             ),
+
+      ##(2.1) Background noise and matrix removal output -------------------------
+      column(width = 8,
+             box(
+               width = 12,
+               inputId = "input_card",
+               title = strong("Result"),
+               status = "success",
+               solidHeader = TRUE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
+               ## tagAppendAttributes is used to display waiter image in textOutput
+               tagAppendAttributes(shiny::verbatimTextOutput(outputId = ns("infoBNMR")), style = "height:400px;"),
+               column(width = 6, shiny::uiOutput(outputId = ns("deleteButton"))),
+               column(width = 6, shiny::uiOutput(outputId = ns("resetButton"))),
+               shiny::verbatimTextOutput(outputId = ns("summaryBNMR")),
+               shiny::verbatimTextOutput(outputId = ns("massList2"))
+               )
+             ),
+
+      #(3) Image View ==========================================================
       column(width = 12, h6("View MSI Images")),
       column(width = 4,
              box(
@@ -154,7 +230,7 @@ mod_viewData_ui <- function(id){
                )
              ),
 
-      #(2.2) Output ============================================================
+      #(3.2) Output ============================================================
       column(width = 8,
              box(
                width = 12,
@@ -189,7 +265,7 @@ mod_viewData_ui <- function(id){
                plotly::plotlyOutput(outputId = ns("selectedSpec"))
                )
              ),
-      #(3) Image Analysis ======================================================
+      #(4) Image Analysis ======================================================
       column(width = 12, h6("Image Analysis")),
       column(width = 4,
              box(
@@ -241,7 +317,7 @@ mod_viewData_ui <- function(id){
 
                )
              ),
-      #(3.2) Image analysis Output ---------------------------------------------
+      #(4.2) Image analysis Output ---------------------------------------------
       column(width = 8,
              box(
                width = 12,

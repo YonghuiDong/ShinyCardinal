@@ -86,8 +86,7 @@ mod_viewData_ui <- function(id){
                will detect its colocalized features and remove them based on the colocalization coefficient."),
                p(style = "color:#C70039;", "3. You can improve the speed by subsetting the MSI data
                and selecting multiple workers."),
-               p(style = "color:#C70039;", "4. You can run this step multiple times to efficiently remove noise-
-               and matrix-related features."),
+               p(style = "color:#C70039;", "4. You can run this step multiple times to remove different sources of noise peaks."),
                numericInput(inputId = ns("noisePeak"),
                             label = "Enter a single noise or matrix m/z value",
                             value = NULL,
@@ -124,7 +123,7 @@ mod_viewData_ui <- function(id){
                )
              ),
 
-      ##(2.1) Background noise and matrix removal output -------------------------
+      ##(2.2) Background noise and matrix removal output -----------------------
       column(width = 8,
              box(
                width = 12,
@@ -135,12 +134,13 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
-               ## tagAppendAttributes is used to display waiter image in textOutput
-               tagAppendAttributes(shiny::verbatimTextOutput(outputId = ns("infoBNMR")), style = "height:400px;"),
-               column(width = 6, shiny::uiOutput(outputId = ns("deleteButton"))),
-               column(width = 6, shiny::uiOutput(outputId = ns("resetButton"))),
-               shiny::verbatimTextOutput(outputId = ns("summaryBNMR")),
-               shiny::verbatimTextOutput(outputId = ns("massList2"))
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 shiny::verbatimTextOutput(outputId = ns("colocNoiseInfo"))
+                 ),
+               column(width = 6, shiny::uiOutput(outputId = ns("deleteNoiseButton"))),
+               column(width = 6, shiny::uiOutput(outputId = ns("resetNoiseButton"))),
+               shiny::verbatimTextOutput(outputId = ns("summaryBNMR"))
                )
              ),
 
@@ -368,21 +368,108 @@ mod_viewData_server <- function(id, global){
       }) |>
       bindEvent(input$loadData)
 
-    #(2) Visualize MS images ===================================================
+    #(2) Background Removal ====================================================
+    #(2.1) Perform colocalization ----------------------------------------------
+    ## massList$removedFeatures is used to record removed features;
+    ## it makes sure that users will not remove the same feature more than once, which may remove some unwanted mass features.
+    ## massList$colocedFeatures is used to store colocalized features each time;
+    ## the values are refreshed after each colocalization analysis.
+    massList <- reactiveValues(removedFeatures = NULL, colocedFeatures = NULL)
+    output$colocNoiseInfo <- shiny::renderPrint({
+      shiny::req(global$processedMSIData) # no idea why need does not work
+      shiny::validate(
+        need(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) & input$noisePeak <= max(Cardinal::mz(global$processedMSIData)),
+             message = "The entered m/z value is out of range."),
+        need(!(round(input$noisePeak, 3) %in% massList$removedFeatures), message = "This m/z value has been removed, please try with another one")
+      )
+      if(is.null(global$cleanedMSIData)){
+        global$cleanedMSIData <- global$processedMSIData
+      }
+      colocDF <- colocAnalysis(msiData = global$cleanedMSIData,
+                               precursor = input$noisePeak,
+                               nth = input$nth,
+                               worker = input$colocWorkers
+                               )
+      massList$colocedFeatures <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
+      cat("Below are the detected backgroup noises and/or matrix peaks:\n")
+      cat("You can click the Delete button to delete them.\n")
+      cat("Or click the Reset button to restore the original MSI data.\n")
+      cat("\n")
+      massList$colocedFeatures
+    }) |>
+      bindEvent(input$noiseColoc)
 
-    #(2.0) Update MSI run ------------------------------------------------------
+    #(2.2) Display buttons -----------------------------------------------------
+    output$deleteNoiseButton <- renderUI({
+      shiny::req(massList$colocedFeatures)
+      actionButton(
+        inputId = ns("deleteNoise"),
+        label = "Delete",
+        icon = icon("trash"),
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+        )
+    }) |>
+      bindEvent(input$noiseColoc)
+
+    output$resetNoiseButton <- renderUI({
+      shiny::req(massList$colocedFeatures)
+      actionButton(
+        inputId = ns("resetNoise"),
+        label = "Reset",
+        icon = icon("circle"),
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+        )
+    }) |>
+      bindEvent(input$noiseColoc)
+
+    #(2.3) Delete features -----------------------------------------------------
+    observeEvent(input$deleteNoise, {
+      shiny::req(global$cleanedMSIData)
+      shiny::req(massList$colocedFeatures)
+      global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = massList$colocedFeatures)
+      ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
+      massList$removedFeatures <- round(c(massList$removedFeatures, input$noisePeak, massList$colocedFeatures$mz), 3)
+    })
+
+    #(2.4) Reset feature -------------------------------------------------------
+    observeEvent(input$resetNoise, {
+      shiny::req(global$cleanedMSIData)
+      shiny::req(global$processedMSIData)
+      global$cleanedMSIData <- global$processedMSIData
+      massList$removedFeatures <- NULL
+    })
+
+    #(2.5) Show delete or reset action result ----------------------------------
+    output$summaryBNMR <- shiny::renderPrint({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(global$processedMSIData)
+      if(identical(global$processedMSIData, global$cleanedMSIData)){
+        cat("No noises or matrix related peaks were removed.\n")
+      } else{
+        cat("Below is the cleaned MSI data: \n")
+        global$cleanedMSIData
+      }
+    })
+
+    #(3) Visualize MS images ===================================================
+
+    #(3.0) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData,{
-      if(length(levels(Cardinal::run(global$processedMSIData))) == 1){
+      ## In case users did not perform step #2
+      if(is.null(global$cleanedMSIData)){
+        global$cleanedMSIData <- global$processedMSIData
+      }
+      if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
         ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.
         updateSelectInput(session = session,
                           inputId = "msiRun", ## no name space
-                          choices = levels(Cardinal::run(global$processedMSIData)),
-                          selected = levels(Cardinal::run(global$processedMSIData))
+                          choices = levels(Cardinal::run(global$cleanedMSIData)),
+                          selected = levels(Cardinal::run(global$cleanedMSIData))
                           )
       } else {
         updateSelectInput(session = session,
                           inputId = "msiRun", ## no name space
-                          choices = c("All" = "All", levels(Cardinal::run(global$processedMSIData))),
+                          choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
                           selected = "All"
                           )
         }
@@ -390,21 +477,20 @@ mod_viewData_server <- function(id, global){
 
     msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL, ionImage = NULL)
 
-    #(2.1) Show Input m/z Info  ------------------------------------------------
-    ## bindEvent() is used here to show users the feedback messages
+    #(3.1) Show Input m/z Info  ------------------------------------------------
     output$mzList <- renderPrint({
       shiny::validate(
-        need(global$processedMSIData, message = "MSI data not found."),
+        need(global$cleanedMSIData, message = "MSI data not found."),
         need(input$mzValues != "", message = "m/z value is missing."),
         need(input$massWindow > 0, message = "mass tolerance should be positive value.")
         )
       msiInfo$mzList <- unique(text2Num(input$mzValues))
-      msiInfo$mzMin <- round(min(Cardinal::mz(global$processedMSIData)), 4)
-      msiInfo$mzMax <- round(max(Cardinal::mz(global$processedMSIData)), 4)
+      msiInfo$mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)
+      msiInfo$mzMax <- round(max(Cardinal::mz(global$cleanedMSIData)), 4)
       shiny::validate(need(min(msiInfo$mzList) >= msiInfo$mzMin & max(msiInfo$mzList) <= msiInfo$mzMax,
                            message = paste("m/z value shoud between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " ")))
       ## Get ion images
-      msiInfo$ionImage <- plotImage(msiData = global$processedMSIData,
+      msiInfo$ionImage <- plotImage(msiData = global$cleanedMSIData,
                                     mz = msiInfo$mzList,
                                     smooth.image = input$smoothImage,
                                     plusminus = input$massWindow,
@@ -418,8 +504,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$viewImage)
 
-    #(2.2) Show MSI images -----------------------------------------------------
-
+    #(3.2) Show MSI images -----------------------------------------------------
     output$ionImage <- renderPlot({
       shiny::req(msiInfo$ionImage)
       if(input$modeImage == "light"){
@@ -430,7 +515,7 @@ mod_viewData_server <- function(id, global){
       msiInfo$ionImage
       })
 
-    #(2.3) Download MSI images -------------------------------------------------
+    #(3.3) Download MSI images -------------------------------------------------
     output$saveImage <- downloadHandler(
       filename = function(){
         if(is.null(print(msiInfo$ionImage))){
@@ -445,7 +530,7 @@ mod_viewData_server <- function(id, global){
         dev.off()
       })
 
-    #(2.4) Display selected  spectrum ------------------------------------------
+    #(3.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {
       output$resetButton <- renderUI({
         shiny::req(msiInfo$ionImage)
@@ -468,11 +553,11 @@ mod_viewData_server <- function(id, global){
       ## initiate click event
       rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
       observeEvent(input$plot_click, {
-        shiny::req(input$plot_click$x >= min(Cardinal::coord(global$processedMSIData)$x) &
-                     input$plot_click$x <= max(Cardinal::coord(global$processedMSIData)$x)
+        shiny::req(input$plot_click$x >= min(Cardinal::coord(global$cleanedMSIData)$x) &
+                     input$plot_click$x <= max(Cardinal::coord(global$cleanedMSIData)$x)
                    )
-        shiny::req(input$plot_click$y >= min(Cardinal::coord(global$processedMSIData)$y)
-                   & input$plot_click$y <= max(Cardinal::coord(global$processedMSIData)$y)
+        shiny::req(input$plot_click$y >= min(Cardinal::coord(global$cleanedMSIData)$y)
+                   & input$plot_click$y <= max(Cardinal::coord(global$cleanedMSIData)$y)
                    )
         rv_click$df <-
           isolate(rv_click$df) |>
@@ -499,14 +584,14 @@ mod_viewData_server <- function(id, global){
         })
       output$selectedSpec <- plotly::renderPlotly({
         shiny::req(nrow(rv_click$df) > 0)
-        shiny::req(global$processedMSIData)
-        plotPixelSpec(msiData = global$processedMSIData, pixelDF = rv_click$df)
+        shiny::req(global$cleanedMSIData)
+        plotPixelSpec(msiData = global$cleanedMSIData, pixelDF = rv_click$df)
         })
     })
 
-    #(3) Image Analysis ========================================================
+    #(4) Image Analysis ========================================================
 
-    ##(3.1) Select ROI ---------------------------------------------------------
+    ##(4.1) Select ROI ---------------------------------------------------------
     inxROI <- reactiveValues(x = double(), y = double())
     draw <- reactiveVal(value = FALSE)
     observeEvent(input$click, {
@@ -528,7 +613,7 @@ mod_viewData_server <- function(id, global){
         }
       })
     output$ionImageROI <- renderPlot({
-      shiny::req(global$processedMSIData)
+      shiny::req(global$cleanedMSIData)
       shiny::req(msiInfo$ionImage)
       print(msiInfo$ionImage)
       lines(x = inxROI$x,
@@ -538,7 +623,7 @@ mod_viewData_server <- function(id, global){
             )
       })
 
-    #(3.2) Select ROI ----------------------------------------------------------
+    #(4.2) Select ROI ----------------------------------------------------------
     roiData <- reactiveValues(roiDF = NULL, roiMSIData = list())
     output$infoROI <- renderPrint({
       ## get the x,y coordinates of ROI
@@ -549,24 +634,24 @@ mod_viewData_server <- function(id, global){
       shiny::req(msiInfo$ionImage)
       shiny::validate(
         need(nrow(roiData$roiDF) > 0, message = "No ROI selected!"),
-        need(all(roiData$roiDF$x >= min(Cardinal::coord(global$processedMSIData)$x) & all(roiData$roiDF$x <= max(Cardinal::coord(global$processedMSIData)$x))),
+        need(all(roiData$roiDF$x >= min(Cardinal::coord(global$cleanedMSIData)$x) & all(roiData$roiDF$x <= max(Cardinal::coord(global$cleanedMSIData)$x))),
              message = "Selected ROI is out of x-aixs range"),
-        need(all(roiData$roiDF$y >= min(Cardinal::coord(global$processedMSIData)$y) & all(roiData$roiDF$y <= max(Cardinal::coord(global$processedMSIData)$y))),
+        need(all(roiData$roiDF$y >= min(Cardinal::coord(global$cleanedMSIData)$y) & all(roiData$roiDF$y <= max(Cardinal::coord(global$cleanedMSIData)$y))),
              message = "Selected ROI is out of y-aixs range"),
         need(input$roiName != "", message = "Please enter an ROI name"),
         need(input$msiRun != "All", message = "Please select only one MSI run when selecting ROI."),
         need(!(paste(input$roiName, input$msiRun, sep = ":") %in% names(roiData$roiMSIData)),
              message = "The entered ROI name already exist, please user another one.")
         )
-      ## subset global$processedMSIData
+      ## subset global$cleanedMSIData
       roiData$roiMSIData <- append(roiData$roiMSIData,
-                                   setNames(list(getROI(msiData = global$processedMSIData, selectedRun = input$msiRun, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
+                                   setNames(list(getROI(msiData = global$cleanedMSIData, selectedRun = input$msiRun, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
                                    )
       cat("\n")
       cat(paste0(input$roiName, " is successfully recorded.\n"))
       cat(names(roiData$roiMSIData))
 
-      #(3.3) Display Reset and Undo buttons ------------------------------------
+      #(4.3) Display Reset and Undo buttons ------------------------------------
       output$resetROIButton <- renderUI({
         actionButton(
           inputId = ns("resetROI"),
@@ -587,7 +672,7 @@ mod_viewData_server <- function(id, global){
       }) |>
       bindEvent(input$recordROI)
 
-    ##(3.4) Reset and show message----------------------------------------------
+    ##(4.4) Reset and show message----------------------------------------------
     output$resetROIMessage <- renderPrint({
       shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
       roiData$roiMSIData <- list()
@@ -595,7 +680,7 @@ mod_viewData_server <- function(id, global){
       }) |>
       bindEvent(input$resetROI)
 
-    ##(3.5) Undo and show message ----------------------------------------------
+    ##(4.5) Undo and show message ----------------------------------------------
     output$undoROIMessage <- renderPrint({
       shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
       removedName <- names(roiData$roiMSIData)[length(roiData$roiMSIData)]
@@ -603,17 +688,15 @@ mod_viewData_server <- function(id, global){
       cat(paste("ROI", removedName, "is removed.", sep = " "))
     }) |>
       bindEvent(input$undoROI)
-    ##(3.6) Plot selected ROIs -------------------------------------------------
+
+    ##(4.6) Plot selected ROIs -------------------------------------------------
     output$selectedROIPlot <- renderPlot({
-      shiny::req(global$processedMSIData)
+      shiny::req(global$cleanedMSIData)
       shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
       region <- makeFactor2(roiData$roiMSIData)
-      Cardinal::image(global$processedMSIData, region ~ x*y, key = TRUE, xlab = "Selected ROIs")
+      Cardinal::image(global$cleanedMSIData, region ~ x*y, key = TRUE, xlab = "Selected ROIs")
     }) |>
       bindEvent(input$displayROI)
-
-
-
 
 
 })}

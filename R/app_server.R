@@ -9,7 +9,8 @@ app_server <- function(input, output, session) {
   global <- reactiveValues(
     msiData = NULL,
     meanSpec = NULL,
-    processedMSIData = NULL
+    processedMSIData = NULL,
+    cleanedMSIData = NULL
   )
   # Your application server logic
   mod_uploadData_server("uploadData_1", global = global)

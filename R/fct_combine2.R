@@ -40,10 +40,3 @@ combine2 <- function(msiData, roiList){
 
   Cardinal::combine(m)
 }
-
-
-
-
-input_vector <- c("aa_bv", "n_xx", "cccc", "xx_", "_dd", "d_c_d")
-pattern <- "^[^_]+_[^_]+$"
-valid_inputs <- all(grep(pattern, input_vector))

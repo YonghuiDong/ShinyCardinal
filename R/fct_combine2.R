@@ -29,8 +29,9 @@ combine2 <- function(msiData, roiList){
   })
   #(3) check if the roiList names are valid for statistics----------------------
   ## if Valid, a condition will be added in pData for statistics
+  newNames <- gsub(":.*", "", names(roiList)) # rm sample names first, otherwise the names will not pass name check.
   pattern <- "^[^_]+_[^_]+$"
-  namesChek <- all(grepl(pattern, names(roiList)))
+  namesChek <- all(grepl(pattern, newNames))
   if(isTRUE(namesChek)){
     lapply(seq_along(m), function(i) {
       m[[i]]$condition <<- as.factor(strsplit(names(m)[i], "_")[[1]][2])

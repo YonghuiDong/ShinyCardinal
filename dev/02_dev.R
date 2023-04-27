@@ -41,6 +41,11 @@ golem::add_fct("text2Num", with_test = FALSE)
 golem::add_fct("plotSSCCSpec", with_test = FALSE)
 golem::add_fct("colocAnalysis", with_test = FALSE)
 golem::add_fct("removeNoise", with_test = FALSE)
+golem::add_fct("subsetMSIData", with_test = FALSE)
+golem::add_fct("getROI", with_test = FALSE)
+golem::add_fct("makeFactor2", with_test = FALSE)
+golem::add_fct("combine2", with_test = FALSE)
+golem::add_fct("roiStat", with_test = FALSE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www

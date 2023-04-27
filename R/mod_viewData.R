@@ -271,26 +271,27 @@ mod_viewData_ui <- function(id){
              box(
                width = 12,
                inputId = "report_card",
-               title = strong("Select ROI"),
+               title = strong("Input Parameters"),
                status = "primary",
                solidHeader = TRUE,
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "1. In this module, you can draw a line or select
-                 a region of interest (ROI) to display ion intensities of the selected ions."),
-               p(style = "color:#C70039;", "2. Click on the Ion image to start selecting ROI, and click it again to finsh."),
-               p(style = "color:#C70039;", "3. Click on New ROI button to start selecting another ROI."),
+               p(style = "color:#C70039;", "1. Click on the Ion image to start selecting ROI, and click it again to finsh."),
+               p(style = "color:#C70039;", "2. Click on New ROI button to start selecting another ROI."),
+               strong("1. Select ROIs"),
+               br(),
+               br(),
                textInput(inputId = ns("roiName"),
-                         label = "1. Enter a name of ROI",
+                         label = "Enter a name of ROI",
                          value = NULL,
                          placeholder = "use a concise and unique roi name",
                          ),
                column(width = 6,
                       actionButton(inputId  = ns("newROI"),
                                    label = "New ROI",
-                                   icon = icon("circle"),
+                                   icon = icon("map-marker"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
                       ),
@@ -313,8 +314,23 @@ mod_viewData_ui <- function(id){
                                    icon = icon("eye"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
+                      ),
+               br(),
+               br(),
+               br(),
+               strong("3. Analyse Selected ROIs"),
+               br(),
+               br(),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. In this module, mean ion intensity of each mass feature for each ROI will be calculated."),
+               p(style = "color:#C70039;", "2. Hypothesis testing will be performed if there are replicates."),
+               column(width = 12,
+                      actionButton(inputId = ns("compareROIs"),
+                                   label = "Compare ROIs",
+                                   icon = icon("paper-plane"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
                       )
-
                )
              ),
       #(4.2) Image analysis Output ---------------------------------------------
@@ -342,7 +358,13 @@ mod_viewData_ui <- function(id){
                column(width = 6, shiny::uiOutput(outputId = ns("undoROIButton"))),
                shiny::verbatimTextOutput(outputId = ns("resetROIMessage")),
                shiny::verbatimTextOutput(outputId = ns("undoROIMessage")),
-               shiny::plotOutput(outputId = ns("selectedROIPlot"))
+               shiny::plotOutput(outputId = ns("selectedROIPlot")),
+               br(),
+               br(),
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 DT::dataTableOutput(outputId = ns("roiStatistics"))
+                )
                )
              )
 
@@ -692,11 +714,30 @@ mod_viewData_server <- function(id, global){
     ##(4.6) Plot selected ROIs -------------------------------------------------
     output$selectedROIPlot <- renderPlot({
       shiny::req(global$cleanedMSIData)
-      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
-      region <- makeFactor2(roiData$roiMSIData)
+      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
+      region <- makeFactor2(roiList = roiData$roiMSIData)
       Cardinal::image(global$cleanedMSIData, region ~ x*y, key = TRUE, xlab = "Selected ROIs")
     }) |>
       bindEvent(input$displayROI)
+
+    #(4.8) Analyse selected ROIs -----------------------------------------------
+    output$roiStatistics <- DT::renderDT(server = FALSE, {
+      shiny::req(global$cleanedMSIData)
+      shiny::req(length(roiData$roiMSIData) > 0)
+      combinedROIMSIData <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiMSIData)
+      statResult <- roiStat(roiMSIData = combinedROIMSIData)
+      DT::datatable(
+        statResult,
+        caption = "Summary of statistical results for user defined ROIs.",
+        extensions ="Buttons",
+        options = list(dom = 'Bfrtip',
+                       buttons = list(list(extend = 'csv', filename= 'roiStat')),
+                       scrollX = TRUE
+                       )
+        )
+    }) |>
+      bindEvent(input$compareROIs)
+
 
 
 })}

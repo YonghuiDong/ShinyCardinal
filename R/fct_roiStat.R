@@ -23,7 +23,8 @@
 roiStat <- function(roiMSIData){
   #(1) Get mean intensity for each ROI MSI data -------------------------------
   roiMean <- Cardinal::aggregate(x = roiMSIData, FUN= c('mean'), groups = Cardinal::run(roiMSIData), as = 'DataFrame') |>
-    as.data.frame(x = _)
+    as.data.frame(x = _) |>
+    transform(mz = round(mz, 4))
   #(2) Means test --------------------------------------------------------------
   numPerLevel <- sapply(levels(roiMSIData$condition), function(sLevel) sum(roiMSIData$condition == sLevel))
   if(!is.null(roiMSIData$condition) & length(levels(roiMSIData$condition)) >= 2 & all(numPerLevel >= 2)){

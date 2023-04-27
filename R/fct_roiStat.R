@@ -5,6 +5,7 @@
 #' @noRd
 #' @examples
 #' library(Cardinal)
+#' #(1) without statistics
 #' set.seed(1)
 #' x <- simulateImage(preset=1, nruns=2, npeaks=10, dim=c(2,2))
 #' a <- c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)
@@ -14,7 +15,10 @@
 #' names(l) <- c("a_X", "b_Y", "c_Y")
 #' Result1 <- combine2(msiData = x, roiList = l)
 #' roiStat(roiMSIData = Result1)
-#'
+#' #(2) with statistics
+#' set.seed(2)
+#' x <- simulateImage(preset=4, nruns=3, npeaks=10, dim=c(10,10))
+#' roiStat(roiMSIData = x)
 
 roiStat <- function(roiMSIData){
   #(1) Get mean intensity for each ROI MSI data -------------------------------
@@ -22,7 +26,7 @@ roiStat <- function(roiMSIData){
     as.data.frame(x = _)
   #(2) Means test --------------------------------------------------------------
   numPerLevel <- sapply(levels(roiMSIData$condition), function(sLevel) sum(roiMSIData$condition == sLevel))
-  if(!is.null(roiMSIData$condition) & length(levels(roiMSIData$condition)) >= 2 & all(numPerLevel) >= 2){
+  if(!is.null(roiMSIData$condition) & length(levels(roiMSIData$condition)) >= 2 & all(numPerLevel >= 2)){
     fit <- Cardinal::meansTest(x = roiMSIData, ~ condition, groups = Cardinal::run(roiMSIData))
     roiStat <- Cardinal::summary(fit) |>
       as.data.frame(x = _) |>
@@ -36,5 +40,4 @@ roiStat <- function(roiMSIData){
   } else{
     roiMean
   }
-
 }

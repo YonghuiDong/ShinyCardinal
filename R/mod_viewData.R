@@ -280,9 +280,7 @@ mod_viewData_ui <- function(id){
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. Click on the Ion image to start selecting ROI, and click it again to finsh."),
                p(style = "color:#C70039;", "2. Click on New ROI button to start selecting another ROI."),
-               strong("1. Select ROIs"),
-               br(),
-               br(),
+               h4("1. Select ROIs"),
                textInput(inputId = ns("roiName"),
                          label = "Enter a name of ROI",
                          value = NULL,
@@ -305,9 +303,7 @@ mod_viewData_ui <- function(id){
                br(),
                br(),
                br(),
-               strong("2. Display Selected ROIs"),
-               br(),
-               br(),
+               h4("2. Display Selected ROIs"),
                column(width = 12,
                       actionButton(inputId  = ns("displayROI"),
                                    label = "Display",
@@ -318,15 +314,30 @@ mod_viewData_ui <- function(id){
                br(),
                br(),
                br(),
-               strong("3. Analyse Selected ROIs"),
-               br(),
-               br(),
+               h4("3. Analyse Selected ROIs"),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. In this module, mean ion intensity of each mass feature for each ROI will be calculated."),
                p(style = "color:#C70039;", "2. Hypothesis testing will be performed if there are replicates."),
                column(width = 12,
                       actionButton(inputId = ns("compareROIs"),
                                    label = "Compare ROIs",
+                                   icon = icon("paper-plane"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+                      ),
+               br(),
+               br(),
+               br(),
+               h4("4. (Optional )Plot m/z profile along the ROI pixels"),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. In this module, mean ion intensity of each mass feature for each ROI will be calculated."),
+               textInput(inputId = ns("mzROI"),
+                         label = "Enter m/z values to plot the profile",
+                         placeholder = "For multiple m/z values, seperate them by a comma."
+                         ),
+               column(width = 12,
+                      actionButton(inputId = ns("plotROIProfile"),
+                                   label = "Plot",
                                    icon = icon("paper-plane"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
@@ -364,7 +375,8 @@ mod_viewData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  DT::dataTableOutput(outputId = ns("roiStatistics"))
-                )
+                ),
+               plotly::plotlyOutput(outputId = ns("roiProfiles"))
                )
              )
 
@@ -696,7 +708,7 @@ mod_viewData_server <- function(id, global){
 
     ##(4.4) Reset and show message----------------------------------------------
     output$resetROIMessage <- renderPrint({
-      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
+      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
       roiData$roiMSIData <- list()
       cat("All selected ROIs are removed.")
       }) |>
@@ -704,7 +716,7 @@ mod_viewData_server <- function(id, global){
 
     ##(4.5) Undo and show message ----------------------------------------------
     output$undoROIMessage <- renderPrint({
-      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "No ROIs found"))
+      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
       removedName <- names(roiData$roiMSIData)[length(roiData$roiMSIData)]
       roiData$roiMSIData <- head(roiData$roiMSIData, -1)
       cat(paste("ROI", removedName, "is removed.", sep = " "))
@@ -723,7 +735,7 @@ mod_viewData_server <- function(id, global){
     #(4.8) Analyse selected ROIs -----------------------------------------------
     output$roiStatistics <- DT::renderDT(server = FALSE, {
       shiny::req(global$cleanedMSIData)
-      shiny::req(length(roiData$roiMSIData) > 0)
+      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
       combinedROIMSIData <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiMSIData)
       statResult <- roiStat(roiMSIData = combinedROIMSIData)
       DT::datatable(
@@ -739,7 +751,17 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$compareROIs)
 
-
+    #(4.9) Show mz intensity profile alone pixels ------------------------------
+    output$roiProfiles <- plotly::renderPlotly({
+      shiny::req(global$cleanedMSIData)
+      mzROIList <- unique(text2Num(input$mzROI))
+      shiny::validate(
+        need(length(roiData$roiMSIData) == 1, message = "Only one ROI is allowed for plotting ion intensity profiles"),
+        need(min(mzROIList) >= msiInfo$mzMin & max(mzROIList) <= msiInfo$mzMax, message = paste("m/z value shoud between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " "))
+      )
+      plotROIProfile(msiData = global$cleanedMSIData, roiMSIData = roiData$roiMSIData, mz = mzROIList)
+    }) |>
+      bindEvent(input$plotROIProfile)
 
 })}
 

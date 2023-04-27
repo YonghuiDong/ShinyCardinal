@@ -733,7 +733,8 @@ mod_viewData_server <- function(id, global){
         options = list(dom = 'Bfrtip',
                        buttons = list(list(extend = 'csv', filename= 'roiStat')),
                        scrollX = TRUE
-                       )
+                       ),
+        rownames = FALSE
         )
     }) |>
       bindEvent(input$compareROIs)

@@ -46,6 +46,7 @@ golem::add_fct("getROI", with_test = FALSE)
 golem::add_fct("makeFactor2", with_test = FALSE)
 golem::add_fct("combine2", with_test = FALSE)
 golem::add_fct("roiStat", with_test = FALSE)
+golem::add_fct("plotROIProfile", with_test = FALSE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www

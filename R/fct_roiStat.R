@@ -37,8 +37,11 @@ roiStat <- function(roiMSIData){
   }
   #(3) Show result -------------------------------------------------------------
   if(!is.null(roiStat)){
-    cbind(roiMean, roiStat)
+    cbind(roiMean, roiStat) |>
+      (\(x) x[rowSums(x[, -which(names(x) == "mz")], na.rm = TRUE) > 0, ])() ## rm rows with all means == 0
   } else{
-    roiMean
+    roiMean |>
+      (\(x) x[rowSums(x[, -which(names(x) == "mz")], na.rm = TRUE) > 0, ])() ## rm rows with all means == 0
   }
 }
+

@@ -13,6 +13,7 @@ app_server <- function(input, output, session) {
     cleanedMSIData = NULL
   )
   # Your application server logic
+  mod_home_server("home_1")
   mod_uploadData_server("uploadData_1", global = global)
   mod_viewData_server("viewData_1", global = global)
   mod_segmentation_server("segmentation_1", global = global)

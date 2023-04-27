@@ -38,7 +38,7 @@ app_ui <- function(request) {
         ## Body ----------------------------------------------------------------
         body = dashboardBody(
           tabItems(
-            #tabItem(tabName = "home",  mod_home_ui("home_1")),
+            tabItem(tabName = "home",  mod_home_ui("home_1")),
             tabItem(tabName = "upload",  mod_uploadData_ui("uploadData_1")),
             tabItem(tabName = "visualize",  mod_viewData_ui("viewData_1")),
             tabItem(tabName = "segmentation",  mod_segmentation_ui("segmentation_1"))

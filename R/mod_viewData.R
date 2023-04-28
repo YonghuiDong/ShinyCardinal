@@ -244,7 +244,7 @@ mod_viewData_ui <- function(id){
                downloadButton(outputId = ns("saveImage"),
                               label = "Download Image",
                               icon = icon("download"),
-                              style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                              style="color: #fff; background-color: #a077b5; border-color: #a077b5"
                               ),
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',

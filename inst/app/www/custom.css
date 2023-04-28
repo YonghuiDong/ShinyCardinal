@@ -55,6 +55,34 @@
 }
 */
 
+/* Whole document: */
+body{
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 16px;
+  text-align: left;
+}
+
+/* Quoted text  */
+blockquote{
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background: #e6edf7;
+  border-left: 0.2em solid #8b9cc4;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+/* Link color  */
+a:link {
+  color: #6682c4;
+}
+
+/* Code text  */
+code {
+  background: #cce0ff;
+  color: #6682c4;
+  word-wrap: break-word;
+}
+
 /* Box color: primary*/
 
 .box.box-solid.box-primary>.box-header {

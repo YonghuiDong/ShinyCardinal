@@ -1,18 +1,26 @@
-#' plotPCASpec
-#'
-#' @description A fct function
-#'
-#' @return The return value, if any, from executing the function.
-#'
+#' @title Plot PCA loading.
+#' @description Plot PCA loading.
+#' @param msiData MSI data set.
+#' @param pcaResult PCA result obtained from getPCA()
+#' @param msiRun Which MSI run to display?
+#' @return plotly plot.
 #' @noRd
+#' @examples
+#' library(Cardinal)
+#' set.seed(2020)
+#' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
+#' pcaResult <- getPCA(msiData = mse, msiRun = "run0")
+#' plotPCASpec(msiData = mse, pcaResult = pcaResult, msiRun = "run0")
 
-plotPCASpec <- function(msiData, pcaResult){
+plotPCASpec <- function(msiData, pcaResult, msiRun = "All"){
 
   #(1) Prepare the data --------------------------------------------------------
-  pcaloadings <- data.frame(Cardinal::mz(msiData),
+  if(msiRun != "All"){
+    msiData <- msiData[Cardinal::run(msiData) == msiRun]
+  }
+  pcaloadings <- data.frame(mz = Cardinal::mz(msiData),
                             as.data.frame(Cardinal::resultData(pcaResult, 1, "loadings"))
                             )
-  colnames(pcaloadings)[1] <- "mz"
 
   #(2) Plot --------------------------------------------------------------------
   PCs <- colnames(pcaloadings)[-1]
@@ -40,7 +48,7 @@ plotPCASpec <- function(msiData, pcaResult){
                   shareY = TRUE,
                   titleX = TRUE,
                   titleY = TRUE) %>%
-    plotly::layout(title = "PCA loading plot (pseudospectrum)") %>%
+    plotly::layout(title = paste("PCA loading plot (pseudospectrum) for", msiRun, sep = " ")) %>%
     plotly::config(toImageButtonOptions = list(format = "svg", filename = "pcaLoadingSpec"))
 }
 

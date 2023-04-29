@@ -8,7 +8,7 @@
 #' @param normalize.image Normalization function to be applied to each image.
 #' @param contrast.enhance Contrast enhancement function to be applied to each image.
 #' @param superpose Should different feature images superposed on the same plot?
-#' @param run Which MSI run to display?
+#' @param msiRun Which MSI run to display?
 #' @return MSI image
 #' @noRd
 #' @examples

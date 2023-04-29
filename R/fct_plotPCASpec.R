@@ -13,17 +13,18 @@
 
 plotPCASpec <- function(pcaResult, msiRun){
   #(1) Prepare the data --------------------------------------------------------
-  pcaloadings <- data.frame(mz = round(as.data.frame(pcaResult@featureData), 4),
+  pcaLoadingList <- vector(mode = "list", length = 2)
+  pcaLoadings <- data.frame(mz = round(as.data.frame(pcaResult@featureData), 4),
                             as.data.frame(Cardinal::resultData(pcaResult, 1, "loadings"))
                             )
 
   #(2) Plot --------------------------------------------------------------------
-  PCs <- colnames(pcaloadings)[-1]
+  PCs <- colnames(pcaLoadings)[-1]
   N <- length(PCs)
   plot_list <- vector("list", length = N)
 
   for(i in 1:N){
-    df <- data.frame(mz = pcaloadings$mz, Loadings = pcaloadings[[PCs[(i)]]])
+    df <- data.frame(mz = pcaLoadings$mz, Loadings = pcaLoadings[[PCs[(i)]]])
     p <- plotly::plot_ly(data = df) %>%
       plotly::add_segments(x = ~ mz,
                            xend = ~ mz,
@@ -37,14 +38,17 @@ plotPCASpec <- function(pcaResult, msiRun){
     plot_list[[i]] = p
   }
 
-  plotly::subplot(plot_list,
-                  nrows = ceiling(N/2),
-                  shareX = TRUE,
-                  shareY = TRUE,
-                  titleX = TRUE,
-                  titleY = TRUE) %>%
+  pacLoadingPlot <- plotly::subplot(plot_list,
+                                    nrows = ceiling(N/2),
+                                    shareX = TRUE,
+                                    shareY = TRUE,
+                                    titleX = TRUE,
+                                    titleY = TRUE) %>%
     plotly::layout(title = paste("PCA loading plot (pseudospectrum) for", msiRun, sep = " ")) %>%
     plotly::config(toImageButtonOptions = list(format = "svg", filename = "pcaLoadingSpec"))
+  pcaLoadingList$df <- pcaLoadings
+  pcaLoadingList$plot <- pacLoadingPlot
+  return(pcaLoadingList)
 }
 
 

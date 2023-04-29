@@ -4,7 +4,7 @@
 #' @param ncomp The number of principal components to calculate.
 #' @param center Should the data be centered first? This is passed to scale.
 #' @param scale Shoud the data be scaled first? This is passed to scale.
-#' @param run Which MSI run to display?
+#' @param msiRun Which MSI run to display?
 #' @param workers number of workers for parallel computation.
 #' @return An object of class PCA2. See Cardinal::PCA.
 #' @noRd

@@ -318,7 +318,7 @@ mod_segmentation_ui <- function(id){
                shiny::verbatimTextOutput(outputId = ns("infoSSCCImage"))
              ),
              column(width = 12,
-                    h4("Subset SSCC images by selecting r, s, and k below:"),
+                    p(style = "color:#C70039;", "Subset SSCC images by selecting r, s, and k below:"),
                     br()
                     ),
              column(width = 4,

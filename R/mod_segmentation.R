@@ -11,7 +11,6 @@ mod_segmentation_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
-    waiter::use_waiter(),
     #(0) User guide ============================================================
     column(width = 12,
            box(
@@ -62,83 +61,10 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
-             shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
-             )
-           ),
-
-    #(2) Background noise and matrix removal ===================================
-    column(width = 12, h5("Remove Background Noises and Matrix Peaks")),
-    column(width = 4,
-           box(
-             width = 12,
-             inputId = "input_card",
-             title = strong("Input Parameters"),
-             status = "primary",
-             solidHeader = TRUE,
-             collapsible = TRUE,
-             collapsed = TRUE,
-             closable = FALSE,
-             p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-             p(style = "color:#C70039;", "1. This moduel is optional."),
-             p(style = "color:#C70039;", "2. Enter a noise or matrix m/z value below. The software
-               will detect its colocalized features and remove them based on the colocalization coefficient."),
-             p(style = "color:#C70039;", "3. You can improve the speed by subsetting the MSI data
-               and selecting multiple workers."),
-             p(style = "color:#C70039;", "4. You can run this step multiple times to efficiently remove noise-
-               and matrix-related features."),
-             numericInput(inputId = ns("noisePeak"),
-                          label = "Enter a single noise or matrix m/z value",
-                          value = NULL,
-                          min = 0,
-                          max = 10000000
-                          ),
-             sliderInput(inputId = ns("colocThreshould"),
-                         label = "Select the threshold for colocalization correlation coefficient",
-                         min = 0.5,
-                         max = 1,
-                         value = 0.9,
-                         step = 0.01
-                         ),
-             sliderInput(inputId = ns("nth"),
-                         label = "(Optional) Subset MSI Data by selecting every nth pixel",
-                         min = 1,
-                         max = 10,
-                         value = 1,
-                         step = 1
-                         ),
-             strong("(optional) Choose number of workers for parallel computation"),
-             sliderInput(inputId = ns("colocWorkers"),
-                         label = "",
-                         min = 1,
-                         max = 10,
-                         value = 1,
-                         step = 1
-                         ),
-             actionButton(inputId = ns("noiseColoc"),
-                          label = "Start",
-                          icon = icon("paper-plane"),
-                          style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
-                          )
-             )
-           ),
-
-    ##(2.1) Background noise and matrix removal output -------------------------
-    column(width = 8,
-           box(
-             width = 12,
-             inputId = "input_card",
-             title = strong("Result"),
-             status = "success",
-             solidHeader = TRUE,
-             collapsible = TRUE,
-             collapsed = TRUE,
-             closable = FALSE,
-             ## tagAppendAttributes is used to display waiter image in textOutput
-             tagAppendAttributes(shiny::verbatimTextOutput(outputId = ns("infoBNMR")), style = "height:400px;"),
-             column(width = 6, shiny::uiOutput(outputId = ns("deleteButton"))),
-             column(width = 6, shiny::uiOutput(outputId = ns("resetButton"))),
-             shiny::verbatimTextOutput(outputId = ns("summaryBNMR")),
-             shiny::verbatimTextOutput(outputId = ns("massList2"))
+             shinycssloaders::withSpinner(
+               image = 'www/img/cardinal.gif',
+               shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
+               )
              )
            ),
 
@@ -155,25 +81,25 @@ mod_segmentation_ui <- function(id){
              collapsed = TRUE,
              closable = FALSE,
              sliderInput(inputId = ns("nComp"),
-                         label = "2. Select the number of principal components",
+                         label = "1. Select the number of principal components",
                          min = 2,
                          max = 20,
                          value = 2,
                          step = 1
                          ),
              radioButtons(inputId = ns("centerPCA"),
-                          label = "3. Should the data be centered?",
+                          label = "2. Should the data be centered?",
                           choices = list("Yes" = 1, "No" = 0),
                           selected = 1,
                           inline = TRUE
                           ),
              radioButtons(inputId = ns("scalePCA"),
-                          label = "4. Should the data be scaled?",
+                          label = "3. Should the data be scaled?",
                           choices = list("Yes" = 1, "No" = 0),
                           selected = 0,
                           inline = TRUE
                           ),
-             strong("5. (optional) Choose number of workers for parallel computation"),
+             strong("4. (optional) Choose number of workers for parallel computation"),
              sliderInput(inputId = ns("pcaWorkers"),
                          label = "",
                          min = 1,
@@ -243,7 +169,7 @@ mod_segmentation_ui <- function(id){
                                                "blueblack" = "blueblack",
                                                "grayscale" = "grayscale"
                                                ),
-                                selected = "cividis"
+                                selected = "viridis"
                                 )
                     ),
              column(width = 6,
@@ -283,17 +209,17 @@ mod_segmentation_ui <- function(id){
              closable = FALSE,
              textInput(inputId = ns("r"),
                        label = "r: The spatial neighborhood radius of nearby pixels to consider.",
-                       placeholder = "For multiple values, separate them by a comma...",
+                       placeholder = "For multiple values, separate them by a comma.",
                        value = "2"
                        ),
              textInput(inputId = ns("s"),
                        label = "s: Enter the sparsity thresholding parameter by which to shrink the t-statistics",
-                       placeholder = "For multiple values, separate them by a comma...",
+                       placeholder = "For multiple values, separate them by a comma.",
                        value = "0"
                        ),
              textInput(inputId = ns("k"),
                        label = "k: Enter the maximum number of segments",
-                       placeholder = "For multiple values, separate them by a comma...",
+                       placeholder = "For multiple values, separate them by a comma.",
                        value = "2"
                        ),
              radioButtons(inputId = ns("ssccMethod"),
@@ -379,7 +305,7 @@ mod_segmentation_ui <- function(id){
                                                "blueblack" = "blueblack",
                                                "grayscale" = "grayscale"
                                                ),
-                                selected = "cividis"
+                                selected = "viridis"
                                 )
                     ),
              column(width = 6,
@@ -441,132 +367,27 @@ mod_segmentation_server <- function(id, global){
     ns <- session$ns
 
     #(1) Load MSI rds Data =====================================================
-    observeEvent(input$loadData, {
-      if(!is.null(input$rdsMSI)){
-        global$processedMSIData <- readRDS(input$rdsMSI$datapath)
-      }
-
-      #(1.1) Show MSI data info ------------------------------------------------
-      output$infoMSIData <- shiny::renderPrint({
-        shiny::validate(need(!is.null(global$processedMSIData), message = "MSI data not found"))
+    output$infoMSIData <- shiny::renderPrint({
+      shiny::validate(need(!is.null(input$rdsMSI), message = "rds file not found"))
+      global$processedMSIData <- readRDS(input$rdsMSI$datapath)
+      if(is.null(global$processedMSIData)){
+        cat("MSI data not loaded, please check if your rds file is empty.\n")
+      } else {
         cat("MSI data loaded successfully!\n")
         global$processedMSIData
-      })
-    })
+      }
+    }) |>
+      bindEvent(input$loadData)
 
-    #(2) Background Removal ====================================================
-    ## massList is used to ensure that user will not perform coloclaizaiton on the same m/z more than once.
-    ## This may remove some unwanted mass features.
-    massList <- reactiveValues(value = NULL)
-    observeEvent(input$noiseColoc,{
+    #(2) PCA ===================================================================
+    observeEvent(input$viewPCA,{
       #(2.1) Check input -------------------------------------------------------
       shiny::req(global$processedMSIData)
-      shiny::req(input$noisePeak)
-      shiny::req(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) &
-                   input$noisePeak <= max(Cardinal::mz(global$processedMSIData))
-                 )
-      shiny::req(!(isolate(input$noisePeak) %in% isolate(massList$value)))
-      w <- waiter::Waiter$new(id = ns("infoBNMR"),
-                              html = "Please wait, running...",
-                              image = 'www/img/cardinal.gif',
-                              fadeout = TRUE
-                              )
-      w$show()
-
-      #(2.2) Perform colocalization --------------------------------------------
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
-      colocDF <- colocAnalysis(msiData = global$cleanedMSIData,
-                               precursor = input$noisePeak,
-                               nth = input$nth,
-                               worker = input$colocWorkers
-                               )
-      global$subDF <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
-      on.exit({w$hide()})
 
-      #(2.3) Display buttons ---------------------------------------------------
-      output$deleteButton <- renderUI({
-        actionButton(
-          inputId = ns("deleteFeatures"),
-          label = "Delete",
-          icon = icon("trash"),
-          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
-      output$resetButton <- renderUI({
-        actionButton(
-          inputId = ns("resetFeatures"),
-          label = "Reset",
-          icon = icon("circle"),
-          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
-
-      #(2.4) Display cocolization information ----------------------------------
-      output$infoBNMR <- shiny::renderPrint({
-        shiny::validate(
-          need(!is.null(global$processedMSIData), message = "MSI data not found."),
-          need(!is.null(input$noisePeak), message = "Input m/z peak not found."),
-          need(!(isolate(input$noisePeak) %in% isolate(massList$value)),
-               message = "This input feature has been removed, Please choose another one."),
-          need(nrow(colocDF) > 0, message = "Input m/z peak is out of range.")
-          )
-        cat("The selected features are shown below:\n")
-        cat("You can click on the Reset button to restore the original MSI data. \n")
-        cat("\n")
-        global$subDF
-        })
-      })
-
-    #(2.5) Delete features -----------------------------------------------------
-    observeEvent(input$deleteFeatures,{
-      global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = global$subDF)
-      ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
-      massList$value <- round(c(massList$value, input$noisePeak, global$subDF$mz), 3)
-    })
-
-      #(2.7) Reset feature -----------------------------------------------------
-    observeEvent(input$resetFeatures,{
-      shiny::req(global$cleanedMSIData)
-      shiny::req(global$processedMSIData)
-      global$cleanedMSIData <- global$processedMSIData
-      massList$value <- NULL
-    })
-
-      #(2.8) Show summarized result --------------------------------------------
-    output$summaryBNMR <- shiny::renderPrint({
-      shiny::req(global$cleanedMSIData)
-      shiny::req(global$processedMSIData)
-      if(identical(global$processedMSIData, global$cleanedMSIData)){
-        cat("No noises or matrix related peaks were removed.\n")
-      } else{
-        cat("MSI data after noises and matrix related peaks removal: \n")
-        global$cleanedMSIData
-      }
-    })
-
-    output$massList2 <- shiny::renderPrint({
-      print(input$noisePeak %in% massList$value)
-      massList$value
-    })
-
-    #(3) PCA ===================================================================
-    observeEvent(input$viewPCA,{
-
-      #(3.1) Check input -------------------------------------------------------
-      shiny::req(global$processedMSIData)
-      if(is.null(global$cleanedMSIData)){
-        global$cleanedMSIData <- global$processedMSIData
-        }
-      w2 <- waiter::Waiter$new(id = ns("pcaImages"),
-                               html = strong(""),
-                               image = 'www/img/cardinal.gif',
-                               fadeout = TRUE
-                               )
-      w2$show()
-
-      #(3.2) Show PCA images ---------------------------------------------------
+      #(2.2) Show PCA images ---------------------------------------------------
       getPCA <- Cardinal::PCA(x = global$cleanedMSIData,
                               ncomp = input$nComp,
                               center = as.logical(as.numeric(input$centerPCA)),
@@ -577,7 +398,6 @@ mod_segmentation_server <- function(id, global){
         cat("Below are PCA images:")
       })
       output$pcaImages <- shiny::renderPlot({
-        on.exit({w2$hide()})
         if(input$modePCAImage == "light"){
           Cardinal::lightmode()
         } else {
@@ -592,13 +412,13 @@ mod_segmentation_server <- function(id, global){
                         )
         })
 
-      #(3.3) Show PCA loading spectrum info ------------------------------------
+      #(2.3) Show PCA loading spectrum info ------------------------------------
       output$infoLoadings <- shiny::renderPrint({
         cat("Below are the loading plots:\n")
         cat("The loadings of the components show how each mass feature contributes to each component.")
       })
 
-      #(3.4) Show PCA loading spectrum -----------------------------------------
+      #(2.4) Show PCA loading spectrum -----------------------------------------
       output$pcaLoadingsSpec <- plotly::renderPlotly({
         shiny::req(
           !is.null(global$cleanedMSIData),
@@ -608,20 +428,14 @@ mod_segmentation_server <- function(id, global){
         })
       })
 
-    #(4) SSCC ==================================================================
+    #(3) SSCC ==================================================================
     observeEvent(input$viewSSCC,{
       shiny::req(global$processedMSIData)
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
-      w3 <- waiter::Waiter$new(id = ns("ssccImages"),
-                               html = strong(""),
-                               image = 'www/img/cardinal.gif',
-                               fadeout = TRUE
-                               )
-      w3$show()
 
-      #(4.1) Format input parameters -------------------------------------------
+      #(3.1) Format input parameters -------------------------------------------
       r <- unique(text2Num(input$r))
       s <- unique(text2Num(input$s))
       k <- unique(text2Num(input$k))
@@ -671,7 +485,7 @@ mod_segmentation_server <- function(id, global){
         cat("Below are the SSCC t-statistic Spectrum plot:\n")
         cat("Mass features with t-statistics of zero do not contribute to the segmentation.\n")
         cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.")
-        })
+      })
 
       ##(3.4) Plot SSCC t-statistic Spec ---------------------------------------
       output$ssccStatisticSpec <- plotly::renderPlotly({
@@ -681,7 +495,7 @@ mod_segmentation_server <- function(id, global){
                      s = input$outputS,
                      k = input$outputK
                      )
-        })
+      })
 
 
 

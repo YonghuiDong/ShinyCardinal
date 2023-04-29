@@ -189,6 +189,7 @@ mod_segmentation_ui <- function(id){
                image = 'www/img/cardinal.gif',
                shiny::verbatimTextOutput(outputId = ns("infoPCAImage"))
                ),
+             shiny::uiOutput(outputId = ns("downloadPCAImageButton")),
              shiny::plotOutput(outputId = ns("pcaImages")),
              shiny::verbatimTextOutput(outputId = ns("infoLoadings")),
              plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec"))
@@ -430,7 +431,32 @@ mod_segmentation_server <- function(id, global){
       msiPCA$image
     })
 
-    #(2.3) Show PCA loading spectrum info --------------------------------------
+    #(2.3) Download PCA images -------------------------------------------------
+    output$downloadPCAImageButton <- renderUI({
+      shiny::req(print(msiPCA$image))
+      downloadButton(
+        outputId = ns("downloadPCAImage"),
+        label = "Download",
+        icon = icon("download"),
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+      )
+    }) # no need to used bindEvent here, otherwise the download button only shows after 2nd click.
+
+    output$downloadPCAImage <- downloadHandler(
+      shiny::req(print(msiPCA$image)),
+      filename = function(){
+          paste0(Sys.Date(), "_pcaImage", ".pdf")
+      },
+      content = function(file){
+        pdf(file)
+        print(msiPCA$image)
+        dev.off()
+      }
+    )
+
+
+
+    #(2.4) Show PCA loading spectrum info --------------------------------------
     output$infoLoadings <- shiny::renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiPCA$result)
@@ -438,7 +464,7 @@ mod_segmentation_server <- function(id, global){
       cat("The loadings of the components show how each mass feature contributes to each component.")
     })
 
-    #(2.4) Display PCA loading spectrum ----------------------------------------
+    #(2.5) Display PCA loading spectrum ----------------------------------------
     output$pcaLoadingsSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiPCA$result)

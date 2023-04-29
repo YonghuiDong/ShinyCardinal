@@ -192,7 +192,8 @@ mod_segmentation_ui <- function(id){
              shiny::uiOutput(outputId = ns("downloadPCAImageButton")),
              shiny::plotOutput(outputId = ns("pcaImages")),
              shiny::verbatimTextOutput(outputId = ns("infoLoadings")),
-             plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec"))
+             plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec")),
+             DT::dataTableOutput(outputId = ns("pcaLoadingTable"))
              )
            ),
 
@@ -397,7 +398,7 @@ mod_segmentation_server <- function(id, global){
         }
     })
 
-    msiPCA <- reactiveValues(result = NULL, image = NULL)
+    msiPCA <- reactiveValues(result = NULL, image = NULL, loading = NULL)
     #(2.1) Calculate PCA -------------------------------------------------------
     output$infoPCAImage <- shiny::renderPrint({
       shiny::validate(need(global$cleanedMSIData, message = "MSI data not found!"))
@@ -454,8 +455,6 @@ mod_segmentation_server <- function(id, global){
       }
     )
 
-
-
     #(2.4) Show PCA loading spectrum info --------------------------------------
     output$infoLoadings <- shiny::renderPrint({
       shiny::req(global$cleanedMSIData)
@@ -466,11 +465,28 @@ mod_segmentation_server <- function(id, global){
 
     #(2.5) Display PCA loading spectrum ----------------------------------------
     output$pcaLoadingsSpec <- plotly::renderPlotly({
-      shiny::req(global$cleanedMSIData)
       shiny::req(msiPCA$result)
-      plotPCASpec(msiData = global$cleanedMSIData, pcaResult = msiPCA$result, msiRun = input$msiRun)
+      msiPCA$loading <- plotPCASpec(pcaResult = msiPCA$result, msiRun = input$msiRun)
+      msiPCA$loading$plot
     }) |>
       bindEvent(input$viewPCA)
+
+    #(2.6) Show PCA loading table ----------------------------------------------
+    output$pcaLoadingTable <- DT::renderDT(server = FALSE, {
+      shiny::req(msiPCA$result)
+      DT::datatable(
+        msiPCA$loading$df,
+        caption = "PCA loading",
+        extensions ="Buttons",
+        options = list(dom = 'Bfrtip',
+                       buttons = list(list(extend = 'csv', filename= 'pcaLoading')),
+                       scrollX = TRUE
+                       ),
+        rownames = FALSE
+      )
+    }) |>
+      bindEvent(input$viewPCA)
+
 
     #(3) SSCC ==================================================================
     msiSSCC <- reactiveValues(result = NULL, image = NULL)

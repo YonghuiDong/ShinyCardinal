@@ -40,9 +40,8 @@ plotPCASpec <- function(msiData, pcaResult){
                   shareY = TRUE,
                   titleX = TRUE,
                   titleY = TRUE) %>%
-    plotly::config(
-      toImageButtonOptions = list(format = "svg", filename = "pcaLoadingSpec")
-    )
+    plotly::layout(title = "PCA loading plot (pseudospectrum)") %>%
+    plotly::config(toImageButtonOptions = list(format = "svg", filename = "pcaLoadingSpec"))
 }
 
 

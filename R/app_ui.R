@@ -25,11 +25,9 @@ app_ui <- function(request) {
             hr(),
             menuItem(text = strong("Image Segmentation"), tabName = "segmentation", icon = icon("object-group")),
             hr(),
-            menuItem(text = strong("Statistics"), tabName = "statistics", icon = icon("bar-chart")),
-            hr(),
             menuItem(text = strong("Network Analysis"), tabName = "network", icon = icon("snowflake")),
             hr(),
-            menuItem(text = strong("Identification"), tabName = "identification", icon = icon("info")),
+            menuItem(text = strong("Identification"), tabName = "identification", icon = icon("info-circle")),
             hr(),
             menuItem(text = strong("Contact"), tabName = "contact", icon = icon("smile"))
           )

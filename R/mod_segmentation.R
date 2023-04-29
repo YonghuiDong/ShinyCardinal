@@ -80,6 +80,11 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
+             selectInput(inputId = ns('msiRun'),
+                         label = '(optional) Select a MSI run to display.',
+                         choices = NULL,
+                         selected = NULL
+                         ),
              sliderInput(inputId = ns("nComp"),
                          label = "1. Select the number of principal components",
                          min = 2,
@@ -370,20 +375,38 @@ mod_segmentation_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(2) PCA ===================================================================
-    msiPCA <- reactiveValues(result = NULL, image = NULL)
-    #(2.1) Calculate PCA -------------------------------------------------------
-    output$infoPCAImage <- shiny::renderPrint({
-      shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
+    #(2.0) Update MSI run ------------------------------------------------------
+    observeEvent(global$processedMSIData,{
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
-      msiPCA$result <- Cardinal::PCA(x = global$cleanedMSIData,
-                                     ncomp = input$nComp,
-                                     center = as.logical(as.numeric(input$centerPCA)),
-                                     scale = as.logical(as.numeric(input$scalePCA)),
-                                     BPPARAM = BiocParallel::SnowParam(workers = input$pcaWorkers,
-                                                                       progressbar = FALSE)
-                                     )
+      if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
+        ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.
+        updateSelectInput(session = session,
+                          inputId = "msiRun", ## no name space
+                          choices = levels(Cardinal::run(global$cleanedMSIData)),
+                          selected = levels(Cardinal::run(global$cleanedMSIData))
+                          )
+        } else {
+        updateSelectInput(session = session,
+                          inputId = "msiRun", ## no name space
+                          choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
+                          selected = "All"
+                          )
+        }
+    })
+
+    msiPCA <- reactiveValues(result = NULL, image = NULL)
+    #(2.1) Calculate PCA -------------------------------------------------------
+    output$infoPCAImage <- shiny::renderPrint({
+      shiny::validate(need(global$cleanedMSIData, message = "MSI data not found!"))
+      msiPCA$result <- getPCA(msiData = global$cleanedMSIData,
+                              ncomp = input$nComp,
+                              center = as.logical(as.numeric(input$centerPCA)),
+                              scale = as.logical(as.numeric(input$scalePCA)),
+                              msiRun = input$msiRun,
+                              workers = input$pcaWorkers
+                              )
       cat("Below are PCA images:")
     }) |>
       bindEvent(input$viewPCA)

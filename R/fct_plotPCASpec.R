@@ -1,6 +1,5 @@
 #' @title Plot PCA loading.
 #' @description Plot PCA loading.
-#' @param msiData MSI data set.
 #' @param pcaResult PCA result obtained from getPCA()
 #' @param msiRun Which MSI run to display?
 #' @return plotly plot.
@@ -10,15 +9,11 @@
 #' set.seed(2020)
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
 #' pcaResult <- getPCA(msiData = mse, msiRun = "run0")
-#' plotPCASpec(msiData = mse, pcaResult = pcaResult, msiRun = "run0")
+#' plotPCASpec(pcaResult = pcaResult, msiRun = "run0")
 
-plotPCASpec <- function(msiData, pcaResult, msiRun = "All"){
-
+plotPCASpec <- function(pcaResult, msiRun){
   #(1) Prepare the data --------------------------------------------------------
-  if(msiRun != "All"){
-    msiData <- msiData[Cardinal::run(msiData) == msiRun]
-  }
-  pcaloadings <- data.frame(mz = Cardinal::mz(msiData),
+  pcaloadings <- data.frame(mz = round(as.data.frame(pcaResult@featureData), 4),
                             as.data.frame(Cardinal::resultData(pcaResult, 1, "loadings"))
                             )
 

@@ -111,7 +111,61 @@ mod_segmentation_ui <- function(id){
                           label = "Plot",
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                          ),
+             br(),
+             br(),
+             p(style = "color:#C70039;", "Set image parameters:"),
+             selectInput(inputId = ns("normalizePCAImage"),
+                         label = "Apply normalization to the image",
+                         multiple = FALSE,
+                         choices = list("none" = "none", "linear" = "linear"),
+                         selected = "linear"
+                         ),
+             selectInput(inputId = ns("contrastPCAImage"),
+                         label = "Apply contrast enhancement to the image",
+                         multiple = FALSE,
+                         choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
+                         selected = "suppression"
+                         ),
+             selectInput(inputId = ns("smoothPCAImage"),
+                         label = "Apply smoothing to the image",
+                         multiple = FALSE,
+                         choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
+                         selected = "none"
+                         ),
+             selectInput(inputId = ns("colorPCAImage"),
+                         label = "Slect color scale",
+                         multiple = FALSE,
+                         choices = list("cividis" = "cividis",
+                                        "viridis" = "viridis",
+                                        "magma" = "magma",
+                                        "inferno" = "inferno",
+                                        "plasma" = "plasma",
+                                        "rainbow" = "rainbow",
+                                        "darkrainbow" = "darkrainbow",
+                                        "jet" = "jet",
+                                        "hot" = "hot",
+                                        "cool" = "cool",
+                                        "redblack" = "redblack",
+                                        "greenblack" = "greenblack",
+                                        "blueblack" = "blueblack",
+                                        "grayscale" = "grayscale"
+                                        ),
+                         selected = "viridis"
+             ),
+             radioButtons(inputId = ns("modePCAImage"),
+                          label = "Do you prefer light or dark mode?",
+                          choices = list("light" = "light", "dark" = "dark"),
+                          selected = "dark",
+                          inline = TRUE
+                          ),
+             radioButtons(inputId = ns("superposePCAImage"),
+                          label = "Do you want to superpose different m/z images",
+                          choices = list("Yes" = 1, "No" = 0),
+                          selected = 0,
+                          inline = TRUE
                           )
+
              )
            ),
 
@@ -126,69 +180,10 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
-             column(width = 6,
-                    selectInput(inputId = ns("normalizePCAImage"),
-                                label = "Apply normalization to the image",
-                                multiple = FALSE,
-                                choices = list("none" = "none", "linear" = "linear"),
-                                selected = "linear"
-                                )
-                    ),
-             column(width = 6,
-                    selectInput(inputId = ns("contrastPCAImage"),
-                                label = "Apply contrast enhancement to the image",
-                                multiple = FALSE,
-                                choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
-                                selected = "suppression"
-                                )
-                    ),
-             column(width = 6,
-                    selectInput(inputId = ns("smoothPCAImage"),
-                                label = "Apply smoothing to the image",
-                                multiple = FALSE,
-                                choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
-                                selected = "none"
-                                )
-                    ),
-             column(width = 6,
-                    selectInput(inputId = ns("colorPCAImage"),
-                                label = "Slect color scale",
-                                multiple = FALSE,
-                                choices = list("cividis" = "cividis",
-                                               "viridis" = "viridis",
-                                               "magma" = "magma",
-                                               "inferno" = "inferno",
-                                               "plasma" = "plasma",
-                                               "rainbow" = "rainbow",
-                                               "darkrainbow" = "darkrainbow",
-                                               "jet" = "jet",
-                                               "hot" = "hot",
-                                               "cool" = "cool",
-                                               "redblack" = "redblack",
-                                               "greenblack" = "greenblack",
-                                               "blueblack" = "blueblack",
-                                               "grayscale" = "grayscale"
-                                               ),
-                                selected = "viridis"
-                                )
-                    ),
-             column(width = 6,
-                    radioButtons(inputId = ns("modePCAImage"),
-                                 label = "Do you prefer light or dark mode?",
-                                 choices = list("light" = "light", "dark" = "dark"),
-                                 selected = "dark",
-                                 inline = TRUE
-                                 )
-                    ),
-             column(width = 6,
-                    radioButtons(inputId = ns("superposePCAImage"),
-                                 label = "Do you want to superpose different m/z images",
-                                 choices = list("Yes" = 1, "No" = 0),
-                                 selected = 0,
-                                 inline = TRUE
-                                 )
-                    ),
-             shiny::verbatimTextOutput(outputId = ns("infoPCAImage")),
+             shinycssloaders::withSpinner(
+               image = 'www/img/cardinal.gif',
+               shiny::verbatimTextOutput(outputId = ns("infoPCAImage"))
+               ),
              shiny::plotOutput(outputId = ns("pcaImages")),
              shiny::verbatimTextOutput(outputId = ns("infoLoadings")),
              plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec"))
@@ -247,7 +242,63 @@ mod_segmentation_ui <- function(id){
                           label = "Plot",
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                          ),
+             br(),
+             br(),
+             p(style = "color:#C70039;", "Set image parameters:"),
+             selectInput(inputId = ns("normalizeSSCCImage"),
+                         label = "Apply normalization to the image",
+                         multiple = FALSE,
+                         choices = list("none" = "none", "linear" = "linear"),
+                         selected = "linear"
+                         ),
+             selectInput(inputId = ns("contrastSSCCImage"),
+                         label = "Apply contrast enhancement to the image",
+                         multiple = FALSE,
+                         choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
+                         selected = "suppression"
+                         ),
+             selectInput(inputId = ns("smoothSSCCImage"),
+                         label = "Apply smoothing to the image",
+                         multiple = FALSE,
+                         choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
+                         selected = "none"
+                         ),
+             selectInput(inputId = ns("colorSSCCImage"),
+                         label = "Slect color scale",
+                         multiple = FALSE,
+                         choices = list("cividis" = "cividis",
+                                        "viridis" = "viridis",
+                                        "magma" = "magma",
+                                        "inferno" = "inferno",
+                                        "plasma" = "plasma",
+                                        "rainbow" = "rainbow",
+                                        "darkrainbow" = "darkrainbow",
+                                        "jet" = "jet",
+                                        "hot" = "hot",
+                                        "cool" = "cool",
+                                        "redblack" = "redblack",
+                                        "greenblack" = "greenblack",
+                                        "blueblack" = "blueblack",
+                                        "grayscale" = "grayscale"
+                                        ),
+                         selected = "viridis"
+                         ),
+
+             radioButtons(inputId = ns("modeSSCCImage"),
+                          label = "Do you prefer light or dark mode?",
+                          choices = list("light" = "light", "dark" = "dark"),
+                          selected = "dark",
+                          inline = TRUE
+                          ),
+
+             radioButtons(inputId = ns("superposeSSCCImage"),
+                          label = "Do you want to superpose different m/z images",
+                          choices = list("Yes" = 1, "No" = 0),
+                          selected = 1,
+                          inline = TRUE
                           )
+
              )
            ),
 
@@ -262,68 +313,10 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
-             column(width = 6,
-                    selectInput(inputId = ns("normalizeSSCCImage"),
-                                label = "Apply normalization to the image",
-                                multiple = FALSE,
-                                choices = list("none" = "none", "linear" = "linear"),
-                                selected = "linear"
-                                )
-                    ),
-             column(width = 6,
-                    selectInput(inputId = ns("contrastSSCCImage"),
-                                label = "Apply contrast enhancement to the image",
-                                multiple = FALSE,
-                                choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
-                                selected = "suppression"
-                                )
-                    ),
-             column(width = 6,
-                    selectInput(inputId = ns("smoothSSCCImage"),
-                                label = "Apply smoothing to the image",
-                                multiple = FALSE,
-                                choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
-                                selected = "none"
-                                )
-                    ),
-             column(width = 6,
-                    selectInput(inputId = ns("colorSSCCImage"),
-                                label = "Slect color scale",
-                                multiple = FALSE,
-                                choices = list("cividis" = "cividis",
-                                               "viridis" = "viridis",
-                                               "magma" = "magma",
-                                               "inferno" = "inferno",
-                                               "plasma" = "plasma",
-                                               "rainbow" = "rainbow",
-                                               "darkrainbow" = "darkrainbow",
-                                               "jet" = "jet",
-                                               "hot" = "hot",
-                                               "cool" = "cool",
-                                               "redblack" = "redblack",
-                                               "greenblack" = "greenblack",
-                                               "blueblack" = "blueblack",
-                                               "grayscale" = "grayscale"
-                                               ),
-                                selected = "viridis"
-                                )
-                    ),
-             column(width = 6,
-                    radioButtons(inputId = ns("modeSSCCImage"),
-                                 label = "Do you prefer light or dark mode?",
-                                 choices = list("light" = "light", "dark" = "dark"),
-                                 selected = "dark",
-                                 inline = TRUE
-                                 )
-                    ),
-             column(width = 6,
-                    radioButtons(inputId = ns("superposeSSCCImage"),
-                                 label = "Do you want to superpose different m/z images",
-                                 choices = list("Yes" = 1, "No" = 0),
-                                 selected = 1,
-                                 inline = TRUE
-                                 )
-                    ),
+             shinycssloaders::withSpinner(
+               image = 'www/img/cardinal.gif',
+               shiny::verbatimTextOutput(outputId = ns("infoSSCCImage"))
+             ),
              column(width = 12,
                     h4("Subset SSCC images by selecting r, s, and k below:"),
                     br()
@@ -349,7 +342,6 @@ mod_segmentation_ui <- function(id){
                                 multiple = FALSE
                                 )
                     ),
-             shiny::verbatimTextOutput(outputId = ns("infoSSCCImage")),
              shiny::plotOutput(outputId = ns("ssccImages")),
              shiny::verbatimTextOutput(outputId = ns("infoSSCCSpec")),
              plotly::plotlyOutput(outputId = ns("ssccStatisticSpec"))
@@ -381,7 +373,6 @@ mod_segmentation_server <- function(id, global){
 
     #(2) PCA ===================================================================
     msiPCA <- reactiveValues(result = NULL, image = NULL)
-
     #(2.1) Calculate PCA -------------------------------------------------------
     output$infoPCAImage <- shiny::renderPrint({
       shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
@@ -392,7 +383,8 @@ mod_segmentation_server <- function(id, global){
                                      ncomp = input$nComp,
                                      center = as.logical(as.numeric(input$centerPCA)),
                                      scale = as.logical(as.numeric(input$scalePCA)),
-                                     BPPARAM = BiocParallel::SnowParam(workers = input$pcaWorkers, progressbar = FALSE)
+                                     BPPARAM = BiocParallel::SnowParam(workers = input$pcaWorkers,
+                                                                       progressbar = FALSE)
                                      )
       cat("Below are PCA images:")
     }) |>
@@ -433,16 +425,21 @@ mod_segmentation_server <- function(id, global){
     })
 
     #(3) SSCC ==================================================================
-    observeEvent(input$viewSSCC,{
-      shiny::req(global$processedMSIData)
-      if(is.null(global$cleanedMSIData)){
-        global$cleanedMSIData <- global$processedMSIData
-      }
-
-      #(3.1) Format input parameters -------------------------------------------
+    msiSSCC <- reactiveValues(result = NULL, image = NULL)
+    #(3.1) Calculate SSCC ------------------------------------------------------
+    output$infoSSCCImage <- shiny::renderPrint({
+      shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
+      if(is.null(global$cleanedMSIData)){global$cleanedMSIData <- global$processedMSIData}
       r <- unique(text2Num(input$r))
       s <- unique(text2Num(input$s))
       k <- unique(text2Num(input$k))
+
+      ## update r, s, k in output
+      shiny::validate(
+        need(all(r > 0), message = "r should be positive value."),
+        need(all(s >= 0), message = "s should be positive value."),
+        need(all(k > 0), message = "k should be positive value.")
+        )
       observeEvent(input$r,{
         updateSelectInput(session, inputId = 'outputR', choices = r)
       })
@@ -453,62 +450,64 @@ mod_segmentation_server <- function(id, global){
         updateSelectInput(session, inputId = 'outputK', choices = k)
       })
 
-      #(3.2) Show SSCC images --------------------------------------------------
       set.seed(2023)
-      getSSCC <- Cardinal::spatialShrunkenCentroids(x = global$cleanedMSIData,
-                                                    r = r,
-                                                    s = s,
-                                                    k = k,
-                                                    method = input$ssccMethod,
-                                                    #dist = input$ssccDist,
-                                                    BPPARAM = BiocParallel::SnowParam(workers = input$ssccWorkers, progressbar = T)
-                                                    )
-      output$infoSSCCImage <- shiny::renderPrint({
-        Cardinal::summary(getSSCC)
+      msiSSCC$result <- Cardinal::spatialShrunkenCentroids(x = global$cleanedMSIData,
+                                                           r = r,
+                                                           s = s,
+                                                           k = k,
+                                                           method = input$ssccMethod,
+                                                           #dist = input$ssccDist,
+                                                           BPPARAM = BiocParallel::SnowParam(workers = input$ssccWorkers,
+                                                                                             progressbar = FALSE)
+                                                           )
+
+      Cardinal::summary(msiSSCC$result)
+    }) |>
+      bindEvent(input$viewSSCC)
+
+    #(3.3) Plot SSCC Images ----------------------------------------------------
+    output$ssccImages <- shiny::renderPlot({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(msiSSCC$result)
+      if(input$modeSSCCImage == "light"){
+        Cardinal::lightmode()
+      } else {
+        Cardinal::darkmode()
+      }
+      msiSSCC$image <- Cardinal::image(msiSSCC$result,
+                                       model = list(r = input$outputR, s = input$outputS, k = input$outputK),
+                                       smooth.image = input$smoothSSCCImage,
+                                       colorscale = Cardinal::col.map(input$colorSSCCImage),
+                                       normalize.image = input$normalizeSSCCImage,
+                                       contrast.enhance = input$contrastSSCCImage,
+                                       superpose = as.logical(as.numeric(input$superposeSSCCImage))
+                                       )
+      msiSSCC$image
       })
 
-      output$ssccImages <- shiny::renderPlot({
-        on.exit({w3$hide()})
-        if(input$modeSSCCImage == "light"){
-          Cardinal::lightmode()
-        } else {
-          Cardinal::darkmode()
-        }
-        Cardinal::image(getSSCC,
-                        model = list(r = input$outputR, s = input$outputS, k = input$outputK),
-                        smooth.image = input$smoothSSCCImage,
-                        colorscale = Cardinal::col.map(input$colorSSCCImage),
-                        normalize.image = input$normalizeSSCCImage,
-                        contrast.enhance = input$contrastSSCCImage,
-                        superpose = as.logical(as.numeric(input$superposeSSCCImage))
-                        )
-      })
+    ##(3.3) Show SSCC t-Statistic Spec infor -----------------------------------
+    output$infoSSCCSpec <- shiny::renderPrint({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(msiSSCC$result)
+      cat("Below are the SSCC t-statistic Spectrum plot:\n")
+      cat("Mass features with t-statistics of zero do not contribute to the segmentation.\n")
+      cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.")
+    })
 
-      ##(3.3) Show SSCC t-Statistic Spec infor ---------------------------------
-      output$infoSSCCSpec <- shiny::renderPrint({
-        cat("Below are the SSCC t-statistic Spectrum plot:\n")
-        cat("Mass features with t-statistics of zero do not contribute to the segmentation.\n")
-        cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.")
-      })
-
-      ##(3.4) Plot SSCC t-statistic Spec ---------------------------------------
-      output$ssccStatisticSpec <- plotly::renderPlotly({
-        shiny::req(getSSCC)
-        plotSSCCSpec(getSSCC = getSSCC,
-                     r = input$outputR,
-                     s = input$outputS,
-                     k = input$outputK
-                     )
-      })
+    ##(3.4) Plot SSCC t-statistic Spec -----------------------------------------
+    output$ssccStatisticSpec <- plotly::renderPlotly({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(msiSSCC$result)
+      plotSSCCSpec(getSSCC = msiSSCC$result,
+                   r = input$outputR,
+                   s = input$outputS,
+                   k = input$outputK
+                   )
+    })
 
 
 
-      })
-
-
-
-
-    })}
+  })}
 
 ## To be copied in the UI
 # mod_segmentation_ui("segmentation_1")

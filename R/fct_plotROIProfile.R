@@ -42,9 +42,8 @@ plotROIProfile <- function(msiData, roiMSIData, mz){
                            mode = 'lines+markers',
                            name = featureNames[k]
                           ) %>%
-      plotly::config(
-        toImageButtonOptions = list(format = "svg", filename = "roiProfile")
-      )
+      plotly::layout(title = "Ion Intensity Profile") %>%
+      plotly::config(toImageButtonOptions = list(format = "svg", filename = "roiProfile"))
   }
   return(p)
 }

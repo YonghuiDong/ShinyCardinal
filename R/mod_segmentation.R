@@ -297,30 +297,10 @@ mod_segmentation_ui <- function(id){
                           choices = list("Yes" = 1, "No" = 0),
                           selected = 1,
                           inline = TRUE
-                          )
+                          ),
 
-             )
-           ),
-
-    #(3.2) SSCC Output ----------------------------------------------------------
-    column(width = 8,
-           box(
-             width = 12,
-             inputId = "report_card",
-             title = strong("Result"),
-             status = "success",
-             solidHeader = TRUE,
-             collapsible = TRUE,
-             collapsed = TRUE,
-             closable = FALSE,
-             shinycssloaders::withSpinner(
-               image = 'www/img/cardinal.gif',
-               shiny::verbatimTextOutput(outputId = ns("infoSSCCImage"))
-             ),
-             column(width = 12,
-                    p(style = "color:#C70039;", "Subset SSCC images by selecting r, s, and k below:"),
-                    br()
-                    ),
+             p(style = "color:#C70039;", "Subset SSCC images by selecting r, s, and k below:"),
+             br(),
              column(width = 4,
                     selectInput(inputId = ns("outputR"),
                                 label = "Select r:",
@@ -341,7 +321,25 @@ mod_segmentation_ui <- function(id){
                                 choices = NULL,
                                 multiple = FALSE
                                 )
-                    ),
+                    )
+             )
+           ),
+
+    #(3.2) SSCC Output ----------------------------------------------------------
+    column(width = 8,
+           box(
+             width = 12,
+             inputId = "report_card",
+             title = strong("Result"),
+             status = "success",
+             solidHeader = TRUE,
+             collapsible = TRUE,
+             collapsed = TRUE,
+             closable = FALSE,
+             shinycssloaders::withSpinner(
+               image = 'www/img/cardinal.gif',
+               shiny::verbatimTextOutput(outputId = ns("infoSSCCImage"))
+               ),
              shiny::plotOutput(outputId = ns("ssccImages")),
              shiny::verbatimTextOutput(outputId = ns("infoSSCCSpec")),
              plotly::plotlyOutput(outputId = ns("ssccStatisticSpec"))

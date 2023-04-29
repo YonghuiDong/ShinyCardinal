@@ -442,8 +442,9 @@ mod_segmentation_server <- function(id, global){
     output$pcaLoadingsSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiPCA$result)
-      plotPCASpec(msiData = global$cleanedMSIData, pcaResult = msiPCA$result)
-    })
+      plotPCASpec(msiData = global$cleanedMSIData, pcaResult = msiPCA$result, msiRun = input$msiRun)
+    }) |>
+      bindEvent(input$viewPCA)
 
     #(3) SSCC ==================================================================
     msiSSCC <- reactiveValues(result = NULL, image = NULL)

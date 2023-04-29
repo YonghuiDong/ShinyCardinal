@@ -380,53 +380,57 @@ mod_segmentation_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(2) PCA ===================================================================
-    observeEvent(input$viewPCA,{
-      #(2.1) Check input -------------------------------------------------------
-      shiny::req(global$processedMSIData)
+    msiPCA <- reactiveValues(result = NULL, image = NULL)
+
+    #(2.1) Calculate PCA -------------------------------------------------------
+    output$infoPCAImage <- shiny::renderPrint({
+      shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
+      msiPCA$result <- Cardinal::PCA(x = global$cleanedMSIData,
+                                     ncomp = input$nComp,
+                                     center = as.logical(as.numeric(input$centerPCA)),
+                                     scale = as.logical(as.numeric(input$scalePCA)),
+                                     BPPARAM = BiocParallel::SnowParam(workers = input$pcaWorkers, progressbar = FALSE)
+                                     )
+      cat("Below are PCA images:")
+    }) |>
+      bindEvent(input$viewPCA)
 
-      #(2.2) Show PCA images ---------------------------------------------------
-      getPCA <- Cardinal::PCA(x = global$cleanedMSIData,
-                              ncomp = input$nComp,
-                              center = as.logical(as.numeric(input$centerPCA)),
-                              scale = shiny::isolate(as.logical(as.numeric(input$scalePCA))),
-                              BPPARAM = BiocParallel::SnowParam(workers = input$pcaWorkers, progressbar = T)
-                              )
-      output$infoPCAImage <- shiny::renderPrint({
-        cat("Below are PCA images:")
-      })
-      output$pcaImages <- shiny::renderPlot({
-        if(input$modePCAImage == "light"){
-          Cardinal::lightmode()
-        } else {
-          Cardinal::darkmode()
-        }
-        Cardinal::image(getPCA,
-                        smooth.image = input$smoothPCAImage,
-                        colorscale = Cardinal::col.map(input$colorPCAImage),
-                        normalize.image = input$normalizePCAImage,
-                        contrast.enhance = input$contrastPCAImage,
-                        superpose = as.logical(as.numeric(input$superposePCAImage))
-                        )
-        })
+    #(2.2) Display PCA images --------------------------------------------------
+    output$pcaImages <- shiny::renderPlot({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(msiPCA$result)
+      if(input$modePCAImage == "light"){
+        Cardinal::lightmode()
+      } else {
+        Cardinal::darkmode()
+      }
+      msiPCA$image <- Cardinal::image(msiPCA$result,
+                                      smooth.image = input$smoothPCAImage,
+                                      colorscale = Cardinal::col.map(input$colorPCAImage),
+                                      normalize.image = input$normalizePCAImage,
+                                      contrast.enhance = input$contrastPCAImage,
+                                      superpose = as.logical(as.numeric(input$superposePCAImage))
+                                      )
+      msiPCA$image
+    })
 
-      #(2.3) Show PCA loading spectrum info ------------------------------------
-      output$infoLoadings <- shiny::renderPrint({
-        cat("Below are the loading plots:\n")
-        cat("The loadings of the components show how each mass feature contributes to each component.")
-      })
+    #(2.3) Show PCA loading spectrum info --------------------------------------
+    output$infoLoadings <- shiny::renderPrint({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(msiPCA$result)
+      cat("Below are the loading plots:\n")
+      cat("The loadings of the components show how each mass feature contributes to each component.")
+    })
 
-      #(2.4) Show PCA loading spectrum -----------------------------------------
-      output$pcaLoadingsSpec <- plotly::renderPlotly({
-        shiny::req(
-          !is.null(global$cleanedMSIData),
-          !is.null(getPCA)
-        )
-        plotPCASpec(msiData = global$cleanedMSIData, pcaResult = getPCA)
-        })
-      })
+    #(2.4) Display PCA loading spectrum ----------------------------------------
+    output$pcaLoadingsSpec <- plotly::renderPlotly({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(msiPCA$result)
+      plotPCASpec(msiData = global$cleanedMSIData, pcaResult = msiPCA$result)
+    })
 
     #(3) SSCC ==================================================================
     observeEvent(input$viewSSCC,{

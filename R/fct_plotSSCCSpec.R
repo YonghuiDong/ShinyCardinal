@@ -1,26 +1,21 @@
 #' @title Plot SSCC Spectra
 #' @description Plot SSCC Spectra
-#' @param getSSCC
-#' @param r The spatial neighborhood radius of nearby pixels to consider.
-#' @param s The sparsity thresholding parameter by which to shrink the t-statistics.
-#' @param k The maximum number of segments (clusters).
-#' @return The return value, if any, from executing the function.
+#' @param getSSCC the result from getSSCC function.
+#' @param msiRun MSI runs.
+#' @return a list, including a t-statistics table and plot.
 #' @noRd
 #' @examples
 #' library(Cardinal)
 #' set.seed(2020)
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
 #' res <- getSSCC(x, r = 1, k = 2, s = 0, msiRun = "run0")
-#' plotSSCCSpec(getSSCC = res, r = 1, k = 2, s = 0, msiRun = "run0")
+#' plotSSCCSpec(getSSCC = res, msiRun = "run0")
 
-plotSSCCSpec <- function(getSSCC, r, s, k, msiRun){
+plotSSCCSpec <- function(getSSCC, msiRun){
   #(1) Format input ------------------------------------------------------------
   tStatistics <- vector(mode = "list", length = 2)
-  DF <- as.data.frame(Cardinal::subset(Cardinal::topFeatures(
-    object = getSSCC,
-    model = list(r = r, s = s, k = k),
-    n = Inf))
-    )
+  DF <- as.data.frame(Cardinal::topFeatures(object = getSSCC, n = Inf)) |>
+    transform(mz = round(mz, 4))
 
   #(2) Plot --------------------------------------------------------------------
   classFactor <- levels(as.factor(DF$class))
@@ -48,7 +43,7 @@ plotSSCCSpec <- function(getSSCC, r, s, k, msiRun){
                           titleX = TRUE,
                           titleY = TRUE) %>%
     plotly::layout(title = paste0(msiRun,": ", "r = ", r, ", s = ", s, ", k = ", k)) %>%
-    plotly::config(toImageButtonOptions = list(format = "svg", filename = "ssccStatisticSpec"))
+    plotly::config(toImageButtonOptions = list(format = "svg", filename = "sscStatisticSpec"))
   tStatistics$specTable <- DF
   tStatistics$specPlot <- plot
   return(tStatistics)

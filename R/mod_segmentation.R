@@ -355,7 +355,8 @@ mod_segmentation_ui <- function(id){
              shiny::uiOutput(outputId = ns("downloadSSCCImageButton")),
              shiny::plotOutput(outputId = ns("ssccImages")),
              shiny::verbatimTextOutput(outputId = ns("infoSSCCSpec")),
-             plotly::plotlyOutput(outputId = ns("ssccStatisticSpec"))
+             plotly::plotlyOutput(outputId = ns("ssccStatisticSpec")),
+             DT::dataTableOutput(outputId = ns("ssccStatisticTable"))
              )
            )
 
@@ -478,7 +479,7 @@ mod_segmentation_server <- function(id, global){
 
     #(2.6) Show PCA loading table ----------------------------------------------
     output$pcaLoadingTable <- DT::renderDT(server = FALSE, {
-      shiny::req(msiPCA$result)
+      shiny::req(msiPCA$loading)
       DT::datatable(
         msiPCA$loading$df,
         caption = "PCA loading",
@@ -604,7 +605,7 @@ mod_segmentation_server <- function(id, global){
       cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.")
     })
 
-    ##(3.4) Plot SSCC t-statistic Spec -----------------------------------------
+    ##(3.6) Plot SSCC t-statistic Spec -----------------------------------------
     output$ssccStatisticSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSCC$result)
@@ -616,6 +617,22 @@ mod_segmentation_server <- function(id, global){
                                           )
       msiSSCC$tStatistics$specPlot
     })
+
+    #(3.7) Show SSCC t-statistic table -----------------------------------------
+    output$ssccStatisticTable <- DT::renderDT(server = FALSE, {
+      shiny::req(msiSSCC$tStatistics)
+      DT::datatable(
+        msiSSCC$tStatistics$specTable,
+        caption = "t-statistics table",
+        extensions ="Buttons",
+        options = list(dom = 'Bfrtip',
+                       buttons = list(list(extend = 'csv', filename= 'tStatisticsTable')),
+                       scrollX = TRUE
+        ),
+        rownames = FALSE
+      )
+    }) |>
+      bindEvent(input$viewSSCC)
 
 
 

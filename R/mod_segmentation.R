@@ -347,6 +347,7 @@ mod_segmentation_ui <- function(id){
                image = 'www/img/cardinal.gif',
                shiny::verbatimTextOutput(outputId = ns("infoSSCCImage"))
                ),
+             shiny::uiOutput(outputId = ns("downloadSSCCImageButton")),
              shiny::plotOutput(outputId = ns("ssccImages")),
              shiny::verbatimTextOutput(outputId = ns("infoSSCCSpec")),
              plotly::plotlyOutput(outputId = ns("ssccStatisticSpec"))
@@ -547,9 +548,31 @@ mod_segmentation_server <- function(id, global){
                                        superpose = as.logical(as.numeric(input$superposeSSCCImage))
                                        )
       msiSSCC$image
-      })
+    })
 
-    ##(3.3) Show SSCC t-Statistic Spec infor -----------------------------------
+    #(3.4) Download SSCC images -------------------------------------------------
+    output$downloadSSCCImageButton <- renderUI({
+      shiny::req(print(msiSSCC$image))
+      downloadButton(
+        outputId = ns("downloadSSCCImage"),
+        label = "Download Image",
+        icon = icon("download"),
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+      )
+    })
+
+    output$downloadSSCCImage <- downloadHandler(
+      filename = function(){
+        paste0(Sys.Date(), "_ssccImage", ".pdf")
+      },
+      content = function(file){
+        pdf(file)
+        print(msiSSCC$image)
+        dev.off()
+      }
+    )
+
+    ##(3.5) Show SSCC t-Statistic Spec info ------------------------------------
     output$infoSSCCSpec <- shiny::renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSCC$result)

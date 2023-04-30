@@ -628,7 +628,7 @@ mod_segmentation_server <- function(id, global){
         options = list(dom = 'Bfrtip',
                        buttons = list(list(extend = 'csv', filename= 'tStatisticsTable')),
                        scrollX = TRUE
-        ),
+                       ),
         rownames = FALSE
       )
     }) |>

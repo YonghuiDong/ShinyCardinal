@@ -80,7 +80,7 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
-             selectInput(inputId = ns('msiRun'),
+             selectInput(inputId = ns('msiRunPCA'),
                          label = '(optional) Select a MSI run to display.',
                          choices = NULL,
                          selected = NULL
@@ -209,6 +209,11 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
+             selectInput(inputId = ns('msiRunSSCC'),
+                         label = '(optional) Select a MSI run to display.',
+                         choices = NULL,
+                         selected = NULL
+                         ),
              textInput(inputId = ns("r"),
                        label = "r: The spatial neighborhood radius of nearby pixels to consider.",
                        placeholder = "For multiple values, separate them by a comma.",
@@ -386,13 +391,13 @@ mod_segmentation_server <- function(id, global){
       if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
         ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.
         updateSelectInput(session = session,
-                          inputId = "msiRun", ## no name space
+                          inputId = "msiRunPCA", ## no name space
                           choices = levels(Cardinal::run(global$cleanedMSIData)),
                           selected = levels(Cardinal::run(global$cleanedMSIData))
                           )
         } else {
         updateSelectInput(session = session,
-                          inputId = "msiRun", ## no name space
+                          inputId = "msiRunPCA", ## no name space
                           choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
                           selected = "All"
                           )
@@ -407,7 +412,7 @@ mod_segmentation_server <- function(id, global){
                               ncomp = input$nComp,
                               center = as.logical(as.numeric(input$centerPCA)),
                               scale = as.logical(as.numeric(input$scalePCA)),
-                              msiRun = input$msiRun,
+                              msiRun = input$msiRunPCA,
                               workers = input$pcaWorkers
                               )
       cat("Below are PCA images:")
@@ -438,14 +443,13 @@ mod_segmentation_server <- function(id, global){
       shiny::req(print(msiPCA$image))
       downloadButton(
         outputId = ns("downloadPCAImage"),
-        label = "Download",
+        label = "Download Image",
         icon = icon("download"),
         style="color: #fff; background-color: #a077b5; border-color: #a077b5"
       )
     }) # no need to used bindEvent here, otherwise the download button only shows after 2nd click.
 
     output$downloadPCAImage <- downloadHandler(
-      shiny::req(print(msiPCA$image)),
       filename = function(){
           paste0(Sys.Date(), "_pcaImage", ".pdf")
       },
@@ -467,7 +471,7 @@ mod_segmentation_server <- function(id, global){
     #(2.5) Display PCA loading spectrum ----------------------------------------
     output$pcaLoadingsSpec <- plotly::renderPlotly({
       shiny::req(msiPCA$result)
-      msiPCA$loading <- plotPCASpec(pcaResult = msiPCA$result, msiRun = input$msiRun)
+      msiPCA$loading <- plotPCASpec(pcaResult = msiPCA$result, msiRun = input$msiRunPCA)
       msiPCA$loading$plot
     }) |>
       bindEvent(input$viewPCA)
@@ -490,8 +494,28 @@ mod_segmentation_server <- function(id, global){
 
 
     #(3) SSCC ==================================================================
-    msiSSCC <- reactiveValues(result = NULL, image = NULL)
+    #(3.0) Update MSI run ------------------------------------------------------
+    observeEvent(global$processedMSIData, {
+      if(is.null(global$cleanedMSIData)){
+        global$cleanedMSIData <- global$processedMSIData
+      }
+      if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
+        updateSelectInput(session = session,
+                          inputId = "msiRunSSCC", ## no name space
+                          choices = levels(Cardinal::run(global$cleanedMSIData)),
+                          selected = levels(Cardinal::run(global$cleanedMSIData))
+                          )
+      } else {
+        updateSelectInput(session = session,
+                          inputId = "msiRunSSCC", ## no name space
+                          choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
+                          selected = "All"
+                          )
+      }
+    })
+
     #(3.1) Calculate SSCC ------------------------------------------------------
+    msiSSCC <- reactiveValues(result = NULL, image = NULL)
     output$infoSSCCImage <- shiny::renderPrint({
       shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
       if(is.null(global$cleanedMSIData)){global$cleanedMSIData <- global$processedMSIData}

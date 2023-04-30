@@ -515,7 +515,7 @@ mod_segmentation_server <- function(id, global){
     })
 
     #(3.1) Calculate SSCC ------------------------------------------------------
-    msiSSCC <- reactiveValues(result = NULL, image = NULL)
+    msiSSCC <- reactiveValues(result = NULL, image = NULL, tStatistics = NULL)
     output$infoSSCCImage <- shiny::renderPrint({
       shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
       if(is.null(global$cleanedMSIData)){global$cleanedMSIData <- global$processedMSIData}
@@ -540,16 +540,15 @@ mod_segmentation_server <- function(id, global){
       })
 
       set.seed(2023)
-      msiSSCC$result <- Cardinal::spatialShrunkenCentroids(x = global$cleanedMSIData,
-                                                           r = r,
-                                                           s = s,
-                                                           k = k,
-                                                           method = input$ssccMethod,
-                                                           #dist = input$ssccDist,
-                                                           BPPARAM = BiocParallel::SnowParam(workers = input$ssccWorkers,
-                                                                                             progressbar = FALSE)
-                                                           )
-
+      msiSSCC$result <- getSSCC(msiData = global$cleanedMSIData,
+                                r = r,
+                                s = s,
+                                k = k,
+                                method = input$ssccMethod,
+                                msiRun = input$msiRunSSCC,
+                                #dist = input$ssccDist,
+                                workers = input$ssccWorkers
+                                )
       Cardinal::summary(msiSSCC$result)
     }) |>
       bindEvent(input$viewSSCC)
@@ -609,11 +608,13 @@ mod_segmentation_server <- function(id, global){
     output$ssccStatisticSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSCC$result)
-      plotSSCCSpec(getSSCC = msiSSCC$result,
-                   r = input$outputR,
-                   s = input$outputS,
-                   k = input$outputK
-                   )
+      msiSSCC$tStatistics <- plotSSCCSpec(getSSCC = msiSSCC$result,
+                                          r = input$outputR,
+                                          s = input$outputS,
+                                          k = input$outputK,
+                                          msiRun = input$msiRunSSCC
+                                          )
+      msiSSCC$tStatistics$specPlot
     })
 
 

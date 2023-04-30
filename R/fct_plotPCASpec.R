@@ -30,7 +30,8 @@ plotPCASpec <- function(pcaResult, msiRun){
                            xend = ~ mz,
                            y = 0,
                            yend = ~ Loadings,
-                           name = paste0("PC", i)
+                           name = paste0("PC", i),
+                           line = list(color = Cardinal::discrete.colors(N)[i])
                            ) %>%
       plotly::layout(xaxis = list(title = 'm/z'),
                      yaxis = list(title = 'Loadings')

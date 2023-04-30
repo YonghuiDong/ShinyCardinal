@@ -241,11 +241,7 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
-               downloadButton(outputId = ns("saveImage"),
-                              label = "Download Image",
-                              icon = icon("download"),
-                              style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-                              ),
+               shiny::uiOutput(outputId = ns("downloadImageButton")),
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("mzList"))
@@ -561,13 +557,19 @@ mod_viewData_server <- function(id, global){
       })
 
     #(3.3) Download MSI images -------------------------------------------------
-    output$saveImage <- downloadHandler(
+    output$downloadImageButton <- renderUI({
+      shiny::req(print(msiInfo$ionImage))
+      downloadButton(
+        outputId = ns("downloadImage"),
+        label = "Download Image",
+        icon = icon("download"),
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+      )
+    }) # no need to used bindEvent here, otherwise the download button only shows after 2nd click.
+
+    output$downloadImage <- downloadHandler(
       filename = function(){
-        if(is.null(print(msiInfo$ionImage))){
-          paste0(Sys.Date(), "_no_image_found", ".pdf")
-        } else {
-          paste0(Sys.Date(), "_ionImage", ".pdf")
-        }
+        paste0(Sys.Date(), "_ionImage", ".pdf")
       },
       content = function(file){
         pdf(file)

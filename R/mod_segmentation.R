@@ -198,7 +198,7 @@ mod_segmentation_ui <- function(id){
            ),
 
     #(3) Spatial Shrunken Centroids Clustering =================================
-    column(width = 12, h6("Spatial-aware Shrunken Centroids Clustering (SSCC)")),
+    column(width = 12, h6("Spatial-aware Shrunken Centroids Clustering (SSC)")),
     column(width = 4,
            box(
              width = 12,
@@ -631,8 +631,7 @@ mod_segmentation_server <- function(id, global){
                        ),
         rownames = FALSE
       )
-    }) |>
-      bindEvent(input$viewSSCC)
+    })
 
 
 

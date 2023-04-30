@@ -1,9 +1,9 @@
 #' @title Plot SSCC Spectra
 #' @description Plot SSCC Spectra
 #' @param getSSCC
-#' @param r
-#' @param s description
-#' @param k description
+#' @param r The spatial neighborhood radius of nearby pixels to consider.
+#' @param s The sparsity thresholding parameter by which to shrink the t-statistics.
+#' @param k The maximum number of segments (clusters).
 #' @return The return value, if any, from executing the function.
 #' @noRd
 #' @examples

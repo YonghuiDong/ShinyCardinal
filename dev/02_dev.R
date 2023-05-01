@@ -52,7 +52,8 @@ golem::add_fct("plotROIProfile", with_test = FALSE)
 golem::add_fct("getPCA", with_test = FALSE)
 golem::add_fct("getSSCC", with_test = FALSE)
 golem::add_fct("getPCC", with_test = FALSE)
-golem::add_fct("showAllNetwork", with_test = FALSE)
+golem::add_fct("plotAllNetwork", with_test = FALSE)
+golem::add_fct("plotSingleNetwork", with_test = FALSE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www

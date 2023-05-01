@@ -3,7 +3,6 @@
 #' @param PCC pearson correlation coefficient obtained from getPCC function.
 #' @param threshold PCC threshold.
 #' @param labelSize label size.
-#' @param interactive generate interactive or static plot.
 #' @return network Plot.
 #' @noRd
 #' @examples
@@ -14,7 +13,7 @@
 #' plotAllNetwork(PCC, labelSize = 60)
 
 
-plotAllNetwork <- function(PCC, threshold = 0.9, labelSize = 40, fileType = "pdf"){
+plotAllNetwork <- function(PCC, threshold = 0.9, labelSize = 40){
   #(1) Prepare igraph network object -------------------------------------------
   PCC[PCC < threshold] = 0
   network <- igraph::graph_from_adjacency_matrix(PCC, weighted = TRUE, mode = "lower", diag = FALSE)

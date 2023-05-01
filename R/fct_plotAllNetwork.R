@@ -11,10 +11,10 @@
 #' set.seed(2020)
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 1, baseline = 1)
 #' PCC <- getPCC(mse)
-#' showAllNetwork(PCC, labelSize = 60)
+#' plotAllNetwork(PCC, labelSize = 60)
 
 
-showAllNetwork <- function(PCC, threshold = 0.9, labelSize = 40, interactive = TRUE){
+plotAllNetwork <- function(PCC, threshold = 0.9, labelSize = 40, fileType = "pdf"){
   #(1) Prepare igraph network object -------------------------------------------
   PCC[PCC < threshold] = 0
   network <- igraph::graph_from_adjacency_matrix(PCC, weighted = TRUE, mode = "lower", diag = FALSE)
@@ -29,5 +29,6 @@ showAllNetwork <- function(PCC, threshold = 0.9, labelSize = 40, interactive = T
   visNetwork::visNetwork(nodes = nodes, edges = edges, width = "100%") %>%
     visNetwork::visNodes(font = list(size = labelSize)) %>%
     visNetwork::visOptions(highlightNearest = TRUE) %>%
+    visNetwork::visInteraction(navigationButtons = TRUE) %>%
     visNetwork::visIgraphLayout()
 }

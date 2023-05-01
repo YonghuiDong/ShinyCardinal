@@ -27,6 +27,7 @@ getPCC <- function(msiData, mz = NULL, nth = 1, msiRun = "All"){
   } else {
     Cardinal::colocalized(object = msiData, mz = mz, n = Inf) |>
       subset(x = _, select = c("mz", "correlation")) |>
+      transform(mz = round(mz, 4)) |>
       as.data.frame(x = _)
   }
 }

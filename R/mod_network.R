@@ -174,7 +174,7 @@ mod_network_server <- function(id, global = global){
     output$allNetworkInfo <- renderPrint({
       shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
       allNetwork$PCC <- getPCC(msiData = global$cleanedMSIData, msiRun = input$msiRunAll)
-      cat("You can click to visualize each network.")
+      cat("You can navigate the network by using either the mouse or the zoom and movement buttons below.")
     }) |>
       bindEvent(input$colocAll)
 

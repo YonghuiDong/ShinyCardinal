@@ -131,7 +131,78 @@ mod_network_ui <- function(id){
                shiny::uiOutput(outputId = ns("downloadAllNetworkButton")),
                visNetwork::visNetworkOutput(outputId = ns("showAllNetwork"), height = "800px")
                )
+             ),
+
+      #(3) Network Analysis for single feature =================================
+      column(width = 12, h6("Network Analysis for Single Feature")),
+      column(width = 4,
+             box(
+               width = 12,
+               title = strong("Input Parameters"),
+               status = "primary",
+               solidHeader = TRUE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
+               selectInput(inputId = ns('msiRunSingle'),
+                           label = "(optional) Select a MSI run for network analysis",
+                           choices = NULL,
+                           selected = NULL
+                           ),
+               sliderInput(inputId = ns("nthSingle"),
+                           label = "(optional) Subset MSI data by using every nth pixels.",
+                           min = 1,
+                           max = 10,
+                           value = 1,
+                           step = 1
+                           ),
+               shiny::numericInput(inputId = ns("singleMZ"),
+                                   label = "Enter an m/z value for network analysis.",
+                                   value = NULL,
+                                   min = 0,
+                                   max = 1000000,
+                                   step = 0.001
+                                   ),
+               sliderInput(inputId = ns("singleLabelSize"),
+                           label = "Set label size",
+                           min = 10,
+                           max = 100,
+                           value = 40,
+                           step = 5
+                           ),
+               sliderInput(inputId = ns("pccSingleThreshold"),
+                           label = "Set Network threshould",
+                           min = 0.5,
+                           max = 1,
+                           value = 0.9,
+                           step = 0.01
+                           ),
+               shiny::actionButton(inputId = ns("colocSingle"),
+                                   label = "Go",
+                                   icon = icon("paper-plane"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+               )
+             ),
+      #(3.2) Network Analysis for single feature result ------------------------
+      column(width = 8,
+             box(
+               width = 12,
+               title = strong("Input Parameters"),
+               status = "success",
+               solidHeader = TRUE,
+               collapsible = TRUE,
+               collapsed = TRUE,
+               closable = FALSE,
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 shiny::verbatimTextOutput(outputId = ns("singleNetworkInfo"))
+               ),
+               shiny::uiOutput(outputId = ns("downloadSingleNetworkButton")),
+               visNetwork::visNetworkOutput(outputId = ns("showSingleNetwork"), height = "400px"),
+               plotly::plotlyOutput(outputId = ns("pseudoMS"))
              )
+      )
 
 ))}
 
@@ -207,6 +278,51 @@ mod_network_server <- function(id, global = global){
           visNetwork::visSave(graph = allNetwork$plot, file = file)
         }
     )
+
+    #(3) Network analysis for single feature ===================================
+    #(3.0) Update MSI run ------------------------------------------------------
+    observeEvent(global$processedMSIData, {
+      if(is.null(global$cleanedMSIData)){
+        global$cleanedMSIData <- global$processedMSIData
+      }
+      updateSelectInput(session = session,
+                        inputId = "msiRunSingle", ## no name space
+                        choices = levels(Cardinal::run(global$cleanedMSIData)),
+                        selected = levels(Cardinal::run(global$cleanedMSIData))[1]
+                        )
+    })
+
+    #(3.1) Get network object --------------------------------------------------
+    singleNetwork <- reactiveValues(PCC = NULL, plot = NULL)
+    output$singleNetworkInfo <- renderPrint({
+      shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
+      mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)
+      mzMax <- round(max(Cardinal::mz(global$cleanedMSIData)), 4)
+      shiny::validate(need(input$singleMZ >= mzMin & input$singleMZ <= mzMax,
+                           message = paste("m/z value should between", mzMin, "and", mzMax, sep = " "))
+                      )
+
+      singleNetwork$PCC <- getPCC(msiData = global$cleanedMSIData, mz = input$singleMZ, msiRun = input$msiRunAll)
+      cat("You can navigate the network by using either the mouse or the zoom and movement buttons below.")
+    }) |>
+      bindEvent(input$colocSingle)
+
+    #(3.2) Show network --------------------------------------------------------
+    output$showSingleNetwork <- visNetwork::renderVisNetwork({
+      shiny::req(input$singleMZ)
+      shiny::req(singleNetwork$PCC)
+      singleNetwork$plot <- plotSingleNetwork(PCC = singleNetwork$PCC,
+                                              mz = input$singleMZ,
+                                              threshold = input$pccSingleThreshold,
+                                              labelSize = input$singleLabelSize
+                                              )
+      singleNetwork$plot
+    }) |>
+      bindEvent(input$colocSingle)
+
+
+
+
 
 })}
 

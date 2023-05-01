@@ -320,6 +320,26 @@ mod_network_server <- function(id, global = global){
     }) |>
       bindEvent(input$colocSingle)
 
+    #(3.3) Download single network ---------------------------------------------
+    output$downloadSingleNetworkButton <- renderUI({
+      shiny::req(singleNetwork$plot)
+      downloadButton(
+        outputId = ns("downloadSingleNetwork"),
+        label = "Download Network",
+        icon = icon("download"),
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+      )
+    })
+
+    output$downloadSingleNetwork <- downloadHandler(
+      filename = function(){
+        paste0(Sys.Date(), "_Network_", input$singleMZ, ".html")
+      },
+      content = function(file){
+        visNetwork::visSave(graph = singleNetwork$plot, file = file)
+      }
+    )
+
 
 
 

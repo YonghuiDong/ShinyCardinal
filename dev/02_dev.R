@@ -23,7 +23,8 @@ attachment::att_amend_desc()
 golem::add_module(name = "home", with_test = FALSE) # Name of the module
 golem::add_module(name = "uploadData", with_test = FALSE) # Name of the module
 golem::add_module(name = "viewData", with_test = FALSE) # Name of the module
-golem::add_module(name = "statistics", with_test = FALSE) # Name of the module
+golem::add_module(name = "segmentation", with_test = FALSE) # Name of the module
+golem::add_module(name = "network", with_test = FALSE) # Name of the module
 golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
 
 ## Add helper functions ----
@@ -50,6 +51,8 @@ golem::add_fct("roiStat", with_test = FALSE)
 golem::add_fct("plotROIProfile", with_test = FALSE)
 golem::add_fct("getPCA", with_test = FALSE)
 golem::add_fct("getSSCC", with_test = FALSE)
+golem::add_fct("getPCC", with_test = FALSE)
+golem::add_fct("showAllNetwork", with_test = FALSE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www

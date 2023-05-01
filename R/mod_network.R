@@ -68,7 +68,7 @@ mod_network_ui <- function(id){
              )
       ),
 
-      #(3) Network Analysis for all features ===================================
+      #(2) Network Analysis for all features ===================================
       column(width = 12, h6("Network Analysis for All Features")),
       column(width = 4,
              box(
@@ -114,7 +114,7 @@ mod_network_ui <- function(id){
                            )
              )
             ),
-      #(3.2) Network Analysis for all features result --------------------------
+      #(2.2) Network Analysis for all features result --------------------------
       column(width = 8,
              box(
                width = 12,
@@ -128,6 +128,7 @@ mod_network_ui <- function(id){
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("allNetworkInfo"))
                 ),
+               shiny::uiOutput(outputId = ns("downloadAllNetworkButton")),
                visNetwork::visNetworkOutput(outputId = ns("showAllNetwork"), height = "800px")
                )
              )
@@ -154,8 +155,8 @@ mod_network_server <- function(id, global = global){
     }) |>
       bindEvent(input$loadData)
 
-    #(3) Network analysis for all features =====================================
-    #(3.0) Update MSI run ------------------------------------------------------
+    #(2) Network analysis for all features =====================================
+    #(2.0) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData, {
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
@@ -168,7 +169,7 @@ mod_network_server <- function(id, global = global){
 
     })
 
-    #(3.1) Get network object --------------------------------------------------
+    #(2.1) Get network object --------------------------------------------------
     allNetwork <- reactiveValues(PCC = NULL, plot = NULL)
     output$allNetworkInfo <- renderPrint({
       shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
@@ -177,18 +178,35 @@ mod_network_server <- function(id, global = global){
     }) |>
       bindEvent(input$colocAll)
 
-    #(3.2) Show network --------------------------------------------------------
+    #(2.2) Show network --------------------------------------------------------
     output$showAllNetwork <- visNetwork::renderVisNetwork({
       shiny::req(allNetwork$PCC)
-      allNetwork$plot <- showAllNetwork(PCC = allNetwork$PCC,
+      allNetwork$plot <- plotAllNetwork(PCC = allNetwork$PCC,
                                         threshold = input$pccAllThreshold,
-                                        labelSize = input$allLabelSize,
-                                        interactive = TRUE
+                                        labelSize = input$allLabelSize
                                         )
       allNetwork$plot
     })
 
+    #(2.3) Download all Network -------------------------------------------------
+    output$downloadAllNetworkButton <- renderUI({
+      shiny::req(allNetwork$plot)
+      downloadButton(
+        outputId = ns("downloadAllNetwork"),
+        label = "Download Network",
+        icon = icon("download"),
+        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+      )
+    })
 
+    output$downloadAllNetwork <- downloadHandler(
+        filename = function(){
+          paste0(Sys.Date(), "_allNetwork", ".html")
+        },
+        content = function(file){
+          visNetwork::visSave(graph = allNetwork$plot, file = file)
+        }
+    )
 
 })}
 

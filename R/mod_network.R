@@ -163,11 +163,18 @@ mod_network_ui <- function(id){
                                    max = 1000000,
                                    step = 0.001
                                    ),
+               shiny::actionButton(inputId = ns("colocSingle"),
+                                   label = "Go",
+                                   icon = icon("paper-plane"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   ),
+               br(),
+               br(),
                sliderInput(inputId = ns("singleLabelSize"),
                            label = "Set label size",
                            min = 10,
                            max = 100,
-                           value = 40,
+                           value = 10,
                            step = 5
                            ),
                sliderInput(inputId = ns("pccSingleThreshold"),
@@ -176,12 +183,7 @@ mod_network_ui <- function(id){
                            max = 1,
                            value = 0.9,
                            step = 0.01
-                           ),
-               shiny::actionButton(inputId = ns("colocSingle"),
-                                   label = "Go",
-                                   icon = icon("paper-plane"),
-                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
-                                   )
+                           )
                )
              ),
       #(3.2) Network Analysis for single feature result ------------------------
@@ -317,8 +319,7 @@ mod_network_server <- function(id, global = global){
                                               labelSize = input$singleLabelSize
                                               )
       singleNetwork$plot
-    }) |>
-      bindEvent(input$colocSingle)
+    })
 
     #(3.3) Download single network ---------------------------------------------
     output$downloadSingleNetworkButton <- renderUI({
@@ -340,7 +341,13 @@ mod_network_server <- function(id, global = global){
       }
     )
 
+    #(3.4) Plot pseudo MS/MS spectrum ------------------------------------------
+    output$pseudoMS <- plotly::renderPlotly({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(singleNetwork$PCC)
+      plotMSMS(msiData = global$cleanedMSIData, PCC = singleNetwork$PCC, threshold = input$pccSingleThreshold)
 
+    })
 
 
 

@@ -311,7 +311,6 @@ mod_network_server <- function(id, global = global){
 
     #(3.2) Show network --------------------------------------------------------
     output$showSingleNetwork <- visNetwork::renderVisNetwork({
-      shiny::req(input$singleMZ)
       shiny::req(singleNetwork$PCC)
       singleNetwork$plot <- plotSingleNetwork(PCC = singleNetwork$PCC,
                                               mz = input$singleMZ,
@@ -319,8 +318,7 @@ mod_network_server <- function(id, global = global){
                                               labelSize = input$singleLabelSize
                                               )
       singleNetwork$plot
-    }) |>
-      bindEvent(input$colocSingle)
+    })
 
     #(3.3) Download single network ---------------------------------------------
     output$downloadSingleNetworkButton <- renderUI({
@@ -347,7 +345,6 @@ mod_network_server <- function(id, global = global){
       shiny::req(global$cleanedMSIData)
       shiny::req(singleNetwork$PCC)
       plotMSMS(msiData = global$cleanedMSIData, PCC = singleNetwork$PCC, threshold = input$pccSingleThreshold)
-
     })
 
 

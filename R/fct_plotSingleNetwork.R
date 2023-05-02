@@ -32,7 +32,7 @@ plotSingleNetwork <- function(PCC, mz, threshold = 0.9, labelSize = 40){
   edges$value <- PCC$correlation
 
   #(2) Plot network ------------------------------------------------------------
-  visNetwork::visNetwork(nodes = nodes, edges = edges, width = "100%") %>%
+  visNetwork::visNetwork(nodes = nodes, edges[edges$from != edges$to, ], width = "100%") %>%
     visNetwork::visNodes(font = list(size = labelSize)) %>%
     visNetwork::visOptions(highlightNearest = TRUE) %>%
     visNetwork::visInteraction(navigationButtons = TRUE) %>%

@@ -246,7 +246,10 @@ mod_network_server <- function(id, global = global){
     allNetwork <- reactiveValues(PCC = NULL, plot = NULL)
     output$allNetworkInfo <- renderPrint({
       shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
-      allNetwork$PCC <- getPCC(msiData = global$cleanedMSIData, msiRun = input$msiRunAll)
+      allNetwork$PCC <- getPCC(msiData = global$cleanedMSIData,
+                               nth = input$nthAll,
+                               msiRun = input$msiRunAll
+                               )
       cat("You can navigate the network by using either the mouse or the zoom and movement buttons below.")
     }) |>
       bindEvent(input$colocAll)
@@ -304,7 +307,11 @@ mod_network_server <- function(id, global = global){
                            message = paste("m/z value should between", mzMin, "and", mzMax, sep = " "))
                       )
 
-      singleNetwork$PCC <- getPCC(msiData = global$cleanedMSIData, mz = input$singleMZ, msiRun = input$msiRunAll)
+      singleNetwork$PCC <- getPCC(msiData = global$cleanedMSIData,
+                                  mz = input$singleMZ,
+                                  nth = input$nthSingle,
+                                  msiRun = input$msiRunAll
+                                  )
       cat("You can navigate the network by using either the mouse or the zoom and movement buttons below.")
     }) |>
       bindEvent(input$colocSingle)

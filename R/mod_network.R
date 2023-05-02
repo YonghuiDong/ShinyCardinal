@@ -118,7 +118,7 @@ mod_network_ui <- function(id){
       column(width = 8,
              box(
                width = 12,
-               title = strong("Input Parameters"),
+               title = strong("Result"),
                status = "success",
                solidHeader = TRUE,
                collapsible = TRUE,
@@ -190,7 +190,7 @@ mod_network_ui <- function(id){
       column(width = 8,
              box(
                width = 12,
-               title = strong("Input Parameters"),
+               title = strong("Result"),
                status = "success",
                solidHeader = TRUE,
                collapsible = TRUE,
@@ -319,7 +319,8 @@ mod_network_server <- function(id, global = global){
                                               labelSize = input$singleLabelSize
                                               )
       singleNetwork$plot
-    })
+    }) |>
+      bindEvent(input$colocSingle)
 
     #(3.3) Download single network ---------------------------------------------
     output$downloadSingleNetworkButton <- renderUI({

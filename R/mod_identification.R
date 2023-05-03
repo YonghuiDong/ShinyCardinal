@@ -84,7 +84,7 @@ mod_identification_ui <- function(id){
                p(style = "color:#C70039;", "2. If you're starting directly from this module, you need to upload the rds file."),
                radioButtons(inputId = ns("mzValueType"),
                             label = "1. Choose m/z value",
-                            choices = list("single m/z value" = "singleMZ", "all m/z values" = "allMZ"),
+                            choices = list("enter m/z values" = "singleMZ", "all m/z values" = "allMZ"),
                             selected = "allMZ",
                             inline = TRUE
                             ),
@@ -111,7 +111,7 @@ mod_identification_ui <- function(id){
                            step = 1
                            ),
                radioButtons(inputId = ns("DB"),
-                            label = "4. Choose database",
+                            label = "4. Choose a database",
                             choices = list("HMDB" = "HMDB", "KEGG" = "kegg"),
                             selected = "HMDB",
                             inline = TRUE

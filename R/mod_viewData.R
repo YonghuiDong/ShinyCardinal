@@ -218,8 +218,8 @@ mod_viewData_ui <- function(id){
                             ),
                radioButtons(inputId = ns("superposeImage"),
                             label = "Do you want to superpose different m/z images",
-                            choices = list("Yes" = 1, "NO" = 0),
-                            selected = 0,
+                            choices = list("Yes" = "1", "NO" = "0"),
+                            selected = "0",
                             inline = TRUE
                             ),
                actionButton(inputId = ns("viewImage"),
@@ -304,6 +304,12 @@ mod_viewData_ui <- function(id){
                strong("2. Display Selected ROIs"),
                br(),
                br(),
+               radioButtons(inputId = ns("roiKey"),
+                            label = "Display ROI names?",
+                            choices = c("Yes" = "1", "No" = "0"),
+                            selected = 1,
+                            inline = TRUE
+                            ),
                column(width = 12,
                       actionButton(inputId  = ns("displayROI"),
                                    label = "Display",
@@ -529,7 +535,7 @@ mod_viewData_server <- function(id, global){
       msiInfo$mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)
       msiInfo$mzMax <- round(max(Cardinal::mz(global$cleanedMSIData)), 4)
       shiny::validate(need(min(msiInfo$mzList) >= msiInfo$mzMin & max(msiInfo$mzList) <= msiInfo$mzMax,
-                           message = paste("m/z value shoud between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " ")))
+                           message = paste("m/z value should between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " ")))
       ## Get ion images
       msiInfo$ionImage <- plotImage(msiData = global$cleanedMSIData,
                                     mz = msiInfo$mzList,
@@ -741,7 +747,11 @@ mod_viewData_server <- function(id, global){
       shiny::req(global$cleanedMSIData)
       shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
       region <- makeFactor2(roiList = roiData$roiMSIData)
-      Cardinal::image(global$cleanedMSIData, region ~ x*y, key = TRUE, xlab = "Selected ROIs")
+      Cardinal::image(global$cleanedMSIData,
+                      region ~ x*y,
+                      key = as.logical(as.numeric(input$roiKey)),
+                      xlab = "Selected ROIs"
+                      )
     }) |>
       bindEvent(input$displayROI)
 

@@ -18,4 +18,5 @@ app_server <- function(input, output, session) {
   mod_viewData_server("viewData_1", global = global)
   mod_segmentation_server("segmentation_1", global = global)
   mod_network_server("network_1", global = global)
+  mod_identification_server("identification_1", global = global)
 }

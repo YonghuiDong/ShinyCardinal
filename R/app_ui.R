@@ -36,11 +36,12 @@ app_ui <- function(request) {
         ## Body ----------------------------------------------------------------
         body = dashboardBody(
           tabItems(
-            tabItem(tabName = "home",  mod_home_ui("home_1")),
-            tabItem(tabName = "upload",  mod_uploadData_ui("uploadData_1")),
-            tabItem(tabName = "visualize",  mod_viewData_ui("viewData_1")),
-            tabItem(tabName = "segmentation",  mod_segmentation_ui("segmentation_1")),
-            tabItem(tabName = "network",  mod_network_ui("network_1"))
+            tabItem(tabName = "home", mod_home_ui("home_1")),
+            tabItem(tabName = "upload", mod_uploadData_ui("uploadData_1")),
+            tabItem(tabName = "visualize", mod_viewData_ui("viewData_1")),
+            tabItem(tabName = "segmentation", mod_segmentation_ui("segmentation_1")),
+            tabItem(tabName = "network", mod_network_ui("network_1")),
+            tabItem(tabName = "identification", mod_identification_ui("identification_1"))
             #tabItem(tabName = "contact", mod_contact_ui("contact_1"))
           )
         )

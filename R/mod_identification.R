@@ -99,7 +99,7 @@ mod_identification_ui <- function(id){
                  ),
                radioButtons(inputId = ns("ionMode"),
                             label = "2. Choose ion mode",
-                            choices = list("positive mode" = "positive", "negative mode" = "negative"),
+                            choices = list("positive mode" = "+", "negative mode" = "-"),
                             selected = "",
                             inline = TRUE
                             ),
@@ -112,20 +112,10 @@ mod_identification_ui <- function(id){
                            ),
                radioButtons(inputId = ns("DB"),
                             label = "4. Choose database",
-                            choices = list("HMDB" = "HMDB", "Lipid MAPS" = "LMSD", "Home DB" = "HDB"),
+                            choices = list("HMDB" = "HMDB", "KEGG" = "kegg"),
                             selected = "HMDB",
                             inline = TRUE
                             ),
-               conditionalPanel(
-                 condition = 'input.DB == "HDB"',
-                 ns = ns,
-                 fileInput(inputId = ns("HDBFile"),
-                           label = "Upload your database (csv format only)",
-                           multiple = FALSE,
-                           accept = ".csv",
-                           placeholder = "DB file should contain a column named mz"
-                           )
-                ),
                actionButton(inputId = ns("identify"),
                             label = "Go",
                             icon = icon("paper-plane"),
@@ -145,11 +135,10 @@ mod_identification_ui <- function(id){
                closable = FALSE,
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
-                 shiny::verbatimTextOutput(outputId = ns("idInfo"))
-               ),
-               DT::dataTableOutput(outputId = ns("idTable"))
+                 DT::dataTableOutput(outputId = ns("idTable"))
+               )
              )
-      ),
+      )
 
 
 
@@ -159,12 +148,61 @@ mod_identification_ui <- function(id){
 #' identification Server Functions
 #'
 #' @noRd
-mod_identification_server <- function(id){
+mod_identification_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-  })
-}
+    #(1) Load MSI rds Data =====================================================
+    output$infoMSIData <- shiny::renderPrint({
+      shiny::validate(need(!is.null(input$rdsMSI), message = "rds file not found"))
+      global$processedMSIData <- readRDS(input$rdsMSI$datapath)
+      if(is.null(global$processedMSIData)){
+        cat("MSI data not loaded, please check if your rds file is empty.\n")
+      } else {
+        cat("MSI data loaded successfully!\n")
+        global$processedMSIData
+      }
+    }) |>
+      bindEvent(input$loadData)
+
+    #(2) Identification ========================================================
+
+    output$idTable <- DT::renderDT(server = FALSE, {
+      #(1) Get m/z values ------------------------------------------------------
+      if(input$mzValueType == "singleMZ"){
+        shiny::validate(need(input$mzValues != "", message = "m/z value is missing."))
+        mzList <- unique(text2Num(input$mzValues))
+      } else {
+        shiny::validate(need(global$processedMSIData, message = "MSI data not found."))
+        if(is.null(global$cleanedMSIData)){global$cleanedMSIData <- global$processedMSIData}
+        mzList <- round(Cardinal::mz(global$cleanedMSIData), 4)
+      }
+      #(2) Search DB -----------------------------------------------------------
+      shiny::validate(
+        need(all(mzList > 0), message = "m/z should be positive value."),
+        need(input$ionMode != "", message = "Please select ion mode: positive or negative.")
+      )
+      idResult <- MSbox::what(myMZ = mzList, mode = input$ionMode, ppm = input$ppm, useDB = input$DB)
+
+      #(3) Show result ---------------------------------------------------------
+      if(is.null(idResult)){idResult <- data.frame(Result = "Not Found")}
+      DT::datatable(
+        idResult,
+        caption = "DB searching result",
+        extensions ="Buttons",
+        options = list(dom = 'Bfrtip',
+                       buttons = list(list(extend = 'csv', filename= 'identification')),
+                       scrollX = TRUE
+                       ),
+        rownames = FALSE
+        )
+    }) |>
+      bindEvent(input$identify)
+
+
+
+
+})}
 
 ## To be copied in the UI
 # mod_identification_ui("identification_1")

@@ -25,6 +25,7 @@ golem::add_module(name = "uploadData", with_test = FALSE) # Name of the module
 golem::add_module(name = "viewData", with_test = FALSE) # Name of the module
 golem::add_module(name = "segmentation", with_test = FALSE) # Name of the module
 golem::add_module(name = "network", with_test = FALSE) # Name of the module
+golem::add_module(name = "identification", with_test = FALSE)
 golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
 
 ## Add helper functions ----

@@ -37,8 +37,25 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
+               strong("1. Upload Files"),
+               br(),
+               p(style = "color:#C70039;", "Choose one of the two provided methods to read MSI files."),
+               strong("Method 1: Read MSI files locally."),
+               p(style = "color:#1f458f;", "(a) Use method 1 if you're running ShinyCardinal locally.
+                 It is much faster."),
+               p(style = "color:#1f458f;", "(b) Please choose the directory where MSI files are located.
+                 For multiple MSI runs (files), place them in the same directory."),
+               actionButton(ns("chooseMSI"), label = "Select directory", icon = icon("sitemap")),
+               br(),
+               br(),
+               strong("Method 2: Read MSI files from server."),
+               p(style = "color:#1f458f;", "(a) Method 2 also works locally,
+                 but it may take longer when working with large MSI datasets."),
+               p(style = "color:#1f458f;", "(b) Use method 2 for the web server version ShinyCardinal."),
+               p(style = "color:#1f458f;", "(c) Please upload both imzML and ibd files to the server. For multiple
+                 MSI runs (files), upload all of them simultaneously."),
                fileInput(inputId = ns("imzmlFile"),
-                         label = "1. Upload  files:",
+                         label = "",
                          multiple = TRUE,
                          placeholder = "Pleaae select both .imzMl and .ibd files",
                          accept = c(".imzML", ".ibd")
@@ -309,30 +326,98 @@ mod_uploadData_server <- function(id, global){
     ns <- session$ns
 
     #(2) Load MSI Data =========================================================
+    filePath <- reactiveValues(root = "~", current = "~", imzmlPath = "", ibdPath = "")
+    #(2.1) Option 1 ------------------------------------------------------------
+    observeEvent(input$chooseMSI, {
+      showModal(
+        modalDialog(
+          title = p(style = "color:#C70039;", "Select a directory (not MSI file)"),
+          p("Current directory: ", textOutput(ns("current_path"), inline = TRUE)),
+          fluidRow(
+            column(width = 2,
+                   actionButton(ns("button_back"),
+                                label = "Back",
+                                icon = icon("undo"),
+                                style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                                )
+                   ),
+            column(width = 10,
+                   selectInput(ns("dir"),
+                               label = NULL,
+                               choices = "Please select",
+                               width = "100%"
+                               )
+                   )
+          ),
+          size = "l",
+          footer = tagList(
+            actionButton(ns("ok"),
+                         label = "OK",
+                         icon = icon("check"),
+                         style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                         )
+          )
+        )
+      )
+      new_choices = c("Please select", dir(filePath$current))
+      updateSelectInput(inputId = "dir", choices = new_choices)
+    })
+
+    ## update directory
+    observeEvent(input$dir, {
+      if(input$dir != "Please select"){
+        filePath$current <- file.path(filePath$current, input$dir)
+      }
+      new_choices = c("Please select", dir(filePath$current))
+      updateSelectInput(inputId = "dir", choices = new_choices)
+    })
+
+    ## display directory
+    output$current_path = renderText({filePath$current})
+
+    ## back button
+    observeEvent(input$button_back, {
+      if(filePath$current != filePath$root){
+        filePath$current <- dirname(filePath$current)
+        new_choices = c("Please select", dir(filePath$current))
+        updateSelectInput(inputId = "dir", choices = new_choices)
+      }
+    })
+
+    ## OK button
+    observeEvent(input$ok, {
+      ## Get imzML and ibd file path
+      filePath$imzmlPath <- unique(list.files(path = filePath$current, pattern = ".imzML", full.names = TRUE))
+      filePath$ibdPath <- unique(list.files(path = filePath$current, pattern = ".ibd", full.names = TRUE))
+      removeModal()
+    })
+
     output$dataInfo <- renderPrint({
-      #(2.1) validate input ----------------------------------------------------
-      shiny::validate(need(input$imzmlFile$datapath != "", message = "No files found."))
+      if(any(filePath$imzmlPath == "")){
+        #(2.2) Option 2 --------------------------------------------------------
+        ## validate input
+        shiny::validate(need(input$imzmlFile$datapath != "", message = "No MSI files found."))
+        ## Get data path
+        oldName <- input$imzmlFile$datapath
+        newName <- file.path(dirname(input$imzmlFile$datapath), input$imzmlFile$name)
+        file.rename(from = oldName, to = newName)
+        msiFiles <- list.files(path = dirname(input$imzmlFile$datapath), full.names = TRUE)
+        filePath$imzmlPath <- unique(grep(pattern = ".imzML", x = msiFiles, value = TRUE))
+        filePath$ibdPath <- unique(grep(pattern = ".ibd", x = msiFiles, value = TRUE))
+      }
 
-      #(2.2) Get data path -----------------------------------------------------
-      oldName <- input$imzmlFile$datapath
-      newName <- file.path(dirname(input$imzmlFile$datapath), input$imzmlFile$name)
-      file.rename(from = oldName, to = newName)
-      msiFiles <- list.files(path = dirname(input$imzmlFile$datapath), full.names = TRUE)
-      imzmlPath <- unique(grep(pattern = ".imzML", x = msiFiles, value = TRUE))
-      ibdPath <- unique(grep(pattern = ".ibd", x = msiFiles, value = TRUE))
-
-      #(2.3) Load MSI data -----------------------------------------------------
+      ## Load MSI data
       shiny::validate(
-        need(imzmlPath != "", "imzML file missing!"),
-        need(ibdPath != "", "ibd file missing!"),
-        need(length(imzmlPath) == length(ibdPath), "The number of imzML and idb files are not the same!")
+        need(filePath$imzmlPath != "", "imzML file missing!"),
+        need(filePath$imzmlPath != "", "ibd file missing!"),
+        need(length(filePath$imzmlPath) == length(filePath$ibdPath), "The number of imzML and idb files are not the same!")
         )
       if(input$setMass == "No"){
         selectedMassRange = NULL
       } else {
         selectedMassRange = input$massRange
       }
-      global$msiData <- readMSI(path = imzmlPath,
+      global$msiData <- readMSI(path = filePath$imzmlPath,
                                 massResolution = input$massResolution,
                                 massRange = selectedMassRange,
                                 workers = input$loadDataWorkers

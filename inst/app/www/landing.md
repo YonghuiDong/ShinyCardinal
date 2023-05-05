@@ -29,7 +29,11 @@ The workflow includes pre-processing (e.g., missing value imputation, QC-based f
 
 <b><span style="color:#5c5d61; font-size:22px;">Workflow</span></b>
 
-Below is the general workflow of MetaboReport:
+Below are the general workflow and main features of ShinyCardinal:
+
+<img src='www/img/workflow.png' alt='workflow' title='workflow' style="vertical-align:middle;margin:0px 100px" width='600'/>
+
+<br></br>
 
 
 <b><span style="color:#5c5d61; font-size:22px;">How to use ShinyCardinal</span></b>

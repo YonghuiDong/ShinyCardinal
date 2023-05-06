@@ -48,8 +48,8 @@ mod_uploadData_ui <- function(id){
                actionButton(ns("chooseMSI"), label = "Choose Directory", icon = icon("sitemap")),
                br(),
                br(),
-               strong("Method 2: Read MSI files from server."),
-               p(style = "color:#1f458f;", "(a) Method 2 also works locally, but it's slower for large data."),
+               strong("Method 2: Read uploaded MSI files."),
+               p(style = "color:#1f458f;", "(a) Method 2 also works locally, but it's slower."),
                p(style = "color:#1f458f;", "(b) Use method 2 for the web server version ShinyCardinal."),
                p(style = "color:#1f458f;", "(c) Please upload both imzML and ibd files to the server."),
                p(style = "color:#1f458f;", "(d) For multiple MSI runs (files), upload all of them simultaneously."),
@@ -107,10 +107,10 @@ mod_uploadData_ui <- function(id){
                closable = FALSE,
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
-                 shiny::verbatimTextOutput(outputId = ns("dataInfo"))
-                 )
-               )
-             ),
+                 shiny::verbatimTextOutput(outputId = ns("msiDataInfo"))
+                )
+              )
+            ),
 
       #(3) Get Mean Spectrum ===================================================
       column(width = 12, h6("Calculate Mean Spectrum")),
@@ -125,12 +125,12 @@ mod_uploadData_ui <- function(id){
                collapsed = TRUE,
                closable = FALSE,
                sliderInput(inputId = ns("nth"),
-                           label = "1. (Optional) Subset MSI data by select every nth pixel",
+                           label = "1. (optional) Subset MSI data by select every nth pixel",
                            min = 1,
                            max = 10,
                            value = 1,
                            step = 1
-                           ),
+                          ),
                strong("2. (optional) Choose number of workers for parallel computation"),
                sliderInput(inputId = ns("meanSpecWorkers"),
                            label = "",
@@ -138,14 +138,14 @@ mod_uploadData_ui <- function(id){
                            max = 10,
                            value = 1,
                            step = 1
-                           ),
+                          ),
                actionButton(inputId = ns("getMeanSpec"),
                             label = "Calculate",
                             icon = icon("paper-plane"),
                             style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                             )
-               ),
-             ),
+              ),
+            ),
 
       #(3.2) Get Mean Spectrum Result ------------------------------------------
       column(width = 7,
@@ -161,9 +161,9 @@ mod_uploadData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  plotly::plotlyOutput(outputId = ns("meanSpecPlot"))
-                 )
-               )
-             ),
+                )
+              )
+            ),
 
       #(4) Get Reference Peaks =================================================
       column(width = 12, h6("Calculate Reference Peaks")),
@@ -237,10 +237,10 @@ mod_uploadData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  plotly::plotlyOutput(outputId = ns("refPeakPlot"))
-                 ),
+                ),
                shiny::verbatimTextOutput(outputId = ns("refPeakInfo"))
-               )
-             ),
+              )
+            ),
 
       #(5) Process MSI Data ====================================================
       column(width = 12, h6("Process MSI Data")),
@@ -261,6 +261,8 @@ mod_uploadData_ui <- function(id){
                             selected = "tic",
                             inline = TRUE,
                             ),
+               p(style = "color:#C70039;", "(optional, TOF) Step 2. Smoothing"),
+               p(style = "color:#C70039;", "(optional, TOF) Step 3. Baseline reduction"),
                p(style = "color:#C70039;", "Step 2. Peak Binning"),
                sliderInput(inputId = ns("pbTolerance"),
                            label = "2.1 Choose peak binning tolerance (ppm)",
@@ -268,7 +270,7 @@ mod_uploadData_ui <- function(id){
                            max = 100,
                            value = 10,
                            step = 1
-                           ),
+                          ),
                strong("3. (optional) Choose number of workers for parallel computation"),
                sliderInput(inputId = ns("getProcessMSIWorkers"),
                            label = "",
@@ -276,7 +278,7 @@ mod_uploadData_ui <- function(id){
                            max = 10,
                            value = 1,
                            step = 1
-                           ),
+                          ),
                actionButton(inputId = ns("processMSIData"),
                             label = "Process",
                             icon = icon("paper-plane"),
@@ -299,12 +301,12 @@ mod_uploadData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("processedMSIInfo"))
-                 ),
+                ),
                br(),
                br(),
                shiny::uiOutput(outputId = ns("downloadButton"))
-               )
-             )
+              )
+            )
 ))}
 
 
@@ -316,39 +318,40 @@ mod_uploadData_server <- function(id, global){
 
     #(2) Load MSI Data =========================================================
     filePath <- reactiveValues(root = "~", current = "~", imzmlPath = "", ibdPath = "")
+
     #(2.1) Option 1 ------------------------------------------------------------
     observeEvent(input$chooseMSI, {
       showModal(
         modalDialog(
           title = p(style = "color:#C70039;", "Select the directory (not MSI file)"),
-          p("Current directory: ", textOutput(ns("current_path"), inline = TRUE)),
+          p("Current directory: ", textOutput(outputId = ns("current_path"), inline = TRUE)),
           fluidRow(
             column(width = 2,
-                   actionButton(ns("button_back"),
+                   actionButton(inputId = ns("button_back"),
                                 label = "Back",
                                 icon = icon("undo"),
                                 style="color: #fff; background-color: #a077b5; border-color: #a077b5"
                                 )
-                   ),
+                  ),
             column(width = 10,
-                   selectInput(ns("dir"),
+                   selectInput(inputId = ns("dir"),
                                label = NULL,
                                choices = "Please select",
                                width = "100%"
                                )
-                   )
+                  )
           ),
           size = "l",
           footer = tagList(
-            actionButton(ns("ok"),
+            actionButton(inputId = ns("ok"),
                          label = "OK",
                          icon = icon("check"),
                          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-                         )
+                        )
           )
         )
       )
-      new_choices = c("Please select", dir(filePath$current))
+      new_choices <- c("Please select", dir(filePath$current))
       updateSelectInput(inputId = "dir", choices = new_choices)
     })
 
@@ -357,7 +360,7 @@ mod_uploadData_server <- function(id, global){
       if(input$dir != "Please select"){
         filePath$current <- file.path(filePath$current, input$dir)
       }
-      new_choices = c("Please select", dir(filePath$current))
+      new_choices <- c("Please select", dir(filePath$current))
       updateSelectInput(inputId = "dir", choices = new_choices)
     })
 
@@ -381,7 +384,7 @@ mod_uploadData_server <- function(id, global){
       removeModal()
     })
 
-    output$dataInfo <- renderPrint({
+    output$msiDataInfo <- renderPrint({
       if(any(filePath$imzmlPath == "")){
         #(2.2) Option 2 --------------------------------------------------------
         ## validate input
@@ -399,7 +402,7 @@ mod_uploadData_server <- function(id, global){
       shiny::validate(
         need(filePath$imzmlPath != "", "imzML file missing!"),
         need(filePath$imzmlPath != "", "ibd file missing!"),
-        need(length(filePath$imzmlPath) == length(filePath$ibdPath), "The number of imzML and idb files are not the same!")
+        need(length(filePath$imzmlPath) == length(filePath$ibdPath), "The number of imzML and idb files are not equal!")
         )
       if(input$setMass == "No"){
         selectedMassRange = NULL
@@ -418,84 +421,84 @@ mod_uploadData_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(3) Get Mean Spectrum =====================================================
+    specData <- reactiveValues(meanSpec = NULL, refPeaks = NULL)
+
     output$meanSpecPlot <- plotly::renderPlotly({
       #(3.1) validate input --------------------------------------------------
       shiny::validate(need(global$msiData, message = "MSI data not found."))
 
       #(3.2) Calculate mean spectrum -----------------------------------------
-      global$meanSpec <- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
+      specData$meanSpec <- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
         getMeanSpec(msiData = _,
                     worker = input$meanSpecWorkers
                     )
-      plotMeanSpec(meanSpec = global$meanSpec, nth = input$nth)
-      }) |>
+      plotMeanSpec(meanSpec = specData$meanSpec, nth = input$nth)
+    }) |>
       bindEvent(input$getMeanSpec)
-
 
     #(4) Get Reference Peaks ===================================================
     #(4.1) Calculate and display reference spec --------------------------------
     output$refPeakPlot <- plotly::renderPlotly({
-      shiny::validate(need(global$meanSpec, message = "Mean spec not found."))
-      global$refPeaks <- getRefPeaks(meanSpec = global$meanSpec,
-                                     method = input$ppMethod,
-                                     SNR = input$ppSNR,
-                                     tolerance = input$paTolerance,
-                                     freq.min = input$pfFreqmin,
-                                     workers = input$getRefWorkers
-                                     )
-      plotMeanSpec(global$refPeaks, nth = 1)
+      shiny::validate(need(specData$meanSpec, message = "Mean spec not found."))
+      specData$refPeaks <- getRefPeaks(meanSpec = specData$meanSpec,
+                                       method = input$ppMethod,
+                                       SNR = input$ppSNR,
+                                       tolerance = input$paTolerance,
+                                       freq.min = input$pfFreqmin,
+                                       workers = input$getRefWorkers
+                                       )
+      plotMeanSpec(specData$refPeaks, nth = 1)
     })|>
       bindEvent(input$getRefPeaks)
 
     #(4.2) Show reference peak info --------------------------------------------
     output$refPeakInfo <- shiny::renderPrint({
-      shiny::req(global$refPeaks)
+      shiny::req(specData$refPeaks)
       cat("Below is the reference peak information:\n")
       cat("\n")
-      global$refPeaks
-      })
+      specData$refPeaks
+    })
 
     #(5) Process MSI Data ======================================================
     #(5.1) Process and display MSI data --------------------------------------
     output$processedMSIInfo <- shiny::renderPrint({
       shiny::validate(
         need(global$msiData, message = "MSI data not found."),
-        need(global$refPeaks, message = "Reference spec not found.")
-        )
+        need(specData$refPeaks, message = "Reference spec not found.")
+      )
       global$processedMSIData <- processMSIData(msiData = global$msiData,
                                                 method = input$norMethod,
-                                                ref = global$refPeaks,
+                                                ref = specData$refPeaks,
                                                 tolerance = input$pbTolerance,
                                                 workers = input$getProcessMSIWorkers
                                                 )
       cat("Below is the processed MSI information:\n")
       cat("\n")
       global$processedMSIData
-      }) |>
+    }) |>
       bindEvent(input$processMSIData)
 
       #(5.2) Download processed MSI data ---------------------------------------
     output$downloadButton <- renderUI({
+      shiny::req(global$processedMSIData)
       downloadButton(
         outputId = ns("downloadProcessedData"),
         label = "Download rds Data",
         style="color: #fff; background-color: #a077b5; border-color: #a077b5"
         )
-      }) |>
+    }) |>
       bindEvent(input$processMSIData)
 
     output$downloadProcessedData <- downloadHandler(
       filename = function(){
-        if(is.null(global$processedMSIData)){
-          paste0("No_Data_Found.rds")
-          } else {
-          paste0("processedMSIData", Sys.Date(), ".rds")
-          }
-        },
+        paste0("processedMSIData_", Sys.Date(), ".rds")
+      },
       content = function(file){
         saveRDS(global$processedMSIData, file)
-        }
-      )
+      }
+    )
+
+
 })}
 
 ## To be copied in the UI

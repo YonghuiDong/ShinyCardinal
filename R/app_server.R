@@ -8,7 +8,6 @@ app_server <- function(input, output, session) {
   options(shiny.maxRequestSize = 10000000 * 1024^2) ## file size limit
   global <- reactiveValues(
     msiData = NULL,
-    meanSpec = NULL,
     processedMSIData = NULL,
     cleanedMSIData = NULL
   )

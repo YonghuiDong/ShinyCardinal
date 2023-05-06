@@ -21,11 +21,11 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE
-               )
-             ),
+              )
+            ),
 
       #(1) Optional: upload MSI rds Data =======================================
-      column(width = 12, h5("Upload MSI rds Data (Optional)")),
+      column(width = 12, h5("Upload MSI rds Data (optional)")),
       column(width = 4,
              box(
                width = 12,
@@ -49,8 +49,8 @@ mod_viewData_ui <- function(id){
                             icon = icon("paper-plane"),
                             style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                             )
-               )
-             ),
+              )
+            ),
       #(1.2) Upload MSI rds data result ----------------------------------------
       column(width = 8,
              box(
@@ -64,11 +64,11 @@ mod_viewData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
-                 )
-               )
-             ),
+                )
+              )
+            ),
 
-      #(2) Background noise and matrix removal ===================================
+      #(2) Background noise and matrix removal =================================
       column(width = 12, h5("Remove Background Noises and Matrix Peaks (Optional)")),
       column(width = 4,
              box(
@@ -82,8 +82,8 @@ mod_viewData_ui <- function(id){
                closable = FALSE,
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. This moduel is optional."),
-               p(style = "color:#C70039;", "2. Enter a noise or matrix m/z value below. The software
-               will detect its colocalized features and remove them based on the colocalization coefficient."),
+               p(style = "color:#C70039;", "2. Enter a noise or matrix m/z value below. ShinyCardinal
+               will detect its colocalized features."),
                p(style = "color:#C70039;", "3. You can improve the speed by subsetting the MSI data
                and selecting multiple workers."),
                p(style = "color:#C70039;", "4. You can run this step multiple times to remove different sources of noise peaks."),
@@ -120,8 +120,8 @@ mod_viewData_ui <- function(id){
                             icon = icon("paper-plane"),
                             style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                             )
-               )
-             ),
+              )
+            ),
 
       ##(2.2) Background noise and matrix removal output -----------------------
       column(width = 8,
@@ -137,7 +137,7 @@ mod_viewData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("colocNoiseInfo"))
-                 ),
+                ),
                column(width = 6, shiny::uiOutput(outputId = ns("deleteNoiseButton"))),
                column(width = 6, shiny::uiOutput(outputId = ns("resetNoiseButton"))),
                shiny::verbatimTextOutput(outputId = ns("summaryBNMR"))
@@ -166,12 +166,12 @@ mod_viewData_ui <- function(id){
                          placeholder = "For multiple m/z values, separate them by a comma."
                          ),
                numericInput(inputId = ns("massWindow"),
-                           label = "2. Set mass tolerance window (Da)",
-                           min = 0,
-                           max = 10,
-                           value = 0.001,
-                           step = 0.001
-                           ),
+                            label = "2. Set mass tolerance window (Da)",
+                            min = 0,
+                            max = 10,
+                            value = 0.001,
+                            step = 0.001
+                            ),
                selectInput(inputId = ns("normalizeImage"),
                            label = "3. Select normalization method to the image.",
                            multiple = FALSE,
@@ -227,8 +227,8 @@ mod_viewData_ui <- function(id){
                             icon = icon("paper-plane"),
                             style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                             )
-               )
-             ),
+              )
+            ),
 
       #(3.2) Output ============================================================
       column(width = 8,
@@ -245,7 +245,7 @@ mod_viewData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("mzList"))
-                 ),
+                ),
                shiny::plotOutput(outputId = ns("ionImage"),
                                  click = ns("plot_click"),
                                  hover = ns("plot_hover")
@@ -259,8 +259,9 @@ mod_viewData_ui <- function(id){
                       ),
                shiny::tableOutput(outputId = ns("pixelTable")),
                plotly::plotlyOutput(outputId = ns("selectedSpec"))
-               )
-             ),
+              )
+            ),
+
       #(4) Image Analysis ======================================================
       column(width = 12, h6("Image Analysis")),
       column(width = 4,
@@ -408,11 +409,11 @@ mod_viewData_server <- function(id, global){
       global$processedMSIData <- readRDS(input$rdsMSI$datapath)
       if(is.null(global$processedMSIData)){
         cat("MSI data not loaded, please check if your rds file is empty.\n")
-        } else {
+      } else {
         cat("MSI data loaded successfully!\n")
         global$processedMSIData
-        }
-      }) |>
+      }
+    }) |>
       bindEvent(input$loadData)
 
     #(2) Background Removal ====================================================
@@ -427,7 +428,7 @@ mod_viewData_server <- function(id, global){
       shiny::validate(
         need(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) & input$noisePeak <= max(Cardinal::mz(global$processedMSIData)),
              message = "The entered m/z value is out of range."),
-        need(!(round(input$noisePeak, 3) %in% massList$removedFeatures), message = "This m/z value has been removed, please try with another one")
+        need(!(round(input$noisePeak, 4) %in% massList$removedFeatures), message = "This m/z value has been removed, please try with another one")
       )
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
@@ -475,7 +476,7 @@ mod_viewData_server <- function(id, global){
       shiny::req(massList$colocedFeatures)
       global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = massList$colocedFeatures)
       ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
-      massList$removedFeatures <- round(c(massList$removedFeatures, input$noisePeak, massList$colocedFeatures$mz), 3)
+      massList$removedFeatures <- round(c(massList$removedFeatures, input$noisePeak, massList$colocedFeatures$mz), 4)
     })
 
     #(2.4) Reset feature -------------------------------------------------------
@@ -530,7 +531,7 @@ mod_viewData_server <- function(id, global){
         need(global$cleanedMSIData, message = "MSI data not found."),
         need(input$mzValues != "", message = "m/z value is missing."),
         need(input$massWindow > 0, message = "mass tolerance should be positive value.")
-        )
+      )
       msiInfo$mzList <- unique(text2Num(input$mzValues))
       msiInfo$mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)
       msiInfo$mzMax <- round(max(Cardinal::mz(global$cleanedMSIData)), 4)
@@ -560,7 +561,7 @@ mod_viewData_server <- function(id, global){
         Cardinal::darkmode()
       }
       msiInfo$ionImage
-      })
+    })
 
     #(3.3) Download MSI images -------------------------------------------------
     output$downloadImageButton <- renderUI({
@@ -581,7 +582,7 @@ mod_viewData_server <- function(id, global){
         pdf(file)
         print(msiInfo$ionImage)
         dev.off()
-      })
+    })
 
     #(3.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {
@@ -592,8 +593,8 @@ mod_viewData_server <- function(id, global){
           label = "Reset",
           icon = icon("circle"),
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
+        )
+      })
       output$undoButton <- renderUI({
         shiny::req(msiInfo$ionImage)
         actionButton(
@@ -601,13 +602,13 @@ mod_viewData_server <- function(id, global){
           label = "Undo",
           icon = icon("undo"),
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
+        )
+      })
       ## initiate click event
       rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
       observeEvent(input$plot_click, {
-        shiny::req(input$plot_click$x >= min(Cardinal::coord(global$cleanedMSIData)$x) &
-                     input$plot_click$x <= max(Cardinal::coord(global$cleanedMSIData)$x)
+        shiny::req(input$plot_click$x >= min(Cardinal::coord(global$cleanedMSIData)$x)
+                   & input$plot_click$x <= max(Cardinal::coord(global$cleanedMSIData)$x)
                    )
         shiny::req(input$plot_click$y >= min(Cardinal::coord(global$cleanedMSIData)$y)
                    & input$plot_click$y <= max(Cardinal::coord(global$cleanedMSIData)$y)
@@ -619,27 +620,27 @@ mod_viewData_server <- function(id, global){
                            )
                 ) |>
           (\(x) x[!duplicated(x), ])()
-        })
+      })
       observeEvent(input$undo, {
         rv_click$df <- head(isolate(rv_click$df), -1)
-        })
+      })
       observeEvent(input$reset, {
         rv_click$df <- data.frame(x = double(), y = double())
-        })
+      })
       output$info <- renderText({
         shiny::req(msiInfo$ionImage)
         print("Please click on the image to select pixels of interest.")
-        })
+      })
       output$pixelTable <- renderTable({
         shiny::req(msiInfo$ionImage)
         shiny::req(nrow(rv_click$df) > 0)
         rv_click$df
-        })
+      })
       output$selectedSpec <- plotly::renderPlotly({
         shiny::req(nrow(rv_click$df) > 0)
         shiny::req(global$cleanedMSIData)
         plotPixelSpec(msiData = global$cleanedMSIData, pixelDF = rv_click$df)
-        })
+      })
     })
 
     #(4) Image Analysis ========================================================
@@ -694,8 +695,8 @@ mod_viewData_server <- function(id, global){
         need(input$roiName != "", message = "Please enter an ROI name"),
         need(input$msiRun != "All", message = "Please select only one MSI run when selecting ROI."),
         need(!(paste(input$roiName, input$msiRun, sep = ":") %in% names(roiData$roiMSIData)),
-             message = "The entered ROI name already exist, please user another one.")
-        )
+             message = "The entered ROI name already exist, please use another one.")
+      )
       ## subset global$cleanedMSIData
       roiData$roiMSIData <- append(roiData$roiMSIData,
                                    setNames(list(getROI(msiData = global$cleanedMSIData, selectedRun = input$msiRun, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
@@ -711,8 +712,8 @@ mod_viewData_server <- function(id, global){
           label = "Reset selected ROI",
           icon = icon("circle"),
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
+        )
+      })
 
       output$undoROIButton <- renderUI({
         actionButton(
@@ -720,9 +721,9 @@ mod_viewData_server <- function(id, global){
           label = "Undo selected ROI",
           icon = icon("undo"),
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-          )
-        })
-      }) |>
+        )
+      })
+    }) |>
       bindEvent(input$recordROI)
 
     ##(4.4) Reset and show message----------------------------------------------
@@ -730,7 +731,7 @@ mod_viewData_server <- function(id, global){
       shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
       roiData$roiMSIData <- list()
       cat("All selected ROIs are removed.")
-      }) |>
+    }) |>
       bindEvent(input$resetROI)
 
     ##(4.5) Undo and show message ----------------------------------------------
@@ -770,7 +771,7 @@ mod_viewData_server <- function(id, global){
                        scrollX = TRUE
                        ),
         rownames = FALSE
-        )
+      )
     }) |>
       bindEvent(input$compareROIs)
 
@@ -785,6 +786,7 @@ mod_viewData_server <- function(id, global){
       plotROIProfile(msiData = global$cleanedMSIData, roiMSIData = roiData$roiMSIData, mz = mzROIList)
     }) |>
       bindEvent(input$plotROIProfile)
+
 
 })}
 

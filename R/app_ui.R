@@ -41,8 +41,8 @@ app_ui <- function(request) {
             tabItem(tabName = "visualize", mod_viewData_ui("viewData_1")),
             tabItem(tabName = "segmentation", mod_segmentation_ui("segmentation_1")),
             tabItem(tabName = "network", mod_network_ui("network_1")),
-            tabItem(tabName = "identification", mod_identification_ui("identification_1"))
-            #tabItem(tabName = "contact", mod_contact_ui("contact_1"))
+            tabItem(tabName = "identification", mod_identification_ui("identification_1")),
+            tabItem(tabName = "contact", mod_contact_ui("contact_1"))
           )
         )
       )
@@ -68,7 +68,7 @@ golem_add_external_resources <- function() {
     favicon(),
     bundle_resources(
       path = app_sys("app/www"),
-      app_title = "MSI"
+      app_title = "ShinyCardinal"
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()

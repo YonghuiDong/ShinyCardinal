@@ -1,9 +1,8 @@
-Package: MSI
+Package: ShinyCardinal
 Title: PKG_TITLE
 Version: 0.0.0.9000
-Authors@R: 
-    person("Yonghui", "Dong", , "yonghui.dong@gmail.com", role = c("cre", "aut"))
-Description: PKG_DESC.
+Authors@R: person('Yonghui', 'Dong', email = 'yonghui.dong@gmail.com', role = c('cre', 'aut'))
+Description: Analysis of Mass Spectrometry Imaging Data.
 License: What license is it under?
 Imports: 
     BiocParallel,
@@ -12,6 +11,8 @@ Imports:
     DT,
     golem (>= 0.3.5.9001),
     igraph,
+    markdown,
+    MSbox,
     plotly,
     shiny (>= 1.7.4),
     shinycssloaders,

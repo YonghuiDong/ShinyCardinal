@@ -13,7 +13,7 @@
 #' set.seed(2020)
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 1, baseline = 1)
 #' meanSpec <- getMeanSpec(msiData = mse)
-#' RefPeaks <- getRefPeaks(meanSpec = meanSpec, method = "mad", SNR = 3, tolerance = 10)
+#' refPeaks <- getRefPeaks(meanSpec = meanSpec, method = "mad", SNR = 3, tolerance = 10)
 
 getRefPeaks <- function(meanSpec, method = "mad", SNR = 10, tolerance = 10, freq.min = 0.01, workers = 1){
   meanSpec |>

@@ -16,7 +16,7 @@ To file bugs or request new features of Cardinal R package, please visit:
 
 <b><span style="color:#5c5d61; font-size:22px;">Cardinal Support</span></b>
 
-Cardinal includes a walkthrough vignette that showcases both its fundamental and advanced features. To learn more about Cardinal, please read [here](https://bioconductor.org/packages/release/bioc/html/Cardinal.html) and [here](https://bioconductor.org/packages/release/data/experiment/html/CardinalWorkflows.html).
+R package Cardinal includes a walkthrough vignette that showcases both its fundamental and advanced features. To learn more about Cardinal, please read [here](https://bioconductor.org/packages/release/bioc/html/Cardinal.html) and [here](https://bioconductor.org/packages/release/data/experiment/html/CardinalWorkflows.html).
 
 If you need any help, please visit [Cardinal google help group](https://groups.google.com/g/CardinalMSI?hl=en).
 

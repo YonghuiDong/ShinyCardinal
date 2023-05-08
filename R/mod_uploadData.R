@@ -391,7 +391,7 @@ mod_uploadData_server <- function(id, global){
     })
 
     output$msiDataInfo <- renderPrint({
-      if(any(filePath$imzmlPath == "")){
+      if(length(filePath$imzmlPath) == 0){
         #(2.2) Option 2 --------------------------------------------------------
         ## validate input
         shiny::validate(need(input$imzmlFile$datapath != "", message = "No MSI files found."))

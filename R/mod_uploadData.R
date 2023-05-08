@@ -78,7 +78,13 @@ mod_uploadData_ui <- function(id){
                            max = 5000,
                            value = c(50, 1500)
                            ),
-               strong("4. (optional) Choose number of workers for parallel computation"),
+               radioButtons(inputId = ns("msiDataMode"),
+                            label = "4. (optional) Choose MSI data mode, only for multiple runs",
+                            choices = c("Profile mode" = "0", "Centroid mode" = "1"),
+                            selected = "0",
+                            inline = TRUE
+                            ),
+               strong("5. (optional) Choose number of workers for parallel computation"),
                sliderInput(inputId = ns("loadDataWorkers"),
                            label = "",
                            min = 1,
@@ -412,6 +418,7 @@ mod_uploadData_server <- function(id, global){
       global$msiData <- readMSI(path = filePath$imzmlPath,
                                 massResolution = input$massResolution,
                                 massRange = selectedMassRange,
+                                dataCentroid = as.logical(as.numeric(input$msiDataMode)),
                                 workers = input$loadDataWorkers
                                 )
       cat("The files have been loaded successfully. Below is the MSI data information:\n")

@@ -1,5 +1,5 @@
 #' @title readMSI
-#' @description read multiple imzML file and combine them into one
+#' @description read multiple imzML file and combine them.
 #' @importFrom Cardinal readMSIData
 #' @importFrom BiocParallel SnowParam
 #' @return The return value, if any, from executing the function.

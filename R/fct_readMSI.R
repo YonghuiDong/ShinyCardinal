@@ -5,7 +5,7 @@
 #' @return The return value, if any, from executing the function.
 #' @noRd
 
-readMSI <- function(path, massResolution = 10, massRange = NULL, workers = 6){
+readMSI <- function(path, massResolution = 10, massRange = NULL, dataCentroid = TRUE, workers = 1){
   #(1) Read and combine files in case multiple files are loaded ----------------
   msiData <- lapply(path, function(x)
     Cardinal::readMSIData(x,
@@ -17,13 +17,22 @@ readMSI <- function(path, massResolution = 10, massRange = NULL, workers = 6){
                           )
   )
 
-  #(2) make centroid information consistent among different files --------------
-  for(i in 1:length(msiData)){
-    Cardinal::centroided(msiData[[i]]) <- TRUE
+  #(2.1) Single MSI data -------------------------------------------------------
+  if(length(msiData) == 1){
+    return(msiData[[1]])
+  } else {
+    #(2.2) Multiple MSI data ---------------------------------------------------
+    modes <- unlist(lapply(msiData, Cardinal::centroided))
+    ##(2.2.1) make centroid TRUE if different in different files
+    if(length(unique(modes)) != 1 | all(is.na(modes))){
+      for(i in 1:length(msiData)){
+        Cardinal::centroided(msiData[[i]]) <- dataCentroid
+      }
+    }
+    ##(2.2.2) Combine multiple files
+    msiCombined <- Cardinal::combine(msiData[1:length(msiData)])
+    Cardinal::coord(msiCombined)["z"] <- NULL
+    return(msiCombined)
   }
 
-  #(3) Combine multiple files --------------------------------------------------
-  msiCombined <- Cardinal::combine(msiData[1:length(msiData)])
-  Cardinal::coord(msiCombined)["z"] <- NULL
-  return(msiCombined)
 }

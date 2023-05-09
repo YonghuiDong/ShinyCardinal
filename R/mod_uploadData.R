@@ -167,7 +167,8 @@ mod_uploadData_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  plotly::plotlyOutput(outputId = ns("meanSpecPlot"))
-                )
+                ),
+               shiny::verbatimTextOutput(outputId = ns("meanPeakInfo"))
               )
             ),
 
@@ -442,6 +443,14 @@ mod_uploadData_server <- function(id, global){
       plotMeanSpec(meanSpec = specData$meanSpec, nth = input$nth)
     }) |>
       bindEvent(input$getMeanSpec)
+
+    #(3.3) Show reference peak info --------------------------------------------
+    output$meanPeakInfo <- shiny::renderPrint({
+      shiny::req(specData$meanSpec)
+      cat("Below is the mean peak information:\n")
+      cat("\n")
+      specData$meanSpec
+    })
 
     #(4) Get Reference Peaks ===================================================
     #(4.1) Calculate and display reference spec --------------------------------

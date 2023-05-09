@@ -323,7 +323,7 @@ mod_uploadData_server <- function(id, global){
     ns <- session$ns
 
     #(2) Load MSI Data =========================================================
-    filePath <- reactiveValues(root = "~", current = "~", imzmlPath = "", ibdPath = "")
+    filePath <- reactiveValues(root = "~", current = "~", imzmlPath = NULL, ibdPath = NULL)
 
     #(2.1) Option 1 ------------------------------------------------------------
     observeEvent(input$chooseMSI, {
@@ -391,7 +391,7 @@ mod_uploadData_server <- function(id, global){
     })
 
     output$msiDataInfo <- renderPrint({
-      if(length(filePath$imzmlPath) == 0){
+      if(identical(filePath$imzmlPath, character(0)) | is.null(filePath$imzmlPath)){
         #(2.2) Option 2 --------------------------------------------------------
         ## validate input
         shiny::validate(need(input$imzmlFile$datapath != "", message = "No MSI files found."))
@@ -406,9 +406,9 @@ mod_uploadData_server <- function(id, global){
 
       ## Load MSI data
       shiny::validate(
-        need(filePath$imzmlPath != "", "imzML file missing!"),
-        need(filePath$imzmlPath != "", "ibd file missing!"),
-        need(length(filePath$imzmlPath) == length(filePath$ibdPath), "The number of imzML and idb files are not equal!")
+        need(filePath$imzmlPath != "", message = ("imzML file missing!")),
+        need(filePath$imzmlPath != "", message = "ibd file missing!"),
+        need(length(filePath$imzmlPath) == length(filePath$ibdPath), message = "The number of imzML and idb files are not equal!")
         )
       if(input$setMass == "No"){
         selectedMassRange = NULL

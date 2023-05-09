@@ -13,7 +13,7 @@
 #' plotMeanSpec(meanSpec, nth = 2)
 
 plotMeanSpec <- function(meanSpec, nth = 1){
-  data <- data.frame(mz = meanSpec@featureData@mz, mean = Cardinal::iData(meanSpec)[,1])
+  data <- data.frame(mz = Cardinal::mz(meanSpec), mean = Cardinal::iData(meanSpec)[, 1])
   ## define title
   if(nth == 1){
     title = ""

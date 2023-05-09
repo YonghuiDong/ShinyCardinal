@@ -1,5 +1,11 @@
-#' @title readMSI
+#' @title read MSI data
 #' @description read multiple imzML file and combine them.
+#' @param path MSI data path
+#' @param massResolution mass rasolution, unit is ppm.
+#' @param massRange set mass range if known.
+#' @param dataCentroild if data is centroild. This parameter is only used when reading
+#' multiple files and when their centroid mode is unknown or not the same.
+#' @param workers number of workers for parallel computation.
 #' @importFrom Cardinal readMSIData
 #' @importFrom BiocParallel SnowParam
 #' @return The return value, if any, from executing the function.

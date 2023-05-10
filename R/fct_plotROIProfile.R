@@ -1,7 +1,7 @@
 #' @title Plot ion intensity of selected m/z values along the ROI pixels.
 #' @description Plot ion intensity of selected m/z values along the ROI pixels.
 #' @param msiData description
-#' @param roiMSIData a list of user defined ROIs. The length should be 1. There are no requirements for the name of ROI.
+#' @param roiList a list of user defined ROIs. The length should be 1. There are no requirements for the name of ROI.
 #' @param mz user defined m/z values.
 #' @return plotly plot
 #' @noRd
@@ -12,15 +12,15 @@
 #' a <- c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)
 #' l <- list(a)
 #' names(l) <- "a"
-#' plotROIProfile(msiData = x, roiMSIData = l, mz = c(1143.6165, 798.8322))
+#' plotROIProfile(msiData = x, roiList = l, mz = c(1143.6165, 798.8322))
 
 
-plotROIProfile <- function(msiData, roiMSIData, mz){
+plotROIProfile <- function(msiData, roiList, mz){
   #(1) Check input
-  if(length(roiMSIData) != 1){stop("Only one ROI is allowed.")}
+  if(length(roiList) != 1){stop("Only one ROI is allowed.")}
   mz <- mz[order(mz)] # 'mz' must be in increasing order here
   #(2) Prepare data ------------------------------------------------------------
-  roi <- combine2(msiData = msiData, roiList = roiMSIData)
+  roi <- combine2(msiData = msiData, roiList = roiList)
   fid <- Cardinal::features(roi, mz = mz)
   subROIMSIData <- roi[fid, ] # here needs 'mz' must be in increasing order
   roiPxiel <- as.data.frame(Cardinal::coord(subROIMSIData))

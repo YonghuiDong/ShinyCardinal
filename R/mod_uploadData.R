@@ -81,8 +81,8 @@ mod_uploadData_ui <- function(id){
                            ),
                strong("4. (optional) Choose MSI data mode"),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "Data mode parameter only applies when multiple runs loaded with
-                 unknown/different data modes."),
+               p(style = "color:#C70039;", "This parameter applies only when multiple runs loaded with
+                 unknown/different modes."),
                radioButtons(inputId = ns("msiDataMode"),
                             label = NULL,
                             choices = c("Profile mode" = "0", "Centroid mode" = "1"),
@@ -138,7 +138,7 @@ mod_uploadData_ui <- function(id){
                strong("1. (optional) Subset MSI data by select every nth pixel"),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. Subsetting every nth pixel speeds up by factor N."),
-               p(style = "color:#C70039;", "2. Large nth may miss highly localized features."),
+               p(style = "color:#C70039;", "2. Large nth may miss highly localized mass features."),
                sliderInput(inputId = ns("nth"),
                            label = NULL,
                            min = 1,

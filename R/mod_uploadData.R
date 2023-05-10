@@ -207,22 +207,6 @@ mod_uploadData_ui <- function(id){
                            value = 10,
                            step = 1
                            ),
-               p(style = "color:#C70039;", "Step 3. Peak Filter"),
-               sliderInput(inputId = ns("pfFreqmin"),
-                           label = "3.1 Choose minimum frequencypeak to keep peaks",
-                           min = 0,
-                           max = 0.1,
-                           value = 0.01,
-                           step = 0.01
-                           ),
-               strong("4. (optional) Choose number of workers for parallel computation"),
-               sliderInput(inputId = ns("getRefWorkers"),
-                           label = "",
-                           min = 1,
-                           max = 10,
-                           value = 1,
-                           step = 1
-                           ),
                actionButton(inputId = ns("getRefPeaks"),
                             label = "Calculate",
                             icon = icon("paper-plane"),
@@ -460,9 +444,7 @@ mod_uploadData_server <- function(id, global){
       specData$refPeaks <- getRefPeaks(meanSpec = specData$meanSpec,
                                        method = input$ppMethod,
                                        SNR = input$ppSNR,
-                                       tolerance = input$paTolerance,
-                                       freq.min = input$pfFreqmin,
-                                       workers = input$getRefWorkers
+                                       tolerance = input$paTolerance
                                        )
       plotMeanSpec(specData$refPeaks, nth = 1)
     })|>

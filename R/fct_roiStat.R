@@ -5,7 +5,7 @@
 #' @noRd
 #' @examples
 #' library(Cardinal)
-#' #(1) without statistics
+#' #(1) from roiList
 #' set.seed(1)
 #' x <- simulateImage(preset=1, nruns=2, npeaks=10, dim=c(2,2))
 #' a <- c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)

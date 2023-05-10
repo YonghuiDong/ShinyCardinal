@@ -37,7 +37,7 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
-               strong("1. Upload Files"),
+               strong("1. Read Files"),
                br(),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "Choose one of the two provided methods to read MSI files."),

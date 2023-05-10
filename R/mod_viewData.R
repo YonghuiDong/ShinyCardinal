@@ -69,7 +69,7 @@ mod_viewData_ui <- function(id){
             ),
 
       #(2) Background noise and matrix removal =================================
-      column(width = 12, h5("Remove Background Noises and Matrix Peaks (Optional)")),
+      column(width = 12, h5("Remove Background Noises and Matrix Peaks (optional)")),
       column(width = 4,
              box(
                width = 12,
@@ -82,11 +82,9 @@ mod_viewData_ui <- function(id){
                closable = FALSE,
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. This moduel is optional."),
-               p(style = "color:#C70039;", "2. Enter a noise or matrix m/z value below. ShinyCardinal
-               will detect its colocalized features."),
-               p(style = "color:#C70039;", "3. You can improve the speed by subsetting the MSI data
-               and selecting multiple workers."),
-               p(style = "color:#C70039;", "4. You can run this step multiple times to remove different sources of noise peaks."),
+               p(style = "color:#C70039;", "2. Enter a noise or matrix m/z value to detected other noise/matrix peaks."),
+               p(style = "color:#C70039;", "3. Speed up by subsetting MSI data and using multiple workers."),
+               p(style = "color:#C70039;", "4. Repeat this step to eliminate various noise sources."),
                numericInput(inputId = ns("noisePeak"),
                             label = "Enter a single noise or matrix m/z value",
                             value = NULL,
@@ -94,14 +92,14 @@ mod_viewData_ui <- function(id){
                             max = 10000000
                             ),
                sliderInput(inputId = ns("colocThreshould"),
-                           label = "Select the threshold for colocalization correlation coefficient",
+                           label = "Set correlation threshold to detected other noise/matrix peaks",
                            min = 0.5,
                            max = 1,
                            value = 0.9,
                            step = 0.01
                            ),
                sliderInput(inputId = ns("nth"),
-                           label = "(Optional) Subset MSI Data by selecting every nth pixel",
+                           label = "(optional) Subset MSI Data by using every nth pixel",
                            min = 1,
                            max = 10,
                            value = 1,
@@ -157,13 +155,13 @@ mod_viewData_ui <- function(id){
                collapsed = TRUE,
                closable = FALSE,
                selectInput(inputId = ns('msiRun'),
-                           label = '(optional) Select a MSI run to display.',
+                           label = '(optional) Select a MSI run to display',
                            choices = NULL,
                            selected = NULL
                            ),
                textInput(inputId = ns("mzValues"),
                          label = "1. Enter m/z values to visualize",
-                         placeholder = "For multiple m/z values, separate them by a comma."
+                         placeholder = "For multiple m/z values, separate them by a comma"
                          ),
                numericInput(inputId = ns("massWindow"),
                             label = "2. Set mass tolerance window (Da)",
@@ -173,19 +171,19 @@ mod_viewData_ui <- function(id){
                             step = 0.001
                             ),
                selectInput(inputId = ns("normalizeImage"),
-                           label = "3. Select normalization method to the image.",
+                           label = "3. Select image normalization method",
                            multiple = FALSE,
                            choices = list("none" = "none", "linear" = "linear"),
                            selected = "linear"
                            ),
                selectInput(inputId = ns("contrastImage"),
-                           label = "4. Select contrast enhancement method to the image.",
+                           label = "4. Select image contrast enhancement method",
                            multiple = FALSE,
                            choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
                            selected = "suppression"
                            ),
                selectInput(inputId = ns("smoothImage"),
-                           label = "5. Select smoothing method to the image.",
+                           label = "5. Select image smoothing method",
                            multiple = FALSE,
                            choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
                            selected = "none"
@@ -211,13 +209,13 @@ mod_viewData_ui <- function(id){
                            selected = "viridis"
                            ),
                radioButtons(inputId = ns("modeImage"),
-                            label = "Do you prefer light or dark mode?",
+                            label = "Use light or dark mode?",
                             choices = list("light" = "light", "dark" = "dark"),
                             selected = "dark",
                             inline = TRUE
                             ),
                radioButtons(inputId = ns("superposeImage"),
-                            label = "Do you want to superpose different m/z images",
+                            label = "Should superpose images?",
                             choices = list("Yes" = "1", "NO" = "0"),
                             selected = "0",
                             inline = TRUE
@@ -275,8 +273,8 @@ mod_viewData_ui <- function(id){
                collapsed = TRUE,
                closable = FALSE,
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "1. Click on the Ion image to start selecting ROI, and click it again to finsh."),
-               p(style = "color:#C70039;", "2. Click on New ROI button to start selecting another ROI."),
+               p(style = "color:#C70039;", "1. Click on ion image to select ROI, click again to finish.."),
+               p(style = "color:#C70039;", "2. Click on New ROI button to select another ROI."),
                strong("1. Select ROIs"),
                br(),
                br(),
@@ -301,7 +299,7 @@ mod_viewData_ui <- function(id){
                       ),
                br(),
                br(),
-               hr(),
+               tags$hr(style="border-top: solid 2px; border-color: #c9d6d3;"),
                strong("2. Display Selected ROIs"),
                br(),
                br(),
@@ -320,13 +318,18 @@ mod_viewData_ui <- function(id){
                       ),
                br(),
                br(),
-               hr(),
+               tags$hr(style="border-top: solid 2px; border-color: #c9d6d3;"),
                strong("3. Analyse Selected ROIs"),
                br(),
                br(),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "1. In this module, mean ion intensity of each mass feature for each ROI will be calculated."),
-               p(style = "color:#C70039;", "2. Hypothesis testing will be performed if there are replicates."),
+               p(style = "color:#C70039;", "1. This module requires specific ROI name format for statistics."),
+               p(style = "color:#C70039;", "2. Use roiName_metaName format to define ROI and meta data."),
+               p(style = "color:#C70039;", "3. e.g. four ROIs defined as ROI1_WT, ROI2_WT, ROI1_Mu, ROI2_Mu, 2 are WT and 2 are mutant."),
+               p(style = "color:#C70039;", "4. ROIs can be from the same or different runs."),
+               p(style = "color:#C70039;", "5. Hypothesis test requires replicates."),
+               p(style = "color:#C70039;", "6. Create replicates by dividing sample area into sub-ROIs."),
+               p(style = "color:#C70039;", "7. Invalid ROI names or lack of replicates will result in mean feature intensity calculation only."),
                column(width = 12,
                       actionButton(inputId = ns("compareROIs"),
                                    label = "Compare ROIs",
@@ -336,23 +339,48 @@ mod_viewData_ui <- function(id){
                       ),
                br(),
                br(),
-               hr(),
-               strong("4. (Optional )Plot m/z profile along the ROI pixels"),
+               tags$hr(style="border-top: solid 2px; border-color: #c9d6d3;"),
+               strong("4. (optional) Plot m/z profile along the ROI pixels"),
                br(),
                br(),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "1. This module is designed to show the ion intensity profiles of user selected m/z values
-                 along the ROI pixels."),
-               p(style = "color:#C70039;", "2. Only one ROI is allowed in this module."),
-               p(style = "color:#C70039;", "3. You can draw a line over an MSI image area, and visualize the ion intensity alone this line."),
+               p(style = "color:#C70039;", "1. This module shows ion intensity profiles of selected m/z values on ROI pixels."),
+               p(style = "color:#C70039;", "2. e.g. draw a line over MSI image, and visualize ion intensity along it."),
+               p(style = "color:#C70039;", "3. Only one ROI is allowed in this module."),
+               p(style = "color:#C70039;", "4. No specific requirement for ROI name."),
                textInput(inputId = ns("mzROI"),
                          label = "Enter m/z values to plot the profile",
-                         placeholder = "For multiple m/z values, seperate them by a comma."
+                         placeholder = "For multiple m/z values, seperate them by a comma"
                          ),
                column(width = 12,
                       actionButton(inputId = ns("plotROIProfile"),
                                    label = "Plot",
                                    icon = icon("paper-plane"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+                      ),
+               br(),
+               br(),
+               tags$hr(style="border-top: solid 2px; border-color: #c9d6d3;"),
+               strong("5. (optional) ROI-based data cropping"),
+               br(),
+               br(),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. This module removes unwanted areas."),
+               p(style = "color:#C70039;", "2. No specific requirement for ROI name."),
+               p(style = "color:#C70039;", "3. Select cropping mode before recording ROI."),
+               p(style = "color:#C70039;", "4. ROIs can be from the same or different runs."),
+               p(style = "color:#C70039;", "5. Updated MSI data are then used for image and data analysis."),
+               radioButtons(inputId = ns("cropType"),
+                            label = "Cropping mode: keep areas inside/outside the ROI?",
+                            choices = c("inside" = "inside", "outside" = "outside"),
+                            selected = "inside",
+                            inline = TRUE
+                            ),
+               column(width = 12,
+                      actionButton(inputId = ns("cropMSIData"),
+                                   label = "Crop Data",
+                                   icon = icon("eraser"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
                       )
@@ -390,7 +418,10 @@ mod_viewData_ui <- function(id){
                  image = 'www/img/cardinal.gif',
                  DT::dataTableOutput(outputId = ns("roiStatistics"))
                 ),
-               plotly::plotlyOutput(outputId = ns("roiProfiles"))
+               plotly::plotlyOutput(outputId = ns("roiProfiles")),
+               shiny::verbatimTextOutput(outputId = ns("croppingInfo")),
+               shiny::uiOutput(outputId = ns("resetCropButton")),
+               shiny::verbatimTextOutput(outputId = ns("resetCropMessage"))
                )
              )
 
@@ -440,8 +471,8 @@ mod_viewData_server <- function(id, global){
                                )
       massList$colocedFeatures <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
       cat("Below are the detected backgroup noises and/or matrix peaks:\n")
-      cat("You can click the Delete button to delete them.\n")
-      cat("Or click the Reset button to restore the original MSI data.\n")
+      cat("Click Delete button to delete the peaks.\n")
+      cat("Click Reset button to restore original MSI data.\n")
       cat("\n")
       massList$colocedFeatures
     }) |>
@@ -514,7 +545,7 @@ mod_viewData_server <- function(id, global){
                           choices = levels(Cardinal::run(global$cleanedMSIData)),
                           selected = levels(Cardinal::run(global$cleanedMSIData))
                           )
-      } else {
+      } else{
         updateSelectInput(session = session,
                           inputId = "msiRun", ## no name space
                           choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
@@ -557,7 +588,7 @@ mod_viewData_server <- function(id, global){
       shiny::req(msiInfo$ionImage)
       if(input$modeImage == "light"){
         Cardinal::lightmode()
-      } else {
+      } else{
         Cardinal::darkmode()
       }
       msiInfo$ionImage
@@ -645,27 +676,27 @@ mod_viewData_server <- function(id, global){
 
     #(4) Image Analysis ========================================================
 
-    ##(4.1) Select ROI ---------------------------------------------------------
+    ##(4.1) Select ROI =========================================================
     inxROI <- reactiveValues(x = double(), y = double())
     draw <- reactiveVal(value = FALSE)
     observeEvent(input$click, {
       temp <- draw()
       draw(!temp)
-      if(!draw()) {
+      if(!draw()){
         inxROI$x <- c(inxROI$x, NA)
         inxROI$y <- c(inxROI$y, NA)
-        }
-      })
+      }
+    })
     observeEvent(input$newROI, {
       inxROI$x <- double()
       inxROI$y <- double()
-      })
+    })
     observeEvent(input$hover, {
-      if (draw()) {
+      if(draw()){
         inxROI$x <- c(inxROI$x, input$hover$x)
         inxROI$y <- c(inxROI$y, input$hover$y)
-        }
-      })
+      }
+    })
     output$ionImageROI <- renderPlot({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiInfo$ionImage)
@@ -675,12 +706,15 @@ mod_viewData_server <- function(id, global){
             type = "b",
             lwd = 2
             )
-      })
+    })
 
-    #(4.2) Select ROI ----------------------------------------------------------
-    roiData <- reactiveValues(roiDF = NULL, roiMSIData = list())
+    #(4.1.1) Select ROI --------------------------------------------------------
+    ## Define roiData
+    ## (1) roiDF: x-y pixel of ROI;
+    ## (2) roiList: list of selected ROIs, containing TRUE/FALSE value;
+    ## (3) cropType: keep area inside or outside ROI;
+    roiData <- reactiveValues(roiDF = NULL, roiList = list(), cropType = list())
     output$infoROI <- renderPrint({
-      ## get the x,y coordinates of ROI
       roiData$roiDF <- data.frame(x = round(inxROI$x, 0), y = round(inxROI$y, 0)) |>
         (\(x) x[!duplicated(x), ])() |>
         na.omit(object = _)
@@ -694,18 +728,19 @@ mod_viewData_server <- function(id, global){
              message = "Selected ROI is out of y-aixs range"),
         need(input$roiName != "", message = "Please enter an ROI name"),
         need(input$msiRun != "All", message = "Please select only one MSI run when selecting ROI."),
-        need(!(paste(input$roiName, input$msiRun, sep = ":") %in% names(roiData$roiMSIData)),
-             message = "The entered ROI name already exist, please use another one.")
+        need(!(paste(input$roiName, input$msiRun, sep = ":") %in% names(roiData$roiList)), message = "ROI name already exists, choose a different one.")
       )
-      ## subset global$cleanedMSIData
-      roiData$roiMSIData <- append(roiData$roiMSIData,
-                                   setNames(list(getROI(msiData = global$cleanedMSIData, selectedRun = input$msiRun, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
-                                   )
+      ## get roiList
+      roiData$roiList <- append(roiData$roiList,
+                                setNames(list(getROI(msiData = global$cleanedMSIData, selectedRun = input$msiRun, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
+                                )
+      ## record corresponding cropType for each ROI
+      roiData$cropType <- append(roiData$cropType, input$cropType)
       cat("\n")
       cat(paste0(input$roiName, " is successfully recorded.\n"))
-      cat(names(roiData$roiMSIData))
+      cat(names(roiData$roiList))
 
-      #(4.3) Display Reset and Undo buttons ------------------------------------
+      #(4.1.2) Display Reset and Undo buttons ----------------------------------
       output$resetROIButton <- renderUI({
         actionButton(
           inputId = ns("resetROI"),
@@ -726,28 +761,30 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$recordROI)
 
-    ##(4.4) Reset and show message----------------------------------------------
+    ##(4.1.3) Reset and show message--------------------------------------------
     output$resetROIMessage <- renderPrint({
-      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
-      roiData$roiMSIData <- list()
+      shiny::validate(need(length(roiData$roiList) > 0, message = "ROIs not found"))
+      roiData$roiList <- list()
+      roiData$cropType <- list()
       cat("All selected ROIs are removed.")
     }) |>
       bindEvent(input$resetROI)
 
-    ##(4.5) Undo and show message ----------------------------------------------
+    ##(4.1.4) Undo and show message --------------------------------------------
     output$undoROIMessage <- renderPrint({
-      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
-      removedName <- names(roiData$roiMSIData)[length(roiData$roiMSIData)]
-      roiData$roiMSIData <- head(roiData$roiMSIData, -1)
+      shiny::validate(need(length(roiData$roiList) > 0, message = "ROIs not found"))
+      removedName <- names(roiData$roiList)[length(roiData$roiList)]
+      roiData$roiList <- head(roiData$roiList, -1)
+      roiData$cropType <- head(roiData$cropType, -1)
       cat(paste("ROI", removedName, "is removed.", sep = " "))
     }) |>
       bindEvent(input$undoROI)
 
-    ##(4.6) Plot selected ROIs -------------------------------------------------
+    ##(4.2) Plot selected ROIs =================================================
     output$selectedROIPlot <- renderPlot({
       shiny::req(global$cleanedMSIData)
-      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
-      region <- makeFactor2(roiList = roiData$roiMSIData)
+      shiny::validate(need(length(roiData$roiList) > 0, message = "ROIs not found"))
+      region <- makeFactor2(roiList = roiData$roiList)
       Cardinal::image(global$cleanedMSIData,
                       region ~ x*y,
                       key = as.logical(as.numeric(input$roiKey)),
@@ -756,12 +793,12 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$displayROI)
 
-    #(4.8) Analyse selected ROIs -----------------------------------------------
+    #(4.3) Analyse selected ROIs ===============================================
     output$roiStatistics <- DT::renderDT(server = FALSE, {
       shiny::req(global$cleanedMSIData)
-      shiny::validate(need(length(roiData$roiMSIData) > 0, message = "ROIs not found"))
-      combinedROIMSIData <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiMSIData)
-      statResult <- roiStat(roiMSIData = combinedROIMSIData)
+      shiny::validate(need(length(roiData$roiList) > 1, message = "At least two ROIs are needed."))
+      combinedroiList <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiList)
+      statResult <- roiStat(roiMSIData = combinedroiList)
       DT::datatable(
         statResult,
         caption = "Summary of statistical results for user defined ROIs.",
@@ -775,18 +812,52 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$compareROIs)
 
-    #(4.9) Show mz intensity profile alone pixels ------------------------------
+    #(4.4) Show mz intensity profile alone pixels ==============================
     output$roiProfiles <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
+      shiny::validate(need(input$mzROI != "", message = "m/z value not found"))
       mzROIList <- unique(text2Num(input$mzROI))
       shiny::validate(
-        need(length(roiData$roiMSIData) == 1, message = "Only one ROI is allowed for plotting ion intensity profiles"),
+        need(length(roiData$roiList) == 1, message = "Only one ROI is allowed for plotting ion intensity profiles"),
         need(min(mzROIList) >= msiInfo$mzMin & max(mzROIList) <= msiInfo$mzMax, message = paste("m/z value shoud between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " "))
       )
-      plotROIProfile(msiData = global$cleanedMSIData, roiMSIData = roiData$roiMSIData, mz = mzROIList)
+      plotROIProfile(msiData = global$cleanedMSIData, roiList = roiData$roiList, mz = mzROIList)
     }) |>
       bindEvent(input$plotROIProfile)
 
+    #(4.5) Crop MSI data ======================================================
+    output$croppingInfo <- renderPrint({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(roiData$roiList)
+      shiny::req(roiData$cropType)
+      #(4.5.1) Get and assign cropped data -------------------------------------
+      croppedData <- cropData(msiData = global$cleanedMSIData,
+                              ROIs = roiData$roiList,
+                              cropType = roiData$cropType
+                              )
+      global$cleanedMSIData <- croppedData
+      #(4.5.2) Show reset button -----------------------------------------------
+      output$resetCropButton <- renderUI({
+        shiny::req(croppedData)
+        actionButton(
+          inputId = ns("resetCropping"),
+          label = "Reset scrubbed MSI Data",
+          icon = icon("undo"),
+          style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+        )
+      })
+      cat("Data cropping done. Below is the cropped data information.\n")
+      global$cleanedMSIData
+    }) |>
+      bindEvent(input$cropMSIData)
+
+    output$resetCropMessage <- renderPrint({
+      global$cleanedMSIData <- global$processedMSIData
+      cat("Data cropping canceled.\n")
+      cat("Note: Background noise and matrix peak removal result is also deleted if you have done that step.\n")
+      global$cleanedMSIData
+    }) |>
+      bindEvent(input$resetCropping)
 
 })}
 

@@ -26,30 +26,32 @@ plotPixelSpec <- function(msiData, pixelDF){
   }
   df[, 1] <- msiData@featureData@mz
   colnames(df)[1] <- "mz"
-  df <- df[, colMeans(is.na(df)) != 1]
+  df <- df[, colMeans(is.na(df)) != 1, drop = FALSE]
 
-  #(2) Set the last pixel negative when there are over 1 pixel -----------------
-  if(ncol(df) > 2){
-    df[, ncol(df)] <- -df[, ncol(df)]
-  }
-
-  #(3) Plot spectrum -----------------------------------------------------------
-  pixelNames <- names(df)[-1]
-  p <- plotly::plot_ly(data = df)
-  for(k in 1:length(pixelNames)) {
-    dfk <- data.frame(mz = df$mz, Intensity = df[[pixelNames[k]]])
-    p <- plotly::add_segments(p,
-                              data = dfk,
-                              x = ~ mz,
-                              xend = ~ mz,
-                              y = 0,
-                              yend = ~ Intensity,
-                              name = pixelNames[k]
-                              ) %>%
-      plotly::config(
-        toImageButtonOptions = list(format = "svg", filename = "pxielSpec")
-        )
+  if(ncol(df) > 1){
+    #(2) Set the last pixel negative when there are over 1 pixel -----------------
+    if(ncol(df) > 2){
+      df[, ncol(df)] <- -df[, ncol(df)]
     }
-  return(p)
+
+    #(3) Plot spectrum -----------------------------------------------------------
+    pixelNames <- names(df)[-1]
+    p <- plotly::plot_ly(data = df)
+    for(k in 1:length(pixelNames)) {
+      dfk <- data.frame(mz = df$mz, Intensity = df[[pixelNames[k]]])
+      p <- plotly::add_segments(p,
+                                data = dfk,
+                                x = ~ mz,
+                                xend = ~ mz,
+                                y = 0,
+                                yend = ~ Intensity,
+                                name = pixelNames[k]
+                                )
+    }
+    p <- p %>%
+      plotly::layout(xaxis = list(title = 'm/z', range = c(min(df$mz) - 5, max(df$mz) + 5))) %>%
+      plotly::config(toImageButtonOptions = list(format = "svg", filename = "pxielSpec"))
+    return(p)
   }
+}
 

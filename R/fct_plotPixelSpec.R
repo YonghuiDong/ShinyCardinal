@@ -1,21 +1,39 @@
 #' @title Plot spectra of selected pixels
-#' @description A fct function
+#' @description Plot spectra of selected pixels
+#' @param msiData MSI data set.
+#' @param pixelDF Pixel dataframe describing x-y position of each pixel.
 #' @return The return value, if any, from executing the function.
 #' @noRd
+#' @examples
+#' library(Cardinal)
+#' set.seed(2020)
+#' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 1, baseline = 1, representation = "centroid")
+#' pixelDF <- data.frame(x = c(1, 2, 3), y = c(1, 100, 10))
+#' plotPixelSpec(msiData = mse, pixelDF = pixelDF)
 
 plotPixelSpec <- function(msiData, pixelDF){
   #(1) Prepare df --------------------------------------------------------------
-  df <- data.frame(matrix("", nrow = length(msiData@featureData@mz), ncol = nrow(pixelDF)))
+  df <- data.frame(matrix("", nrow = length(msiData@featureData@mz), ncol = nrow(pixelDF)+1))
   for(i in 1:nrow(pixelDF)){
     pid <- Cardinal::pixels(msiData, coord = list(x = pixelDF[i, 1], y = pixelDF[i, 2]))
-    selected <- msiData[, pid]
-    df[, (i+1)] <- Cardinal::iData(selected)[,1]
-    colnames(df)[(i+1)] <- paste0("X", pixelDF[i, 1], "Y", pixelDF[i, 2])
+    if(identical(pid, integer(0))){
+      df[, (i+1)] <- NA
+    } else{
+      selected <- msiData[, pid]
+      df[, (i+1)] <- Cardinal::iData(selected)[,1]
+      colnames(df)[(i+1)] <- paste0("X", pixelDF[i, 1], "Y", pixelDF[i, 2])
+    }
   }
   df[, 1] <- msiData@featureData@mz
   colnames(df)[1] <- "mz"
+  df <- df[, colMeans(is.na(df)) != 1]
 
-  #(2) Plot spectrum -----------------------------------------------------------
+  #(2) Set the last pixel negative when there are over 1 pixel -----------------
+  if(ncol(df) > 2){
+    df[, ncol(df)] <- -df[, ncol(df)]
+  }
+
+  #(3) Plot spectrum -----------------------------------------------------------
   pixelNames <- names(df)[-1]
   p <- plotly::plot_ly(data = df)
   for(k in 1:length(pixelNames)) {

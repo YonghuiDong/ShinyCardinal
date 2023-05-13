@@ -13,28 +13,28 @@
 
 plotPixelSpec <- function(msiData, pixelDF){
   #(1) Prepare df --------------------------------------------------------------
-  df <- data.frame(matrix("", nrow = length(msiData@featureData@mz), ncol = nrow(pixelDF)+1))
+  df <- data.frame(matrix("", nrow = length(Cardinal::mz(msiData)), ncol = nrow(pixelDF)+1))
   for(i in 1:nrow(pixelDF)){
     pid <- Cardinal::pixels(msiData, coord = list(x = pixelDF[i, 1], y = pixelDF[i, 2]))
     if(identical(pid, integer(0))){
       df[, (i+1)] <- NA
     } else{
       selected <- msiData[, pid]
-      df[, (i+1)] <- Cardinal::iData(selected)[,1]
+      df[, (i+1)] <- Cardinal::iData(selected)[, 1]
       colnames(df)[(i+1)] <- paste0("X", pixelDF[i, 1], "Y", pixelDF[i, 2])
     }
   }
-  df[, 1] <- msiData@featureData@mz
+  df[, 1] <- Cardinal::mz(msiData)
   colnames(df)[1] <- "mz"
   df <- df[, colMeans(is.na(df)) != 1, drop = FALSE]
 
   if(ncol(df) > 1){
-    #(2) Set the last pixel negative when there are over 1 pixel -----------------
+    #(2) Set the last pixel negative when there are over 1 pixels --------------
     if(ncol(df) > 2){
       df[, ncol(df)] <- -df[, ncol(df)]
     }
 
-    #(3) Plot spectrum -----------------------------------------------------------
+    #(3) Plot spectrum ---------------------------------------------------------
     pixelNames <- names(df)[-1]
     p <- plotly::plot_ly(data = df)
     for(k in 1:length(pixelNames)) {

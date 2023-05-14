@@ -600,7 +600,7 @@ mod_viewData_server <- function(id, global){
 
     #(3.3) Download MSI images -------------------------------------------------
     output$downloadImageButton <- renderUI({
-      #shiny::req(print(msiInfo$ionImage))
+      shiny::req(print(msiInfo$ionImage))
       tagList(
         column(width = 4,
                selectInput(inputId = ns("downloadImageType"),

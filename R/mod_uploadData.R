@@ -527,7 +527,7 @@ mod_uploadData_server <- function(id, global){
 
     output$downloadProcessedData <- downloadHandler(
       filename = function(){
-        paste0("processedMSIData_", Sys.Date(), ".rds")
+        paste0("processedMSIData", ".rds")
       },
       content = function(file){
         saveRDS(global$processedMSIData, file)

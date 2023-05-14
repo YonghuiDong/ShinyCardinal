@@ -239,7 +239,11 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
-               shiny::uiOutput(outputId = ns("downloadImageButton")),
+               column(width = 12,
+                      shiny::uiOutput(outputId = ns("downloadImageButton"))
+                      ),
+               br(),
+               br(),
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("mzList"))
@@ -597,22 +601,51 @@ mod_viewData_server <- function(id, global){
     #(3.3) Download MSI images -------------------------------------------------
     output$downloadImageButton <- renderUI({
       shiny::req(print(msiInfo$ionImage))
-      downloadButton(
-        outputId = ns("downloadImage"),
-        label = "Download Image",
-        icon = icon("download"),
-        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-      )
+      tagList(
+        column(width = 4,
+               selectInput(inputId = ns("downloadImageType"),
+                           label = "Choose image type",
+                           choices = c("pdf" = "pdf", "png" = "png", "tiff" = "tiff"),
+                           selected = "pdf"
+                           )
+               ),
+        column(width = 4,
+               selectInput(inputId = ns("downloadImageAll"),
+                           label = "Save images on separate pages?",
+                           choices = c("no" = "no", "yes" = "yes"),
+                           selected = "no"
+                           )
+               ),
+        column(width = 4,
+               downloadButton(outputId = ns("downloadImage"),
+                              label = "Download Image",
+                              icon = icon("download"),
+                              style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                              ),
+               )
+        )
     }) # no need to used bindEvent here, otherwise the download button only shows after 2nd click.
 
     output$downloadImage <- downloadHandler(
       filename = function(){
-        paste0(Sys.Date(), "_ionImage", ".pdf")
+        paste0(Sys.Date(), "_ionImage.", input$downloadImageType)
       },
       content = function(file){
-        pdf(file)
-        print(msiInfo$ionImage)
-        dev.off()
+        # for combined images
+        if(input$downloadImageType == "pdf"){
+          pdf(file)
+          print(msiInfo$ionImage)
+          dev.off()
+        } else if(input$downloadImageType == "png"){
+          png(file, width = 8000, height = 8000, res = 900)
+          print(msiInfo$ionImage)
+          dev.off()
+        } else{
+          tiff(file, width = 8000, height = 8000, res = 900)
+          print(msiInfo$ionImage)
+          dev.off()
+        }
+
     })
 
     #(3.4) Display selected  spectrum ------------------------------------------

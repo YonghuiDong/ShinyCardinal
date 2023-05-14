@@ -605,18 +605,19 @@ mod_viewData_server <- function(id, global){
         column(width = 4,
                selectInput(inputId = ns("downloadImageType"),
                            label = "Choose image type",
-                           choices = c("pdf" = "pdf", "png" = "png", "tiff" = "tiff"),
+                           choices = c("pdf" = "pdf", "png" = "png"),
                            selected = "pdf"
                            )
                ),
         column(width = 4,
-               selectInput(inputId = ns("downloadImageAll"),
+               selectInput(inputId = ns("downloadEachImage"),
                            label = "Save images on separate pages?",
                            choices = c("no" = "no", "yes" = "yes"),
                            selected = "no"
                            )
                ),
         column(width = 4,
+               br(),
                downloadButton(outputId = ns("downloadImage"),
                               label = "Download Image",
                               icon = icon("download"),
@@ -627,26 +628,44 @@ mod_viewData_server <- function(id, global){
     }) # no need to used bindEvent here, otherwise the download button only shows after 2nd click.
 
     output$downloadImage <- downloadHandler(
-      filename = function(){
-        paste0(Sys.Date(), "_ionImage.", input$downloadImageType)
-      },
+      filename = function(){paste0("ionImage.", input$downloadImageType)},
       content = function(file){
-        # for combined images
-        if(input$downloadImageType == "pdf"){
-          pdf(file)
-          print(msiInfo$ionImage)
-          dev.off()
-        } else if(input$downloadImageType == "png"){
-          png(file, width = 8000, height = 8000, res = 900)
-          print(msiInfo$ionImage)
+        #download separate images on each page, only support pdf format
+        if(input$downloadEachImage == "yes" & length(msiInfo$mzList) > 1){
+          if(input$modeImage == "light"){
+            Cardinal::lightmode()
+          } else{
+            Cardinal::darkmode()
+          }
+          pdf(file = file, onefile = TRUE)
+          for(i in msiInfo$mzList){
+            print(plotImage(msiData = global$cleanedMSIData,
+                            mz = i,
+                            smooth.image = input$smoothImage,
+                            plusminus = input$massWindow,
+                            colorscale = input$colorImage,
+                            normalize.image = input$normalizeImage,
+                            contrast.enhance = input$contrastImage,
+                            superpose = FALSE,
+                            msiRun = input$msiRun
+                            )
+                  )
+          }
           dev.off()
         } else{
-          tiff(file, width = 8000, height = 8000, res = 900)
-          print(msiInfo$ionImage)
-          dev.off()
+          #download combined images
+          if(input$downloadImageType == "pdf"){
+            pdf(file)
+            print(msiInfo$ionImage)
+            dev.off()
+          } else{
+            png(file, width = 8000, height = 8000, res = 900)
+            print(msiInfo$ionImage)
+            dev.off()
+          }
         }
-
-    })
+      }
+    )
 
     #(3.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {

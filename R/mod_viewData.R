@@ -600,23 +600,23 @@ mod_viewData_server <- function(id, global){
 
     #(3.3) Download MSI images -------------------------------------------------
     output$downloadImageButton <- renderUI({
-      shiny::req(print(msiInfo$ionImage))
+      #shiny::req(print(msiInfo$ionImage))
       tagList(
         column(width = 4,
                selectInput(inputId = ns("downloadImageType"),
-                           label = "Choose image type",
+                           label = "Select format",
                            choices = c("pdf" = "pdf", "png" = "png"),
                            selected = "pdf"
                            )
                ),
-        column(width = 4,
+        column(width = 5,
                selectInput(inputId = ns("downloadEachImage"),
-                           label = "Save images on separate pages?",
+                           label = "Save images as separate PDF files?",
                            choices = c("no" = "no", "yes" = "yes"),
                            selected = "no"
                            )
                ),
-        column(width = 4,
+        column(width = 3,
                br(),
                downloadButton(outputId = ns("downloadImage"),
                               label = "Download Image",

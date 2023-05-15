@@ -893,7 +893,7 @@ mod_viewData_server <- function(id, global){
         shiny::req(croppedData)
         actionButton(
           inputId = ns("resetCropping"),
-          label = "Reset scrubbed MSI Data",
+          label = "Reset cropped MSI Data",
           icon = icon("undo"),
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
         )

@@ -163,11 +163,17 @@ mod_viewData_ui <- function(id){
                          label = "1. Enter m/z values to visualize",
                          placeholder = "For multiple m/z values, separate them by a comma"
                          ),
+               strong("2. Set mass tolerance window (Da)"),
+               br(),
+               br(),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. Without mass tolerance, exact m/z is displayed."),
+               p(style = "color:#C70039;", "2. Otherwise, entered m/z ± tolerance is displayed."),
                numericInput(inputId = ns("massWindow"),
-                            label = "2. Set mass tolerance window (Da)",
+                            label = NULL,
                             min = 0,
                             max = 10,
-                            value = 0.001,
+                            value = NA,
                             step = 0.001
                             ),
                selectInput(inputId = ns("normalizeImage"),
@@ -565,7 +571,7 @@ mod_viewData_server <- function(id, global){
       shiny::validate(
         need(global$cleanedMSIData, message = "MSI data not found."),
         need(input$mzValues != "", message = "m/z value is missing."),
-        need(input$massWindow > 0, message = "mass tolerance should be positive value.")
+        need(input$massWindow > 0 | is.na(input$massWindow), message = "mass tolerance should be positive value.")
       )
       msiInfo$mzList <- unique(text2Num(input$mzValues))
       msiInfo$mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)

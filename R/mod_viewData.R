@@ -553,9 +553,8 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$resetIsotope)
 
-
-    #(2) Background Removal ====================================================
-    #(2.1) Perform colocalization ----------------------------------------------
+    #(3) Background Removal ====================================================
+    #(3.1) Perform colocalization ----------------------------------------------
     ## massList$removedFeatures is used to record removed features;
     ## it makes sure that users will not remove the same feature more than once, which may remove some unwanted mass features.
     ## massList$colocedFeatures is used to store colocalized features each time;

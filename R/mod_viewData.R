@@ -632,9 +632,9 @@ mod_viewData_server <- function(id, global){
       })
     })
 
-    #(3) Visualize MS images ===================================================
+    #(4) Visualize MS images ===================================================
 
-    #(3.0) Update MSI run ------------------------------------------------------
+    #(4.0) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData,{
       ## In case users did not perform step #2
       if(is.null(global$cleanedMSIData)){
@@ -658,7 +658,7 @@ mod_viewData_server <- function(id, global){
 
     msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL, ionImage = NULL)
 
-    #(3.1) Show Input m/z Info  ------------------------------------------------
+    #(4.1) Show Input m/z Info  ------------------------------------------------
     output$mzList <- renderPrint({
       shiny::validate(
         need(global$cleanedMSIData, message = "MSI data not found."),
@@ -685,7 +685,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$viewImage)
 
-    #(3.2) Show MSI images -----------------------------------------------------
+    #(4.2) Show MSI images -----------------------------------------------------
     output$ionImage <- renderPlot({
       shiny::req(msiInfo$ionImage)
       if(input$modeImage == "light"){
@@ -696,7 +696,7 @@ mod_viewData_server <- function(id, global){
       msiInfo$ionImage
     })
 
-    #(3.3) Download MSI images -------------------------------------------------
+    #(4.3) Download MSI images -------------------------------------------------
     output$downloadImageButton <- renderUI({
       shiny::req(print(msiInfo$ionImage))
       tagList(
@@ -765,7 +765,7 @@ mod_viewData_server <- function(id, global){
       }
     )
 
-    #(3.4) Display selected  spectrum ------------------------------------------
+    #(4.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {
       output$resetButton <- renderUI({
         shiny::req(msiInfo$ionImage)
@@ -824,9 +824,9 @@ mod_viewData_server <- function(id, global){
       })
     })
 
-    #(4) Image Analysis ========================================================
+    #(5) Image Analysis ========================================================
 
-    ##(4.1) Select ROI =========================================================
+    ##(5.1) Select ROI =========================================================
     inxROI <- reactiveValues(x = double(), y = double())
     draw <- reactiveVal(value = FALSE)
     observeEvent(input$click, {
@@ -858,7 +858,7 @@ mod_viewData_server <- function(id, global){
             )
     })
 
-    #(4.1.1) Select ROI --------------------------------------------------------
+    #(5.1.1) Select ROI --------------------------------------------------------
     ## Define roiData
     ## (1) roiDF: x-y pixel of ROI;
     ## (2) roiList: list of selected ROIs, containing TRUE/FALSE value;
@@ -890,7 +890,7 @@ mod_viewData_server <- function(id, global){
       cat(paste0(input$roiName, " is successfully recorded.\n"))
       cat(names(roiData$roiList))
 
-      #(4.1.2) Display Reset and Undo buttons ----------------------------------
+      #(5.1.2) Display Reset and Undo buttons ----------------------------------
       output$resetROIButton <- renderUI({
         actionButton(
           inputId = ns("resetROI"),
@@ -911,7 +911,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$recordROI)
 
-    ##(4.1.3) Reset and show message--------------------------------------------
+    ##(5.1.3) Reset and show message--------------------------------------------
     output$resetROIMessage <- renderPrint({
       shiny::validate(need(length(roiData$roiList) > 0, message = "ROIs not found"))
       roiData$roiList <- list()
@@ -920,7 +920,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$resetROI)
 
-    ##(4.1.4) Undo and show message --------------------------------------------
+    ##(5.1.4) Undo and show message --------------------------------------------
     output$undoROIMessage <- renderPrint({
       shiny::validate(need(length(roiData$roiList) > 0, message = "ROIs not found"))
       removedName <- names(roiData$roiList)[length(roiData$roiList)]
@@ -930,7 +930,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$undoROI)
 
-    ##(4.2) Plot selected ROIs =================================================
+    ##(5.2) Plot selected ROIs =================================================
     output$selectedROIPlot <- renderPlot({
       shiny::req(global$cleanedMSIData)
       shiny::validate(need(length(roiData$roiList) > 0, message = "ROIs not found"))
@@ -943,7 +943,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$displayROI)
 
-    #(4.3) Analyse selected ROIs ===============================================
+    #(5.3) Analyse selected ROIs ===============================================
     output$roiStatistics <- DT::renderDT(server = FALSE, {
       shiny::req(global$cleanedMSIData)
       shiny::validate(need(length(roiData$roiList) > 1, message = "At least two ROIs are needed."))
@@ -962,7 +962,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$compareROIs)
 
-    #(4.4) Show mz intensity profile alone pixels ==============================
+    #(5.4) Show mz intensity profile alone pixels ==============================
     output$roiProfiles <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::validate(need(input$mzROI != "", message = "m/z value not found"))
@@ -975,18 +975,18 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$plotROIProfile)
 
-    #(4.5) Crop MSI data ======================================================
+    #(5.5) Crop MSI data ======================================================
     output$croppingInfo <- renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::req(roiData$roiList)
       shiny::req(roiData$cropType)
-      #(4.5.1) Get and assign cropped data -------------------------------------
+      #(5.5.1) Get and assign cropped data -------------------------------------
       croppedData <- cropData(msiData = global$cleanedMSIData,
                               ROIs = roiData$roiList,
                               cropType = roiData$cropType
                               )
       global$cleanedMSIData <- croppedData
-      #(4.5.2) Show reset button -----------------------------------------------
+      #(5.5.2) Show reset button -----------------------------------------------
       output$resetCropButton <- renderUI({
         shiny::req(croppedData)
         actionButton(

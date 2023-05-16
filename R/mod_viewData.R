@@ -517,7 +517,7 @@ mod_viewData_server <- function(id, global){
     #(2) Deisotoping ===========================================================
     #(2.1) deisotoping ---------------------------------------------------------
     output$deisotopingInfo <- shiny::renderPrint({
-      shiny::validate(need(global$processedMSIData, message = "No MSI data found!")) # no idea why need does not work
+      shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
       global$cleanedMSIData <- deisotoping(global$processedMSIData, tol = input$deisotopeTol, PCC = input$deisotopePCC)
       cat("Deisotoping done.\n")
       cat("Below is deisotoped MSI data. \n")
@@ -561,7 +561,7 @@ mod_viewData_server <- function(id, global){
     ## the values are refreshed after each colocalization analysis.
     massList <- reactiveValues(removedFeatures = NULL, colocedFeatures = NULL)
     output$colocNoiseInfo <- shiny::renderPrint({
-      shiny::req(global$processedMSIData) # no idea why need does not work
+      shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
       shiny::validate(
         need(input$noisePeak >= min(Cardinal::mz(global$processedMSIData)) & input$noisePeak <= max(Cardinal::mz(global$processedMSIData)),
              message = "The entered m/z value is out of range."),
@@ -584,7 +584,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$noiseColoc)
 
-    #(2.2) Display buttons -----------------------------------------------------
+    #(3.2) Display buttons -----------------------------------------------------
     output$deleteNoiseButton <- renderUI({
       shiny::req(massList$colocedFeatures)
       actionButton(
@@ -607,33 +607,29 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$noiseColoc)
 
-    #(2.3) Delete features -----------------------------------------------------
+    #(3.3) Delete features -----------------------------------------------------
     observeEvent(input$deleteNoise, {
       shiny::req(global$cleanedMSIData)
       shiny::req(massList$colocedFeatures)
       global$cleanedMSIData <- removeNoise(msiData = global$cleanedMSIData, subDF = massList$colocedFeatures)
       ## the input noise peak is not exactly the same as in the data, so I need to record it as well.
       massList$removedFeatures <- round(c(massList$removedFeatures, input$noisePeak, massList$colocedFeatures$mz), 4)
+      output$summaryBNMR <- shiny::renderPrint({
+        cat("Below is the MSI data with background noise/matrix peaks removed: \n")
+        global$cleanedMSIData
+      })
     })
 
-    #(2.4) Reset feature -------------------------------------------------------
+    #(3.4) Reset feature -------------------------------------------------------
     observeEvent(input$resetNoise, {
       shiny::req(global$cleanedMSIData)
       shiny::req(global$processedMSIData)
       global$cleanedMSIData <- global$processedMSIData
       massList$removedFeatures <- NULL
-    })
-
-    #(2.5) Show delete or reset action result ----------------------------------
-    output$summaryBNMR <- shiny::renderPrint({
-      shiny::req(global$cleanedMSIData)
-      shiny::req(global$processedMSIData)
-      if(identical(global$processedMSIData, global$cleanedMSIData)){
+      output$summaryBNMR <- shiny::renderPrint({
         cat("No noises or matrix related peaks were removed.\n")
-      } else{
-        cat("Below is the cleaned MSI data: \n")
         global$cleanedMSIData
-      }
+      })
     })
 
     #(3) Visualize MS images ===================================================

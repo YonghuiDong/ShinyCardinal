@@ -12,9 +12,7 @@
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
 #' deisotoping(msiData = mse)
 
-deisotoping <- function(msiData, ncomp = 30, tol = 0.005, PCC = 0.9) {
-  pcaResult <- Cardinal::PCA(x = msiData, ncomp = min(ncomp, length(Cardinal::mz(msiData))))
-  pcaLoadings <- t(data.frame(as.data.frame(Cardinal::resultData(pcaResult, 1, "loadings"))))
+deisotoping <- function(msiData, tol = 0.005, PCC = 0.8) {
   idx_iso = c()
   lb <- 1.003355 - tol
   ub <- 1.003355 + tol
@@ -23,8 +21,7 @@ deisotoping <- function(msiData, ncomp = 30, tol = 0.005, PCC = 0.9) {
     m <- ims_mass[i]
     idx <- c(which((ims_mass >= (m + lb)) & (ims_mass <= (m + ub))))
     if(length(idx) > 0){
-      sub <- pcaLoadings[, idx, drop = FALSE]
-      idx <- idx[apply(sub, 2, function(x) cor(pcaLoadings[, i], x)) >= PCC]
+      idx <- idx[sapply(idx, function(j) cor(t(Cardinal::iData(msiData[i, ])), t(Cardinal::iData(msiData[j, ])))) >= PCC]
     }
     idx_iso <- c(idx_iso, idx)
   }

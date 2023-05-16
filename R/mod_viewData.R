@@ -548,10 +548,11 @@ mod_viewData_server <- function(id, global){
       shiny::req(global$processedMSIData)
       if(identical(global$processedMSIData, global$cleanedMSIData)){
         cat("Deisotoping cancelled.\n")
+        global$cleanedMSIData
       }
-      global$cleanedMSIData
     }) |>
       bindEvent(input$resetIsotope)
+
 
     #(2) Background Removal ====================================================
     #(2.1) Perform colocalization ----------------------------------------------

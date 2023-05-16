@@ -82,15 +82,36 @@ mod_viewData_ui <- function(id){
                closable = FALSE,
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. This module is optional."),
-               p(style = "color:#C70039;", "2. It is for high-mass-resolution data only."),
-               p(style = "color:#C70039;", "3. It is for 13C deisotoping only."),
-               sliderInput(inputId = ns("deisotopeTol"),
-                           label = "Select mass tolerance (Da)",
-                           min = 0.001,
-                           max = 0.01,
-                           value = 0.005,
-                           step = 0.001
-                           ),
+               p(style = "color:#C70039;", "2. It is for 13C deisotoping only."),
+               radioButtons(inputId = ns("msiDataType"),
+                            label = "Choose MSI data type",
+                            choices = c("High mass resolution" = "HR", "Low mass-resolution" = "LR"),
+                            selected = "",
+                            inline = TRUE
+                            ),
+               conditionalPanel(
+                 condition = 'input.msiDataType == "HR"',
+                 ns = ns,
+                 sliderInput(inputId = ns("deisotopeTol"),
+                             label = "Select mass tolerance (Da)",
+                             min = 0.001,
+                             max = 0.01,
+                             value = 0.005,
+                             step = 0.001
+                             ),
+               ),
+               conditionalPanel(
+                 condition = 'input.msiDataType == "LR"',
+                 ns = ns,
+                 sliderInput(inputId = ns("deisotopeTol"),
+                             label = "Select mass tolerance (Da)",
+                             min = 0.1,
+                             max = 1,
+                             value = 0.5,
+                             step = 0.05
+                             ),
+               ),
+
                sliderInput(inputId = ns("deisotopePCC"),
                            label = "Set spatial similarity",
                            min = 0.7,
@@ -149,7 +170,7 @@ mod_viewData_ui <- function(id){
                             max = 10000000
                             ),
                sliderInput(inputId = ns("colocThreshould"),
-                           label = "Set correlation threshold to detected other noise/matrix peaks",
+                           label = "Choose spatial similarity",
                            min = 0.5,
                            max = 1,
                            value = 0.9,
@@ -517,7 +538,10 @@ mod_viewData_server <- function(id, global){
     #(2) Deisotoping ===========================================================
     #(2.1) deisotoping ---------------------------------------------------------
     output$deisotopingInfo <- shiny::renderPrint({
-      shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
+      shiny::validate(
+        need(global$processedMSIData, message = "MSI data not found!"),
+        need(input$msiDataType != "", message = "Please select MSI data type.")
+      )
       global$cleanedMSIData <- deisotoping(global$processedMSIData, tol = input$deisotopeTol, PCC = input$deisotopePCC)
       cat("Deisotoping done.\n")
       cat("Below is deisotoped MSI data. \n")

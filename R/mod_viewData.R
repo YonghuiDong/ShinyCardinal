@@ -323,25 +323,27 @@ mod_viewData_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
+               column(width = 12, shiny::uiOutput(outputId = ns("downloadImageButton"))),
                column(width = 12,
-                      shiny::uiOutput(outputId = ns("downloadImageButton"))
+                      shinycssloaders::withSpinner(
+                        image = 'www/img/cardinal.gif',
+                        shiny::verbatimTextOutput(outputId = ns("mzList"))
+                      )
+               ),
+               column(width = 12,
+                      shiny::plotOutput(outputId = ns("ionImage"),
+                                        click = ns("plot_click"),
+                                        hover = ns("plot_hover")
+                                        )
                       ),
-               br(),
-               br(),
-               shinycssloaders::withSpinner(
-                 image = 'www/img/cardinal.gif',
-                 shiny::verbatimTextOutput(outputId = ns("mzList"))
-                ),
-               shiny::plotOutput(outputId = ns("ionImage"),
-                                 click = ns("plot_click"),
-                                 hover = ns("plot_hover")
-                                 ),
                shiny::verbatimTextOutput(outputId = ns("info")),
-               column(width = 6,
-                      shiny::uiOutput(outputId = ns("resetButton"))
-                      ),
-               column(width = 6,
-                      shiny::uiOutput(outputId = ns("undoButton"))
+               column(width = 12,
+                      column(width = 6,
+                             shiny::uiOutput(outputId = ns("resetButton"))
+                             ),
+                      column(width = 6,
+                             shiny::uiOutput(outputId = ns("undoButton"))
+                             )
                       ),
                shiny::tableOutput(outputId = ns("pixelTable")),
                plotly::plotlyOutput(outputId = ns("selectedSpec"))
@@ -720,35 +722,53 @@ mod_viewData_server <- function(id, global){
       msiInfo$ionImage
     })
 
-    #(4.3) Download MSI images -------------------------------------------------
+    #(4.3) Enlarge and Download MSI images -------------------------------------
     output$downloadImageButton <- renderUI({
       shiny::req(print(msiInfo$ionImage))
       tagList(
-        column(width = 4,
+        column(width = 6,
                selectInput(inputId = ns("downloadImageType"),
                            label = "Select format",
                            choices = c("pdf" = "pdf", "png" = "png"),
                            selected = "pdf"
                            )
                ),
-        column(width = 5,
+        column(width = 6,
                selectInput(inputId = ns("downloadEachImage"),
-                           label = "Save images as separate PDF files?",
+                           label = "Save images as seperate PDF files?",
                            choices = c("no" = "no", "yes" = "yes"),
                            selected = "no"
                            )
                ),
-        column(width = 3,
-               br(),
+        column(width = 6,
                downloadButton(outputId = ns("downloadImage"),
                               label = "Download Image",
                               icon = icon("download"),
                               style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-                              ),
+                              )
+               ),
+        column(width = 6,
+               actionButton(inputId = ns("enlargeButton"),
+                              label = "Enlarge Image",
+                              icon = icon("search-plus"),
+                              style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                              )
                )
         )
     }) # no need to used bindEvent here, otherwise the download button only shows after 2nd click.
 
+    ##(4.3.1) Enlarge image ----------------------------------------------------
+    observeEvent(input$enlargeButton, {
+      showModal(modalDialog(
+        tags$head(tags$style(HTML(".modal-dialog { width: 100vw; }"))),
+        plotOutput(outputId = ns("enlargedImage"), height = "1000px"),
+      ))
+      output$enlargedImage <- renderPlot({
+        msiInfo$ionImage
+      })
+    })
+
+    ##(4.3.2) Download image ---------------------------------------------------
     output$downloadImage <- downloadHandler(
       filename = function(){paste0("ionImage.", input$downloadImageType)},
       content = function(file){

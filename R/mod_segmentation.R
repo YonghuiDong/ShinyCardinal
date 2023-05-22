@@ -104,14 +104,6 @@ mod_segmentation_ui <- function(id){
                           selected = 0,
                           inline = TRUE
                           ),
-             strong("4. (optional) Choose number of workers for parallel computation"),
-             sliderInput(inputId = ns("pcaWorkers"),
-                         label = "",
-                         min = 1,
-                         max = 10,
-                         value = 1,
-                         step = 1
-                         ),
              actionButton(inputId = ns("viewPCA"),
                           label = "Plot",
                           icon = icon("paper-plane"),
@@ -188,7 +180,7 @@ mod_segmentation_ui <- function(id){
              shinycssloaders::withSpinner(
                image = 'www/img/cardinal.gif',
                shiny::verbatimTextOutput(outputId = ns("infoPCAImage"))
-               ),
+              ),
              shiny::uiOutput(outputId = ns("downloadPCAImageButton")),
              shiny::plotOutput(outputId = ns("pcaImages")),
              shiny::verbatimTextOutput(outputId = ns("infoLoadings")),
@@ -409,12 +401,12 @@ mod_segmentation_server <- function(id, global){
     #(2.1) Calculate PCA -------------------------------------------------------
     output$infoPCAImage <- shiny::renderPrint({
       shiny::validate(need(global$cleanedMSIData, message = "MSI data not found!"))
+      set.seed(2023)
       msiPCA$result <- getPCA(msiData = global$cleanedMSIData,
                               ncomp = input$nComp,
                               center = as.logical(as.numeric(input$centerPCA)),
                               scale = as.logical(as.numeric(input$scalePCA)),
-                              msiRun = input$msiRunPCA,
-                              workers = input$pcaWorkers
+                              msiRun = input$msiRunPCA
                               )
       cat("Below are PCA images:")
     }) |>
@@ -474,8 +466,7 @@ mod_segmentation_server <- function(id, global){
       shiny::req(msiPCA$result)
       msiPCA$loading <- plotPCASpec(pcaResult = msiPCA$result, msiRun = input$msiRunPCA)
       msiPCA$loading$plot
-    }) |>
-      bindEvent(input$viewPCA)
+    })
 
     #(2.6) Show PCA loading table ----------------------------------------------
     output$pcaLoadingTable <- DT::renderDT(server = FALSE, {
@@ -490,8 +481,7 @@ mod_segmentation_server <- function(id, global){
                        ),
         rownames = FALSE
       )
-    }) |>
-      bindEvent(input$viewPCA)
+    })
 
 
     #(3) SSCC ==================================================================

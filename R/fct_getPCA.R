@@ -14,21 +14,19 @@
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
 #' getPCA(msiData = mse, msiRun = "run0")
 
-getPCA <- function(msiData, ncomp = 3, center = TRUE, scale = FALSE, msiRun = "All", workers = 1){
+getPCA <- function(msiData, ncomp = 3, center = TRUE, scale = FALSE, msiRun = "All"){
   if(msiRun == "All"){
     Cardinal::PCA(msiData,
                   ncomp = ncomp,
                   center = center,
-                  scale = scale,
-                  BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = FALSE)
+                  scale = scale
                   )
   } else {
     msiData <- msiData[Cardinal::run(msiData) == msiRun]
     Cardinal::PCA(msiData,
                   ncomp = ncomp,
                   center = center,
-                  scale = scale,
-                  BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = FALSE)
+                  scale = scale
                   )
   }
 }

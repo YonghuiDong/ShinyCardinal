@@ -23,6 +23,16 @@ plotImage <- function(msiData, mz, smooth.image = "none", plusminus = NA, colors
                       normalize.image = "linear", zlim = c(0, 1), colorkey = TRUE,
                       contrast.enhance = "suppression", superpose = FALSE, msiRun = "All"){
 
+  #(1) Introduce some color scale ----------------------------------------------
+  if(colorscale == "cividisBlack"){
+    setColorscale <- c("#000000", Cardinal::col.map("cividis"))
+  } else if(colorscale == "viridisBlack") {
+    setColorscale <- c("#000000", Cardinal::col.map("viridis"))
+  } else{
+    setColorscale <- Cardinal::col.map(colorscale)
+  }
+
+  #(2) Plot image --------------------------------------------------------------
   if(is.na(plusminus)){plusminus = NULL}
 
   if(msiRun == "All"){
@@ -30,7 +40,7 @@ plotImage <- function(msiData, mz, smooth.image = "none", plusminus = NA, colors
                     mz = mz,
                     smooth.image = smooth.image,
                     plusminus = plusminus,
-                    colorscale = Cardinal::col.map(colorscale),
+                    colorscale = setColorscale,
                     contrast.enhance = contrast.enhance,
                     normalize.image = normalize.image,
                     zlim = zlim,
@@ -43,7 +53,7 @@ plotImage <- function(msiData, mz, smooth.image = "none", plusminus = NA, colors
                     mz = mz,
                     smooth.image = smooth.image,
                     plusminus = plusminus,
-                    colorscale = Cardinal::col.map(colorscale),
+                    colorscale = setColorscale,
                     contrast.enhance = contrast.enhance,
                     normalize.image = normalize.image,
                     zlim = zlim,

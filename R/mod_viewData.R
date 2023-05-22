@@ -254,11 +254,12 @@ mod_viewData_ui <- function(id){
                             value = NA,
                             step = 0.001
                             ),
-               selectInput(inputId = ns("normalizeImage"),
-                           label = "3. Select image normalization method",
-                           multiple = FALSE,
-                           choices = list("none" = "none", "linear" = "linear"),
-                           selected = "linear"
+               sliderInput(inputId = ns("zlim"),
+                           label = "3. Set the range of intensity bar",
+                           min = 0,
+                           max = 1,
+                           value = c(0, 1),
+                           step = 0.001
                            ),
                selectInput(inputId = ns("contrastImage"),
                            label = "4. Select image contrast enhancement method",
@@ -702,7 +703,7 @@ mod_viewData_server <- function(id, global){
                                     smooth.image = input$smoothImage,
                                     plusminus = input$massWindow,
                                     colorscale = input$colorImage,
-                                    normalize.image = input$normalizeImage,
+                                    zlim = input$zlim,
                                     contrast.enhance = input$contrastImage,
                                     superpose = as.logical(as.numeric(input$superposeImage)),
                                     msiRun = input$msiRun

@@ -20,7 +20,7 @@
 
 
 plotImage <- function(msiData, mz, smooth.image = "none", plusminus = NA,
-                      colorscale = "cividis", normalize.image = "linear",
+                      colorscale = "cividis", normalize.image = "linear", zlim = c(0, 1),
                       contrast.enhance = "suppression", superpose = FALSE, msiRun = "All"){
 
   if(is.na(plusminus)){plusminus = NULL}
@@ -33,6 +33,7 @@ plotImage <- function(msiData, mz, smooth.image = "none", plusminus = NA,
                     colorscale = Cardinal::col.map(colorscale),
                     contrast.enhance = contrast.enhance,
                     normalize.image = normalize.image,
+                    zlim = zlim,
                     superpose = superpose
                     )
   } else{
@@ -44,6 +45,7 @@ plotImage <- function(msiData, mz, smooth.image = "none", plusminus = NA,
                     colorscale = Cardinal::col.map(colorscale),
                     contrast.enhance = contrast.enhance,
                     normalize.image = normalize.image,
+                    zlim = zlim,
                     superpose = superpose
                     )
 

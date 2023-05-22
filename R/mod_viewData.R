@@ -111,7 +111,6 @@ mod_viewData_ui <- function(id){
                              step = 0.05
                              ),
                ),
-
                sliderInput(inputId = ns("deisotopePCC"),
                            label = "Set spatial similarity",
                            min = 0.7,

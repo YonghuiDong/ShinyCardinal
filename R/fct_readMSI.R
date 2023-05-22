@@ -11,15 +11,14 @@
 #' @return The return value, if any, from executing the function.
 #' @noRd
 
-readMSI <- function(path, massResolution = 10, massRange = NULL, dataCentroid = TRUE, workers = 1){
+readMSI <- function(path, massResolution = 10, massRange = NULL, dataCentroid = TRUE){
   #(1) Read and combine files in case multiple files are loaded ----------------
   msiData <- lapply(path, function(x)
     Cardinal::readMSIData(x,
                           resolution = massResolution,
                           units = "ppm",
                           mass.range = massRange,
-                          attach.only = TRUE,
-                          BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = FALSE)
+                          attach.only = TRUE
                           )
   )
 

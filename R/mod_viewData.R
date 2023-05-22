@@ -299,6 +299,12 @@ mod_viewData_ui <- function(id){
                             selected = "dark",
                             inline = TRUE
                             ),
+               radioButtons(inputId = ns("showColorkey"),
+                            label = "Should show colorkey?",
+                            choices = list("Yes" = "1", "NO" = "0"),
+                            selected = "1",
+                            inline = TRUE
+                            ),
                radioButtons(inputId = ns("superposeImage"),
                             label = "Should superpose images?",
                             choices = list("Yes" = "1", "NO" = "0"),
@@ -704,6 +710,7 @@ mod_viewData_server <- function(id, global){
                                     plusminus = input$massWindow,
                                     colorscale = input$colorImage,
                                     zlim = input$zlim,
+                                    colorkey = as.logical(as.numeric(input$showColorkey)),
                                     contrast.enhance = input$contrastImage,
                                     superpose = as.logical(as.numeric(input$superposeImage)),
                                     msiRun = input$msiRun

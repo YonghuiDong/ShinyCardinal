@@ -15,10 +15,24 @@
 plotPCAImage <- function(pcaResult, clusters, superpose = TRUE){
   N <- pcaResult@modelData$ncomp
   cols <- Cardinal::discrete.colors(N)
-  Cardinal::image(pcaResult,
-                  column = clusters,
-                  col = cols[clusters],
-                  strip = FALSE,
-                  superpose = superpose
-                  )
+  if(isTRUE(superpose)){
+    p <- Cardinal::image(pcaResult,
+                         column = clusters,
+                         col = cols[clusters],
+                         strip = FALSE,
+                         key = TRUE
+                         )
+  } else{
+    p <- vector(mode = "list", length = length(clusters))
+    for (i in seq_along(clusters)){
+      p[[i]] <- Cardinal::image(pcaResult,
+                                column = clusters[i],
+                                col = cols[clusters[i]],
+                                strip = FALSE,
+                                key = TRUE,
+                                layout = FALSE
+                                )
+    }
+  }
+  p
 }

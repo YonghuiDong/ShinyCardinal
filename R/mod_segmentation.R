@@ -400,7 +400,14 @@ mod_segmentation_server <- function(id, global){
                                    clusters = as.numeric(input$pcaClusters),
                                    superpose = as.logical(as.numeric(input$superposePCAImage))
                                    )
-      msiPCA$image
+      ## Display PCA images
+      ## Need par() to display separate images
+      if(isTRUE(as.logical(as.numeric(input$superposePCAImage)))){
+        msiPCA$image
+      } else{
+        par(mfrow=c(ceiling(length(input$pcaClusters)/2),2))
+        msiPCA$image
+      }
     })
 
     #(2.3) Download PCA images -------------------------------------------------

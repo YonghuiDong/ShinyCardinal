@@ -9,9 +9,9 @@
 #' set.seed(2020)
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
 #' pcaResult <- getPCA(msiData = mse, msiRun = "run0")
-#' plotPCASpec(pcaResult = pcaResult, msiRun = "run0")
+#' plotPCASpec(pcaResult = pcaResult, msiRun = "run0", clusters = c(1, 3))
 
-plotPCASpec <- function(pcaResult, msiRun){
+plotPCASpec <- function(pcaResult, msiRun, clusters){
   #(1) Prepare the data --------------------------------------------------------
   pcaLoadingList <- vector(mode = "list", length = 2)
   pcaLoadings <- data.frame(mz = round(as.data.frame(pcaResult@featureData), 4),
@@ -19,19 +19,18 @@ plotPCASpec <- function(pcaResult, msiRun){
                             )
 
   #(2) Plot --------------------------------------------------------------------
-  PCs <- colnames(pcaLoadings)[-1]
-  N <- length(PCs)
-  plot_list <- vector("list", length = N)
+  cols <- Cardinal::discrete.colors(pcaResult@modelData$ncomp)
+  plot_list <- vector("list", length = length(clusters))
 
-  for(i in 1:N){
-    df <- data.frame(mz = pcaLoadings$mz, Loadings = pcaLoadings[[PCs[(i)]]])
+  for(i in seq_along(clusters)){
+    df <- data.frame(mz = pcaLoadings$mz, Loadings = pcaLoadings[, (1+i)])
     p <- plotly::plot_ly(data = df) %>%
       plotly::add_segments(x = ~ mz,
                            xend = ~ mz,
                            y = 0,
                            yend = ~ Loadings,
-                           name = paste0("PC", i),
-                           line = list(color = Cardinal::discrete.colors(N)[i])
+                           name = paste0("PC", clusters[i]),
+                           line = list(color = cols[clusters[i]])
                            ) %>%
       plotly::layout(xaxis = list(title = 'm/z'),
                      yaxis = list(title = 'Loadings')
@@ -40,7 +39,7 @@ plotPCASpec <- function(pcaResult, msiRun){
   }
 
   pacLoadingPlot <- plotly::subplot(plot_list,
-                                    nrows = ceiling(N/2),
+                                    nrows = ceiling(length(clusters)/2),
                                     shareX = TRUE,
                                     shareY = TRUE,
                                     titleX = TRUE,

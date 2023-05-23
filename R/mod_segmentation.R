@@ -64,9 +64,9 @@ mod_segmentation_ui <- function(id){
              shinycssloaders::withSpinner(
                image = 'www/img/cardinal.gif',
                shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
-               )
              )
-           ),
+            )
+          ),
 
     #(2) PCA ===================================================================
     column(width = 12, h6("Pricipal Component Analysis (PCA)")),
@@ -112,44 +112,10 @@ mod_segmentation_ui <- function(id){
              br(),
              br(),
              p(style = "color:#C70039;", "Set image parameters:"),
-             selectInput(inputId = ns("normalizePCAImage"),
-                         label = "Apply normalization to the image",
-                         multiple = FALSE,
-                         choices = list("none" = "none", "linear" = "linear"),
-                         selected = "linear"
-                         ),
-             selectInput(inputId = ns("contrastPCAImage"),
-                         label = "Apply contrast enhancement to the image",
-                         multiple = FALSE,
-                         choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
-                         selected = "suppression"
-                         ),
-             selectInput(inputId = ns("smoothPCAImage"),
-                         label = "Apply smoothing to the image",
-                         multiple = FALSE,
-                         choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
-                         selected = "none"
-                         ),
-             selectInput(inputId = ns("colorPCAImage"),
-                         label = "Slect color scale",
-                         multiple = FALSE,
-                         choices = list("cividis" = "cividis",
-                                        "viridis" = "viridis",
-                                        "magma" = "magma",
-                                        "inferno" = "inferno",
-                                        "plasma" = "plasma",
-                                        "rainbow" = "rainbow",
-                                        "darkrainbow" = "darkrainbow",
-                                        "jet" = "jet",
-                                        "hot" = "hot",
-                                        "cool" = "cool",
-                                        "redblack" = "redblack",
-                                        "greenblack" = "greenblack",
-                                        "blueblack" = "blueblack",
-                                        "grayscale" = "grayscale"
-                                        ),
-                         selected = "viridis"
-             ),
+             selectInput(inputId = ns("pcaClusters"),
+                         label = "Select PCA clusters to visualize",
+                         choices = NULL,
+                         multiple = TRUE),
              radioButtons(inputId = ns("modePCAImage"),
                           label = "Do you prefer light or dark mode?",
                           choices = list("light" = "light", "dark" = "dark"),
@@ -162,7 +128,6 @@ mod_segmentation_ui <- function(id){
                           selected = 0,
                           inline = TRUE
                           )
-
              )
            ),
 
@@ -180,14 +145,14 @@ mod_segmentation_ui <- function(id){
              shinycssloaders::withSpinner(
                image = 'www/img/cardinal.gif',
                shiny::verbatimTextOutput(outputId = ns("infoPCAImage"))
-              ),
+             ),
              shiny::uiOutput(outputId = ns("downloadPCAImageButton")),
              shiny::plotOutput(outputId = ns("pcaImages")),
              shiny::verbatimTextOutput(outputId = ns("infoLoadings")),
              plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec")),
              DT::dataTableOutput(outputId = ns("pcaLoadingTable"))
-             )
-           ),
+            )
+          ),
 
     #(3) Spatial Shrunken Centroids Clustering =================================
     column(width = 12, h6("Spatial-aware Shrunken Centroids Clustering (SSC)")),
@@ -287,14 +252,14 @@ mod_segmentation_ui <- function(id){
                                         "grayscale" = "grayscale"
                                         ),
                          selected = "viridis"
-                         ),
+                        ),
 
              radioButtons(inputId = ns("modeSSCCImage"),
                           label = "Do you prefer light or dark mode?",
                           choices = list("light" = "light", "dark" = "dark"),
                           selected = "dark",
                           inline = TRUE
-                          ),
+                         ),
 
              radioButtons(inputId = ns("superposeSSCCImage"),
                           label = "Do you want to superpose different m/z images",
@@ -397,6 +362,15 @@ mod_segmentation_server <- function(id, global){
         }
     })
 
+    ## update PCA clusters
+    observeEvent(input$viewPCA, {
+      updateSelectInput(session = session,
+                        inputId = "pcaClusters",
+                        choices = 1:input$nComp,
+                        selected = 1:input$nComp,
+                        )
+    })
+
     msiPCA <- reactiveValues(result = NULL, image = NULL, loading = NULL)
     #(2.1) Calculate PCA -------------------------------------------------------
     output$infoPCAImage <- shiny::renderPrint({
@@ -416,18 +390,16 @@ mod_segmentation_server <- function(id, global){
     output$pcaImages <- shiny::renderPlot({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiPCA$result)
+      shiny::validate(need(input$pcaClusters != "", message = "At least 1 PC should be selected."))
       if(input$modePCAImage == "light"){
         Cardinal::lightmode()
       } else {
         Cardinal::darkmode()
       }
-      msiPCA$image <- Cardinal::image(msiPCA$result,
-                                      smooth.image = input$smoothPCAImage,
-                                      colorscale = Cardinal::col.map(input$colorPCAImage),
-                                      normalize.image = input$normalizePCAImage,
-                                      contrast.enhance = input$contrastPCAImage,
-                                      superpose = as.logical(as.numeric(input$superposePCAImage))
-                                      )
+      msiPCA$image <- plotPCAImage(pcaResult = msiPCA$result,
+                                   clusters = as.numeric(input$pcaClusters),
+                                   superpose = as.logical(as.numeric(input$superposePCAImage))
+                                   )
       msiPCA$image
     })
 
@@ -464,7 +436,11 @@ mod_segmentation_server <- function(id, global){
     #(2.5) Display PCA loading spectrum ----------------------------------------
     output$pcaLoadingsSpec <- plotly::renderPlotly({
       shiny::req(msiPCA$result)
-      msiPCA$loading <- plotPCASpec(pcaResult = msiPCA$result, msiRun = input$msiRunPCA)
+      shiny::validate(need(input$pcaClusters != "", message = "At least 1 PC should be selected."))
+      msiPCA$loading <- plotPCASpec(pcaResult = msiPCA$result,
+                                    msiRun = input$msiRunPCA,
+                                    clusters = as.numeric(input$pcaClusters)
+                                    )
       msiPCA$loading$plot
     })
 

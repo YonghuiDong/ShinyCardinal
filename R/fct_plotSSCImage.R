@@ -13,14 +13,14 @@
 #' plotSSCImage(sscResult, r = 1, k = 2, s = 0, cluster = c(1, 2), superpose = T)
 
 plotSSCImage <- function(sscResult, r, k, s, clusters, superpose = TRUE){
-  N <- getSSCClusters(sscResult = sscResult, r = r, k = k, s = s)
+  N <- length(clusters)
   cols <- Cardinal::discrete.colors(N)
   if(isTRUE(superpose)){
     p <- Cardinal::image(sscResult,
                          model = list(r = r, k = k, s = s),
                          column = clusters,
-                         col = cols[clusters],
-                         strip = FALSE,
+                         col = cols,
+                         strip = TRUE,
                          key = TRUE
                          )
   } else{
@@ -29,8 +29,8 @@ plotSSCImage <- function(sscResult, r, k, s, clusters, superpose = TRUE){
       p[[i]] <- Cardinal::image(sscResult,
                                 model = list(r = r, k = k, s = s),
                                 column = clusters[i],
-                                col = cols[clusters[i]],
-                                strip = FALSE,
+                                col = cols[i],
+                                strip = TRUE,
                                 key = TRUE,
                                 layout = FALSE
                                 )

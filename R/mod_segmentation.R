@@ -142,16 +142,17 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
-             shinycssloaders::withSpinner(
-               image = 'www/img/cardinal.gif',
-               shiny::verbatimTextOutput(outputId = ns("infoPCAImage"))
-             ),
-             shiny::uiOutput(outputId = ns("downloadPCAImageButton")),
-             shiny::plotOutput(outputId = ns("pcaImages")),
-             shiny::verbatimTextOutput(outputId = ns("infoLoadings")),
-             plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec")),
-             DT::dataTableOutput(outputId = ns("pcaLoadingTable"))
-            )
+             column(width = 12, shiny::uiOutput(outputId = ns("downloadPCAImageButton"))),
+             column(width = 12,
+                    shinycssloaders::withSpinner(image = 'www/img/cardinal.gif',
+                                                 shiny::verbatimTextOutput(outputId = ns("infoPCAImage"))
+                                                 )
+                    ),
+             column(width = 12, shiny::plotOutput(outputId = ns("pcaImages"))),
+             column(width = 12, shiny::verbatimTextOutput(outputId = ns("infoLoadings"))),
+             column(width = 12, plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec"))),
+             column(width = 12, DT::dataTableOutput(outputId = ns("pcaLoadingTable")))
+           )
           ),
 
     #(3) Spatial Shrunken Centroids Clustering =================================
@@ -382,7 +383,7 @@ mod_segmentation_server <- function(id, global){
                               scale = as.logical(as.numeric(input$scalePCA)),
                               msiRun = input$msiRunPCA
                               )
-      cat("Below are PCA images:")
+      cat("Below are PCA images:\n")
     }) |>
       bindEvent(input$viewPCA)
 
@@ -405,26 +406,63 @@ mod_segmentation_server <- function(id, global){
       if(isTRUE(as.logical(as.numeric(input$superposePCAImage)))){
         msiPCA$image
       } else{
-        par(mfrow=c(ceiling(length(input$pcaClusters)/2),2))
+        layout1 <- c(ceiling(length(input$pcaClusters)/2), 2)
+        layout2 <- c(2, 3)
+        if(prod(layout1) < prod(layout2)){
+          par(mfrow = layout1)
+        } else{
+          par(mfrow = layout2)
+        }
         msiPCA$image
       }
     })
 
-    #(2.3) Download PCA images -------------------------------------------------
+    #(2.3) Download and enlarge PCA images -------------------------------------
     output$downloadPCAImageButton <- renderUI({
       shiny::req(print(msiPCA$image))
-      downloadButton(
-        outputId = ns("downloadPCAImage"),
-        label = "Download Image",
-        icon = icon("download"),
-        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-      )
-    }) # no need to used bindEvent here, otherwise the download button only shows after 2nd click.
+      tagList(
+        column(width = 6,
+               downloadButton(outputId = ns("downloadPCAImage"),
+                              label = "Download Image",
+                              icon = icon("download"),
+                              style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                              )
+               ),
+        column(width = 6,
+               actionButton(inputId = ns("enlargePCAButton"),
+                            label = "Enlarge Image",
+                            icon = icon("search-plus"),
+                            style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                            )
+               )
+        )
+    })
 
+    ##(2.3.1) Enlarge image ----------------------------------------------------
+    observeEvent(input$enlargePCAButton, {
+      showModal(modalDialog(
+        tags$head(tags$style(HTML(".modal-dialog { width: 100vw; }"))),
+        plotOutput(outputId = ns("enlargedPCAImage"), height = "1000px"),
+      ))
+      output$enlargedPCAImage <- renderPlot({
+        if(isTRUE(as.logical(as.numeric(input$superposePCAImage)))){
+          msiPCA$image
+        } else{
+          layout1 <- c(ceiling(length(input$pcaClusters)/2), 2)
+          layout2 <- c(2, 3)
+          if(prod(layout1) < prod(layout2)){
+            par(mfrow = layout1)
+          } else{
+            par(mfrow = layout2)
+          }
+          msiPCA$image
+        }
+      })
+    })
+
+    ##(2.3.2) Download PCA image -----------------------------------------------
     output$downloadPCAImage <- downloadHandler(
-      filename = function(){
-          paste0(Sys.Date(), "_pcaImage", ".pdf")
-      },
+      filename = function(){paste0("pcaImages", ".pdf")},
       content = function(file){
         pdf(file)
         print(msiPCA$image)

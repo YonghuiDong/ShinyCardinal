@@ -9,7 +9,7 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
-#' pcaResult <- getPCA(msiData = mse, msiRun = "run0")
+#' pcaResult <- getPCA(msiData = mse)
 #' plotPCAImage(pcaResult, clusters = c(1, 3))
 
 plotPCAImage <- function(pcaResult, clusters, superpose = TRUE){

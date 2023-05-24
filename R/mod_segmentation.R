@@ -49,7 +49,7 @@ mod_segmentation_ui <- function(id){
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                           )
-             )
+            )
            ),
     #(1.2) Upload MSI rds data result ------------------------------------------
     column(width = 8,
@@ -115,15 +115,16 @@ mod_segmentation_ui <- function(id){
              selectInput(inputId = ns("pcaClusters"),
                          label = "Select PCA clusters to visualize",
                          choices = NULL,
-                         multiple = TRUE),
+                         multiple = TRUE
+                         ),
              radioButtons(inputId = ns("modePCAImage"),
-                          label = "Do you prefer light or dark mode?",
+                          label = "Choose light or dark mode",
                           choices = list("light" = "light", "dark" = "dark"),
                           selected = "dark",
                           inline = TRUE
                           ),
              radioButtons(inputId = ns("superposePCAImage"),
-                          label = "Do you want to superpose different m/z images",
+                          label = "Should superpose different images?",
                           choices = list("Yes" = 1, "No" = 0),
                           selected = 0,
                           inline = TRUE
@@ -152,7 +153,7 @@ mod_segmentation_ui <- function(id){
              column(width = 12, shiny::verbatimTextOutput(outputId = ns("infoLoadings"))),
              column(width = 12, plotly::plotlyOutput(outputId = ns("pcaLoadingsSpec"))),
              column(width = 12, DT::dataTableOutput(outputId = ns("pcaLoadingTable")))
-           )
+            )
           ),
 
     #(3) Spatial Shrunken Centroids Clustering =================================
@@ -342,28 +343,19 @@ mod_segmentation_server <- function(id, global){
       bindEvent(input$loadData)
 
     #(2) PCA ===================================================================
-    #(2.0) Update MSI run ------------------------------------------------------
-    observeEvent(global$processedMSIData,{
+    #(2.1) Update MSI run ------------------------------------------------------
+    observeEvent(global$processedMSIData, {
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
-      if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
-        ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.
-        updateSelectInput(session = session,
-                          inputId = "msiRunPCA", ## no name space
-                          choices = levels(Cardinal::run(global$cleanedMSIData)),
-                          selected = levels(Cardinal::run(global$cleanedMSIData))
-                          )
-        } else {
-        updateSelectInput(session = session,
-                          inputId = "msiRunPCA", ## no name space
-                          choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
-                          selected = "All"
-                          )
-        }
+      updateSelectInput(session = session,
+                        inputId = "msiRunPCA",
+                        choices = c(levels(Cardinal::run(global$cleanedMSIData))),
+                        selected = c(levels(Cardinal::run(global$cleanedMSIData)))[1]
+                        )
     })
 
-    ## update PCA clusters
+    #(2.2) Update PCA clusters -------------------------------------------------
     observeEvent(input$viewPCA, {
       updateSelectInput(session = session,
                         inputId = "pcaClusters",
@@ -372,22 +364,22 @@ mod_segmentation_server <- function(id, global){
                         )
     })
 
+    #(2.3) Calculate PCA -------------------------------------------------------
     msiPCA <- reactiveValues(result = NULL, image = NULL, loading = NULL)
-    #(2.1) Calculate PCA -------------------------------------------------------
     output$infoPCAImage <- shiny::renderPrint({
       shiny::validate(need(global$cleanedMSIData, message = "MSI data not found!"))
       set.seed(2023)
       msiPCA$result <- getPCA(msiData = global$cleanedMSIData,
                               ncomp = input$nComp,
-                              center = as.logical(as.numeric(input$centerPCA)),
-                              scale = as.logical(as.numeric(input$scalePCA)),
+                              center = as.logical(as.integer(input$centerPCA)),
+                              scale = as.logical(as.integer(input$scalePCA)),
                               msiRun = input$msiRunPCA
                               )
       cat("Below are PCA images:\n")
     }) |>
       bindEvent(input$viewPCA)
 
-    #(2.2) Display PCA images --------------------------------------------------
+    #(2.4) Display PCA images --------------------------------------------------
     output$pcaImages <- shiny::renderPlot({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiPCA$result)
@@ -399,11 +391,11 @@ mod_segmentation_server <- function(id, global){
       }
       msiPCA$image <- plotPCAImage(pcaResult = msiPCA$result,
                                    clusters = as.numeric(input$pcaClusters),
-                                   superpose = as.logical(as.numeric(input$superposePCAImage))
+                                   superpose = as.logical(as.integer(input$superposePCAImage))
                                    )
       ## Display PCA images
       ## Need par() to display separate images
-      if(isTRUE(as.logical(as.numeric(input$superposePCAImage)))){
+      if(input$superposePCAImage == "1" | length(input$pcaClusters) == 1){
         msiPCA$image
       } else{
         layout1 <- c(ceiling(length(input$pcaClusters)/2), 2)
@@ -417,7 +409,7 @@ mod_segmentation_server <- function(id, global){
       }
     })
 
-    #(2.3) Download and enlarge PCA images -------------------------------------
+    #(2.5) Download and enlarge PCA images -------------------------------------
     output$downloadPCAImageButton <- renderUI({
       shiny::req(print(msiPCA$image))
       tagList(
@@ -438,14 +430,14 @@ mod_segmentation_server <- function(id, global){
         )
     })
 
-    ##(2.3.1) Enlarge image ----------------------------------------------------
+    ##(2.5.1) Enlarge image ----------------------------------------------------
     observeEvent(input$enlargePCAButton, {
       showModal(modalDialog(
         tags$head(tags$style(HTML(".modal-dialog { width: 100vw; }"))),
         plotOutput(outputId = ns("enlargedPCAImage"), height = "1000px"),
       ))
       output$enlargedPCAImage <- renderPlot({
-        if(isTRUE(as.logical(as.numeric(input$superposePCAImage)))){
+        if(input$superposePCAImage == "1" | length(input$pcaClusters) == 1){
           msiPCA$image
         } else{
           layout1 <- c(ceiling(length(input$pcaClusters)/2), 2)
@@ -460,7 +452,7 @@ mod_segmentation_server <- function(id, global){
       })
     })
 
-    ##(2.3.2) Download PCA image -----------------------------------------------
+    ##(2.5.2) Download PCA image -----------------------------------------------
     output$downloadPCAImage <- downloadHandler(
       filename = function(){paste0("pcaImages", ".pdf")},
       content = function(file){
@@ -470,7 +462,7 @@ mod_segmentation_server <- function(id, global){
       }
     )
 
-    #(2.4) Show PCA loading spectrum info --------------------------------------
+    #(2.6) Show PCA loading spectrum info --------------------------------------
     output$infoLoadings <- shiny::renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiPCA$result)
@@ -478,10 +470,10 @@ mod_segmentation_server <- function(id, global){
       cat("The loadings of the components show how each mass feature contributes to each component.")
     })
 
-    #(2.5) Display PCA loading spectrum ----------------------------------------
+    #(2.7) Display PCA loading spectrum ----------------------------------------
     output$pcaLoadingsSpec <- plotly::renderPlotly({
       shiny::req(msiPCA$result)
-      shiny::validate(need(input$pcaClusters != "", message = "At least 1 PC should be selected."))
+      shiny::req(input$pcaClusters != "")
       msiPCA$loading <- plotPCASpec(pcaResult = msiPCA$result,
                                     msiRun = input$msiRunPCA,
                                     clusters = as.numeric(input$pcaClusters)
@@ -489,7 +481,7 @@ mod_segmentation_server <- function(id, global){
       msiPCA$loading$plot
     })
 
-    #(2.6) Show PCA loading table ----------------------------------------------
+    #(2.8) Show PCA loading table ----------------------------------------------
     output$pcaLoadingTable <- DT::renderDT(server = FALSE, {
       shiny::req(msiPCA$loading)
       DT::datatable(

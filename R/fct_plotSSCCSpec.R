@@ -3,7 +3,8 @@
 #' @param getSSCC the result from getSSCC function.
 #' @param r The spatial neighborhood radius of nearby pixels to consider.
 #' @param s The sparsity thresholding parameter by which to shrink the t-statistics.
-#' @param k The maximum number of segments (clusters).
+#' @param k The maximum number of segments.
+#' @param clusters select clusters to visualize.
 #' @param msiRun MSI runs.
 #' @return a list, including a t-statistics table and plot.
 #' @noRd
@@ -11,10 +12,10 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
-#' res <- getSSCC(x, r = 1, k = 2, s = 0, msiRun = "run0")
-#' plotSSCCSpec(getSSCC = res, r = 1, k = 2, s = 0, msiRun = "run0")
+#' res <- getSSCC(x, r = 1, k = 5, s = 0, msiRun = "run0")
+#' plotSSCCSpec(getSSCC = res, r = 1, k = 5, clusters = c(1, 3), s = 0, msiRun = "run0")
 
-plotSSCCSpec <- function(getSSCC, r = 1, k = 2, s = 0, msiRun){
+plotSSCCSpec <- function(getSSCC, r, k, s, clusters, msiRun){
   #(1) Format input ------------------------------------------------------------
   tStatistics <- vector(mode = "list", length = 2)
   DF <- as.data.frame(
@@ -29,18 +30,18 @@ plotSSCCSpec <- function(getSSCC, r = 1, k = 2, s = 0, msiRun){
     transform(mz = round(mz, 4))
 
   #(2) Plot --------------------------------------------------------------------
-  classFactor <- levels(as.factor(DF$class))
-  N <- length(classFactor)
-  plot_list <- vector("list", length = N)
-  for(i in 1:N){
-    df <- DF[DF$class == classFactor[i], ]
+  #classFactor <- levels(as.factor(DF$class))
+  cols <- Cardinal::discrete.colors(length(clusters))
+  plot_list <- vector(mode = "list", length = length(clusters))
+  for(i in seq_along(clusters)){
+    df <- DF[DF$class == clusters[i], ]
     p <- plotly::plot_ly(data = df) %>%
       plotly::add_segments(x = ~ mz,
                            xend = ~ mz,
                            y = 0,
                            yend = ~ statistic,
-                           name = paste0("Segment", i),
-                           line = list(color = Cardinal::discrete.colors(N)[i])
+                           name = paste0("Segment", clusters[i]),
+                           line = list(color = cols[i])
                            ) %>%
       plotly::layout(xaxis = list(title = 'm/z'),
                      yaxis = list(title = 't-statistic')
@@ -48,7 +49,7 @@ plotSSCCSpec <- function(getSSCC, r = 1, k = 2, s = 0, msiRun){
     plot_list[[i]] = p
   }
   plot <- plotly::subplot(plot_list,
-                          nrows = ceiling(N/2),
+                          nrows = ceiling(length(clusters)/2),
                           shareX = TRUE,
                           shareY = TRUE,
                           titleX = TRUE,

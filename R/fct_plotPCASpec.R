@@ -19,7 +19,7 @@ plotPCASpec <- function(pcaResult, msiRun, clusters){
                             )
 
   #(2) Plot --------------------------------------------------------------------
-  cols <- Cardinal::discrete.colors(pcaResult@modelData$ncomp)
+  cols <- Cardinal::discrete.colors(length(clusters))
   plot_list <- vector("list", length = length(clusters))
 
   for(i in seq_along(clusters)){
@@ -30,7 +30,7 @@ plotPCASpec <- function(pcaResult, msiRun, clusters){
                            y = 0,
                            yend = ~ Loadings,
                            name = paste0("PC", clusters[i]),
-                           line = list(color = cols[clusters[i]])
+                           line = list(color = cols[i])
                            ) %>%
       plotly::layout(xaxis = list(title = 'm/z'),
                      yaxis = list(title = 'Loadings')

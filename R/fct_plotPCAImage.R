@@ -10,15 +10,14 @@
 #' set.seed(2020)
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 2, baseline = 1)
 #' pcaResult <- getPCA(msiData = mse)
-#' plotPCAImage(pcaResult, clusters = c(1, 3))
+#' plotPCAImage(pcaResult, clusters = c(1, 3), superpose = TRUE)
 
 plotPCAImage <- function(pcaResult, clusters, superpose = TRUE){
-  N <- pcaResult@modelData$ncomp
-  cols <- Cardinal::discrete.colors(N)
+  cols <- Cardinal::discrete.colors(length(clusters))
   if(isTRUE(superpose)){
     p <- Cardinal::image(pcaResult,
                          column = clusters,
-                         col = cols[clusters],
+                         col = cols,
                          strip = FALSE,
                          key = TRUE
                          )
@@ -27,7 +26,7 @@ plotPCAImage <- function(pcaResult, clusters, superpose = TRUE){
     for (i in seq_along(clusters)){
       p[[i]] <- Cardinal::image(pcaResult,
                                 column = clusters[i],
-                                col = cols[clusters[i]],
+                                col = cols[i],
                                 strip = FALSE,
                                 key = TRUE,
                                 layout = FALSE

@@ -506,19 +506,19 @@ mod_segmentation_server <- function(id, global){
       shiny::req(input$outputR)
       shiny::req(input$outputK)
       shiny::req(input$outputS)
-      sscClusterNo <- getSSCClusters(sscResult = msiSSC$result,
-                                     r = input$outputR,
-                                     k = input$outputK,
-                                     s = input$outputS
-                                     )
+      sscClusterNum <- getSSCClusters(sscResult = msiSSC$result,
+                                      r = input$outputR,
+                                      k = input$outputK,
+                                      s = input$outputS
+                                      )
       updateSelectInput(session = session,
                         inputId = "sscClusters",
-                        choices = 1:sscClusterNo,
-                        selected = 1:sscClusterNo,
+                        choices = 1:sscClusterNum,
+                        selected = 1:sscClusterNum,
                         )
     })
 
-    #(3.3) Plot SSC Images -----------------------------------------------------
+    #(3.4) Plot SSC Images -----------------------------------------------------
     output$sscImages <- shiny::renderPlot({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSC$result)
@@ -550,7 +550,7 @@ mod_segmentation_server <- function(id, global){
       }
     })
 
-    #(3.4) Download and enlarge SSC images -------------------------------------
+    #(3.5) Download and enlarge SSC images -------------------------------------
     output$downloadSSCImageButton <- renderUI({
       shiny::req(msiSSC$result)
       tagList(
@@ -593,7 +593,7 @@ mod_segmentation_server <- function(id, global){
       })
     })
 
-    ##(2.5.2) Download SSC image -----------------------------------------------
+    ##(3.5.2) Download SSC image -----------------------------------------------
     output$downloadSSCImage <- downloadHandler(
       filename = function(){paste0("sscImages", ".pdf")},
       content = function(file){

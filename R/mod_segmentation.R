@@ -488,14 +488,14 @@ mod_segmentation_server <- function(id, global){
         updateSelectInput(session, inputId = 'outputK', choices = k, selected = k[1])
       })
       set.seed(2023)
-      msiSSC$result <- getSSCC(msiData = global$cleanedMSIData,
-                                r = r,
-                                s = s,
-                                k = k,
-                                method = input$sscMethod,
-                                msiRun = input$msiRunSSC
-                                #dist = input$sscDist,
-                                )
+      msiSSC$result <- getSSC(msiData = global$cleanedMSIData,
+                              r = r,
+                              s = s,
+                              k = k,
+                              method = input$sscMethod,
+                              msiRun = input$msiRunSSC
+                              #dist = input$sscDist,
+                              )
       Cardinal::summary(msiSSC$result)
     }) |>
       bindEvent(input$viewSSC)
@@ -528,12 +528,12 @@ mod_segmentation_server <- function(id, global){
         Cardinal::darkmode()
       }
       msiSSC$image <- plotSSCImage(sscResult = msiSSC$result,
-                                    r = input$outputR,
-                                    k = input$outputK,
-                                    s = input$outputS,
-                                    clusters = as.numeric(input$sscClusters),
-                                    superpose = as.logical(as.integer(input$superposeSSCImage))
-                                    )
+                                   r = input$outputR,
+                                   k = input$outputK,
+                                   s = input$outputS,
+                                   clusters = as.numeric(input$sscClusters),
+                                   superpose = as.logical(as.integer(input$superposeSSCImage))
+                                   )
       ## Display SSC images
       if(input$superposeSSCImage == "1" | length(input$sscClusters) == 1){
         msiSSC$image
@@ -615,13 +615,13 @@ mod_segmentation_server <- function(id, global){
     output$sscStatisticSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSC$result)
-      msiSSC$tStatistics <- plotSSCCSpec(getSSCC = msiSSC$result,
-                                          r = input$outputR,
-                                          s = input$outputS,
-                                          k = input$outputK,
-                                          clusters = as.numeric(input$sscClusters),
-                                          msiRun = input$msiRunSSC
-                                          )
+      msiSSC$tStatistics <- plotSSCSpec(getSSC = msiSSC$result,
+                                        r = input$outputR,
+                                        s = input$outputS,
+                                        k = input$outputK,
+                                        clusters = as.numeric(input$sscClusters),
+                                        msiRun = input$msiRunSSC
+                                        )
       msiSSC$tStatistics$specPlot
     })
 

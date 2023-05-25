@@ -1,6 +1,6 @@
 #' @title Plot SSCC Spectra
 #' @description Plot SSCC Spectra
-#' @param getSSCC the result from getSSCC function.
+#' @param getSSCC the result from getSSC function.
 #' @param r The spatial neighborhood radius of nearby pixels to consider.
 #' @param s The sparsity thresholding parameter by which to shrink the t-statistics.
 #' @param k The maximum number of segments.
@@ -12,16 +12,16 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
-#' res <- getSSCC(x, r = 1, k = 5, s = 0, msiRun = "run0")
-#' plotSSCCSpec(getSSCC = res, r = 1, k = 5, clusters = c(1, 3), s = 0, msiRun = "run0")
+#' res <- getSSC(x, r = 1, k = 5, s = 0, msiRun = "run0")
+#' plotSSCSpec(getSSC = res, r = 1, k = 5, clusters = c(1, 3), s = 0, msiRun = "run0")
 
-plotSSCCSpec <- function(getSSCC, r, k, s, clusters, msiRun){
+plotSSCSpec <- function(getSSC, r, k, s, clusters, msiRun){
   #(1) Format input ------------------------------------------------------------
   tStatistics <- vector(mode = "list", length = 2)
   DF <- as.data.frame(
     Cardinal::subset(
       Cardinal::topFeatures(
-        object = getSSCC,
+        object = getSSC,
         model = list(r = r, s = s, k = k),
         n = Inf
         )

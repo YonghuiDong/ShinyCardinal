@@ -109,8 +109,7 @@ mod_segmentation_ui <- function(id){
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                           ),
-             br(),
-             br(),
+             hr(),
              p(style = "color:#C70039;", "Set image parameters:"),
              selectInput(inputId = ns("pcaClusters"),
                          label = "Select PCA clusters to visualize",
@@ -174,104 +173,54 @@ mod_segmentation_ui <- function(id){
                          selected = NULL
                          ),
              textInput(inputId = ns("r"),
-                       label = "r: The spatial neighborhood radius of nearby pixels to consider.",
+                       label = "1. r: The spatial neighborhood radius of nearby pixels to consider.",
                        placeholder = "For multiple values, separate them by a comma.",
                        value = "2"
                        ),
              textInput(inputId = ns("s"),
-                       label = "s: Enter the sparsity thresholding parameter by which to shrink the t-statistics",
+                       label = "2. s: Enter the sparsity thresholding parameter by which to shrink the t-statistics",
                        placeholder = "For multiple values, separate them by a comma.",
                        value = "0"
                        ),
              textInput(inputId = ns("k"),
-                       label = "k: Enter the maximum number of segments",
+                       label = "3. k: Enter the maximum number of segments",
                        placeholder = "For multiple values, separate them by a comma.",
                        value = "2"
                        ),
              radioButtons(inputId = ns("ssccMethod"),
-                          label = "Choose the method to use to calculate the spatial smoothing weights",
+                          label = "4. Choose the method to use to calculate the spatial smoothing weights",
                           choices = list("gaussian" = "gaussian", "adaptive" = "adaptive"),
                           selected = "gaussian",
                           inline = TRUE
                           ),
              radioButtons(inputId = ns("ssccDist"),
-                          label = "Choose the type of distance metric",
+                          label = "5. Choose the type of distance metric",
                           choices = list("radial" = "radial", "manhattan" = "manhattan",
                                          "minkowski" = "minkowski", "chebyshev" = "chebyshev"),
                           selected = "chebyshev",
                           inline = FALSE
                           ),
-             strong("5. (optional) Choose number of workers for parallel computation"),
-             sliderInput(inputId = ns("ssccWorkers"),
-                         label = "",
-                         min = 1,
-                         max = 10,
-                         value = 1,
-                         step = 1
-                         ),
              actionButton(inputId = ns("viewSSCC"),
                           label = "Plot",
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                           ),
-             br(),
-             br(),
+             hr(),
              p(style = "color:#C70039;", "Set image parameters:"),
-             selectInput(inputId = ns("normalizeSSCCImage"),
-                         label = "Apply normalization to the image",
-                         multiple = FALSE,
-                         choices = list("none" = "none", "linear" = "linear"),
-                         selected = "linear"
-                         ),
-             selectInput(inputId = ns("contrastSSCCImage"),
-                         label = "Apply contrast enhancement to the image",
-                         multiple = FALSE,
-                         choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
-                         selected = "suppression"
-                         ),
-             selectInput(inputId = ns("smoothSSCCImage"),
-                         label = "Apply smoothing to the image",
-                         multiple = FALSE,
-                         choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
-                         selected = "none"
-                         ),
-             selectInput(inputId = ns("colorSSCCImage"),
-                         label = "Slect color scale",
-                         multiple = FALSE,
-                         choices = list("cividis" = "cividis",
-                                        "viridis" = "viridis",
-                                        "magma" = "magma",
-                                        "inferno" = "inferno",
-                                        "plasma" = "plasma",
-                                        "rainbow" = "rainbow",
-                                        "darkrainbow" = "darkrainbow",
-                                        "jet" = "jet",
-                                        "hot" = "hot",
-                                        "cool" = "cool",
-                                        "redblack" = "redblack",
-                                        "greenblack" = "greenblack",
-                                        "blueblack" = "blueblack",
-                                        "grayscale" = "grayscale"
-                                        ),
-                         selected = "viridis"
-                        ),
-
              radioButtons(inputId = ns("modeSSCCImage"),
                           label = "Do you prefer light or dark mode?",
                           choices = list("light" = "light", "dark" = "dark"),
                           selected = "dark",
                           inline = TRUE
-                         ),
-
+                          ),
              radioButtons(inputId = ns("superposeSSCCImage"),
-                          label = "Do you want to superpose different m/z images",
+                          label = "Should superpose different images?",
                           choices = list("Yes" = 1, "No" = 0),
                           selected = 1,
                           inline = TRUE
                           ),
-
+             hr(),
              p(style = "color:#C70039;", "Subset SSCC images by selecting r, s, and k below:"),
-             br(),
              column(width = 4,
                     selectInput(inputId = ns("outputR"),
                                 label = "Select r:",
@@ -292,11 +241,19 @@ mod_segmentation_ui <- function(id){
                                 choices = NULL,
                                 multiple = FALSE
                                 )
+                    ),
+             hr(),
+             column(width = 12,
+                    selectInput(inputId = ns("sscClusters"),
+                                label = "Select specific clusters to visualize",
+                                choices = NULL,
+                                multiple = TRUE
+                                )
                     )
              )
            ),
 
-    #(3.2) SSCC Output ----------------------------------------------------------
+    #(3.2) SSCC Output ---------------------------------------------------------
     column(width = 8,
            box(
              width = 12,
@@ -307,19 +264,20 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
-             shinycssloaders::withSpinner(
+             column(width = 12, shinycssloaders::withSpinner(
                image = 'www/img/cardinal.gif',
                shiny::verbatimTextOutput(outputId = ns("infoSSCCImage"))
-               ),
-             shiny::uiOutput(outputId = ns("downloadSSCCImageButton")),
-             shiny::plotOutput(outputId = ns("ssccImages")),
-             shiny::verbatimTextOutput(outputId = ns("infoSSCCSpec")),
-             plotly::plotlyOutput(outputId = ns("ssccStatisticSpec")),
-             DT::dataTableOutput(outputId = ns("ssccStatisticTable"))
+               )
+             ),
+             column(width = 12, shiny::uiOutput(outputId = ns("downloadSSCImageButton"))),
+             column(width = 12, shiny::uiOutput(outputId = ns("downloadSSCCImageButton"))),
+             column(width = 12, shiny::plotOutput(outputId = ns("ssccImages"))),
+             column(width = 12, shiny::verbatimTextOutput(outputId = ns("infoSSCCSpec"))),
+             column(width = 12, plotly::plotlyOutput(outputId = ns("ssccStatisticSpec"))),
+             column(width = 12, DT::dataTableOutput(outputId = ns("ssccStatisticTable")))
              )
            )
-
-    ))}
+))}
 
 
 #' segmentation Server Functions
@@ -496,66 +454,70 @@ mod_segmentation_server <- function(id, global){
       )
     })
 
-
     #(3) SSCC ==================================================================
-    #(3.0) Update MSI run ------------------------------------------------------
+    #(3.1) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData, {
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
-      if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
-        updateSelectInput(session = session,
-                          inputId = "msiRunSSCC", ## no name space
-                          choices = levels(Cardinal::run(global$cleanedMSIData)),
-                          selected = levels(Cardinal::run(global$cleanedMSIData))
-                          )
-      } else {
-        updateSelectInput(session = session,
-                          inputId = "msiRunSSCC", ## no name space
-                          choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
-                          selected = "All"
-                          )
-      }
+      updateSelectInput(session = session,
+                        inputId = "msiRunSSCC",
+                        choices = c(levels(Cardinal::run(global$cleanedMSIData))),
+                        selected = c(levels(Cardinal::run(global$cleanedMSIData)))[1]
+                        )
     })
 
-    #(3.1) Calculate SSCC ------------------------------------------------------
+    #(3.2) Calculate SSCC ------------------------------------------------------
     msiSSCC <- reactiveValues(result = NULL, image = NULL, tStatistics = NULL)
     output$infoSSCCImage <- shiny::renderPrint({
       shiny::validate(need(global$processedMSIData, message = "MSI data not found!"))
-      if(is.null(global$cleanedMSIData)){global$cleanedMSIData <- global$processedMSIData}
       r <- unique(text2Num(input$r))
       s <- unique(text2Num(input$s))
       k <- unique(text2Num(input$k))
-
-      ## update r, s, k in output
       shiny::validate(
         need(all(r > 0), message = "r should be positive value."),
         need(all(s >= 0), message = "s should be positive value."),
         need(all(k > 0), message = "k should be positive value.")
-        )
+      )
       observeEvent(input$r,{
-        updateSelectInput(session, inputId = 'outputR', choices = r)
+        updateSelectInput(session, inputId = 'outputR', choices = r, selected = r[1])
       })
       observeEvent(input$s,{
-        updateSelectInput(session, inputId = 'outputS', choices = s)
+        updateSelectInput(session, inputId = 'outputS', choices = s, selected = s[1])
       })
       observeEvent(input$k,{
-        updateSelectInput(session, inputId = 'outputK', choices = k)
+        updateSelectInput(session, inputId = 'outputK', choices = k, selected = k[1])
       })
-
       set.seed(2023)
       msiSSCC$result <- getSSCC(msiData = global$cleanedMSIData,
                                 r = r,
                                 s = s,
                                 k = k,
                                 method = input$ssccMethod,
-                                msiRun = input$msiRunSSCC,
+                                msiRun = input$msiRunSSCC
                                 #dist = input$ssccDist,
-                                workers = input$ssccWorkers
                                 )
       Cardinal::summary(msiSSCC$result)
     }) |>
       bindEvent(input$viewSSCC)
+
+    #(3.3) Update SSC clusters -------------------------------------------------
+    observe({
+      shiny::req(msiSSCC$result)
+      shiny::req(input$outputR)
+      shiny::req(input$outputK)
+      shiny::req(input$outputS)
+      sscClusterNo <- getSSCClusters(sscResult = msiSSCC$result,
+                                     r = input$outputR,
+                                     k = input$outputK,
+                                     s = input$outputS
+                                     )
+      updateSelectInput(session = session,
+                        inputId = "sscClusters",
+                        choices = 1:sscClusterNo,
+                        selected = 1:sscClusterNo,
+                        )
+    })
 
     #(3.3) Plot SSCC Images ----------------------------------------------------
     output$ssccImages <- shiny::renderPlot({
@@ -563,35 +525,77 @@ mod_segmentation_server <- function(id, global){
       shiny::req(msiSSCC$result)
       if(input$modeSSCCImage == "light"){
         Cardinal::lightmode()
-      } else {
+      } else{
         Cardinal::darkmode()
       }
-      msiSSCC$image <- Cardinal::image(msiSSCC$result,
-                                       model = list(r = input$outputR, s = input$outputS, k = input$outputK),
-                                       smooth.image = input$smoothSSCCImage,
-                                       colorscale = Cardinal::col.map(input$colorSSCCImage),
-                                       normalize.image = input$normalizeSSCCImage,
-                                       contrast.enhance = input$contrastSSCCImage,
-                                       superpose = as.logical(as.numeric(input$superposeSSCCImage))
-                                       )
-      msiSSCC$image
+      msiSSCC$image <- plotSSCImage(sscResult = msiSSCC$result,
+                                    r = input$outputR,
+                                    k = input$outputK,
+                                    s = input$outputS,
+                                    clusters = as.numeric(input$sscClusters),
+                                    superpose = as.logical(as.integer(input$superposeSSCCImage))
+                                    )
+      ## Display SSC images
+      if(input$superposeSSCCImage == "1" | length(input$sscClusters) == 1){
+        msiSSCC$image
+      } else{
+        layout1 <- c(ceiling(length(input$sscClusters)/2), 2)
+        layout2 <- c(2, 3)
+        if(prod(layout1) < prod(layout2)){
+          par(mfrow = layout1)
+        } else{
+          par(mfrow = layout2)
+        }
+        msiSSCC$image
+      }
     })
 
-    #(3.4) Download SSCC images -------------------------------------------------
-    output$downloadSSCCImageButton <- renderUI({
-      shiny::req(print(msiSSCC$image))
-      downloadButton(
-        outputId = ns("downloadSSCCImage"),
-        label = "Download Image",
-        icon = icon("download"),
-        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+    #(3.4) Download and enlarge SSC images -------------------------------------
+    output$downloadSSCImageButton <- renderUI({
+      shiny::req(msiSSCC$result)
+      tagList(
+        column(width = 6,
+               downloadButton(outputId = ns("downloadSSCImage"),
+                              label = "Download Image",
+                              icon = icon("download"),
+                              style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                              )
+               ),
+        column(width = 6,
+               actionButton(inputId = ns("enlargeSSCButton"),
+                            label = "Enlarge Image",
+                            icon = icon("search-plus"),
+                            style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                            )
+               )
       )
     })
 
-    output$downloadSSCCImage <- downloadHandler(
-      filename = function(){
-        paste0(Sys.Date(), "_ssccImage", ".pdf")
-      },
+    ##(3.5.1) Enlarge SSC image ------------------------------------------------
+    observeEvent(input$enlargeSSCButton, {
+      showModal(modalDialog(
+        tags$head(tags$style(HTML(".modal-dialog { width: 100vw; }"))),
+        plotOutput(outputId = ns("enlargedSSCImage"), height = "1000px"),
+      ))
+      output$enlargedSSCImage <- renderPlot({
+        if(input$superposeSSCCImage == "1" | length(input$sscClusters) == 1){
+          msiSSCC$image
+        } else{
+          layout1 <- c(ceiling(length(input$sscClusters)/2), 2)
+          layout2 <- c(2, 3)
+          if(prod(layout1) < prod(layout2)){
+            par(mfrow = layout1)
+          } else{
+            par(mfrow = layout2)
+          }
+          msiSSCC$image
+        }
+      })
+    })
+
+    ##(2.5.2) Download SSC image -----------------------------------------------
+    output$downloadSSCImage <- downloadHandler(
+      filename = function(){paste0("sscImages", ".pdf")},
       content = function(file){
         pdf(file)
         print(msiSSCC$image)
@@ -599,7 +603,9 @@ mod_segmentation_server <- function(id, global){
       }
     )
 
-    ##(3.5) Show SSCC t-Statistic Spec info ------------------------------------
+
+
+    ##(3.6) Show SSCC t-Statistic Spec info ------------------------------------
     output$infoSSCCSpec <- shiny::renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSCC$result)
@@ -608,7 +614,7 @@ mod_segmentation_server <- function(id, global){
       cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.")
     })
 
-    ##(3.6) Plot SSCC t-statistic Spec -----------------------------------------
+    ##(3.7) Plot SSCC t-statistic Spec -----------------------------------------
     output$ssccStatisticSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSCC$result)
@@ -616,12 +622,13 @@ mod_segmentation_server <- function(id, global){
                                           r = input$outputR,
                                           s = input$outputS,
                                           k = input$outputK,
+                                          clusters = as.numeric(input$sscClusters),
                                           msiRun = input$msiRunSSCC
                                           )
       msiSSCC$tStatistics$specPlot
     })
 
-    #(3.7) Show SSCC t-statistic table -----------------------------------------
+    #(3.8) Show SSCC t-statistic table -----------------------------------------
     output$ssccStatisticTable <- DT::renderDT(server = FALSE, {
       shiny::req(msiSSCC$tStatistics)
       DT::datatable(
@@ -636,9 +643,7 @@ mod_segmentation_server <- function(id, global){
       )
     })
 
-
-
-  })}
+})}
 
 ## To be copied in the UI
 # mod_segmentation_ui("segmentation_1")

@@ -9,6 +9,7 @@
 #'  and 'adaptive' refers to spatially-aware structurally-adaptive (SASA) weights.
 #' @param dist The type of distance metric to use when calculating neighboring pixels based on r.
 #'  The options are ‘radial’, ‘manhattan’, ‘minkowski’, and ‘chebyshev’ (the default).
+#' @param msiRUN MSI run.
 #' @return The return value, if any, from executing the function.
 #' @noRd
 #' @examples
@@ -18,7 +19,7 @@
 #' res <- getSSCC(x, r = 1, k = 2, s = 0, msiRun = "run0")
 
 getSSCC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive",
-                    dist = "chebyshev", msiRun = "All", workers = 1){
+                    dist = "chebyshev", msiRun = "All"){
   if(msiRun == "All"){
     Cardinal::spatialShrunkenCentroids(
       x = msiData,

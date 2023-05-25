@@ -16,9 +16,9 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
-#' res <- getSSCC(x, r = 1, k = 2, s = 0, msiRun = "run0")
+#' res <- getSSC(x, r = 1, k = 2, s = 0, msiRun = "run0")
 
-getSSCC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive",
+getSSC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive",
                     dist = "chebyshev", msiRun = "All"){
   if(msiRun == "All"){
     Cardinal::spatialShrunkenCentroids(

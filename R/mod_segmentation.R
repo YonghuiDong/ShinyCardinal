@@ -522,6 +522,7 @@ mod_segmentation_server <- function(id, global){
     output$sscImages <- shiny::renderPlot({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSC$result)
+      shiny::validate(need(input$sscClusters != "", message = "At least 1 cluster should be selected."))
       if(input$modeSSCImage == "light"){
         Cardinal::lightmode()
       } else{
@@ -606,6 +607,7 @@ mod_segmentation_server <- function(id, global){
     output$infoSSCSpec <- shiny::renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSC$result)
+      shiny::req(input$sscClusters != "")
       cat("Below are the SSC t-statistic Spectrum plot:\n")
       cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.\n")
       cat("Mass features with t-statistics of zero do not contribute to the segmentation.")
@@ -615,6 +617,7 @@ mod_segmentation_server <- function(id, global){
     output$sscStatisticSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSC$result)
+      shiny::req(input$sscClusters != "")
       msiSSC$tStatistics <- plotSSCSpec(getSSC = msiSSC$result,
                                         r = input$outputR,
                                         s = input$outputS,

@@ -333,6 +333,7 @@ mod_segmentation_server <- function(id, global){
                               msiRun = input$msiRunPCA
                               )
       cat("Below are PCA images:\n")
+      cat("Note that a miximum of 6 images are displayed.")
     }) |>
       bindEvent(input$viewPCA)
 
@@ -608,6 +609,7 @@ mod_segmentation_server <- function(id, global){
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSC$result)
       shiny::req(input$sscClusters != "")
+      cat("Note that a miximum of 6 images are displayed above.\n")
       cat("Below are the SSC t-statistic Spectrum plot:\n")
       cat("t-statistic indicates whether the mass feature is over- or under-expressed in the given cluster relative to the global mean.\n")
       cat("Mass features with t-statistics of zero do not contribute to the segmentation.")

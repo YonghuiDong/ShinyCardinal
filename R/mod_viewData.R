@@ -296,19 +296,19 @@ mod_viewData_ui <- function(id){
                            ),
                radioButtons(inputId = ns("modeImage"),
                             label = "Use light or dark mode?",
-                            choices = list("light" = "light", "dark" = "dark"),
+                            choices = list("Light" = "light", "Dark" = "dark"),
                             selected = "dark",
                             inline = TRUE
                             ),
                radioButtons(inputId = ns("showColorkey"),
                             label = "Should show colorkey?",
-                            choices = list("Yes" = "1", "NO" = "0"),
+                            choices = list("Yes" = "1", "No" = "0"),
                             selected = "1",
                             inline = TRUE
                             ),
                radioButtons(inputId = ns("superposeImage"),
                             label = "Should superpose images?",
-                            choices = list("Yes" = "1", "NO" = "0"),
+                            choices = list("Yes" = "1", "No" = "0"),
                             selected = "0",
                             inline = TRUE
                             ),

@@ -12,19 +12,17 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
-#' res <- getSSC(x, r = 1, k = 5, s = 0, msiRun = "run0")
+#' res <- getSSC(x, r = 1, k = c(5, 7), s = c(0, 3), msiRun = "run0")
 #' plotSSCSpec(getSSC = res, r = 1, k = 5, clusters = c(1, 3), s = 0, msiRun = "run0")
 
 plotSSCSpec <- function(getSSC, r, k, s, clusters, msiRun){
   #(1) Format input ------------------------------------------------------------
   tStatistics <- vector(mode = "list", length = 2)
   DF <- as.data.frame(
-    Cardinal::subset(
-      Cardinal::topFeatures(
-        object = getSSC,
-        model = list(r = r, s = s, k = k),
-        n = Inf
-        )
+    Cardinal::topFeatures(
+      object = getSSC,
+      model = list(r = r, s = s, k = k),
+      n = Inf
     )
   ) |>
     transform(mz = round(mz, 4))

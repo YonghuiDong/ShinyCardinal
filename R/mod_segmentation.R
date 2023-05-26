@@ -172,19 +172,20 @@ mod_segmentation_ui <- function(id){
                          choices = NULL,
                          selected = NULL
                          ),
+             p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+             p(style = "color:#C70039;", "1. Multiple values can be entered for r, s and k."),
+             p(style = "color:#C70039;", "2. For multiple values, separate them by a comma."),
+             p(style = "color:#C70039;", "3. Multiple values increase computation time."),
              textInput(inputId = ns("r"),
-                       label = "1. r: The spatial neighborhood radius of nearby pixels to consider.",
-                       placeholder = "For multiple values, separate them by a comma.",
+                       label = "1. r: spatial smoothing radii.",
                        value = "2"
                        ),
              textInput(inputId = ns("s"),
-                       label = "2. s: Enter the sparsity thresholding parameter by which to shrink the t-statistics",
-                       placeholder = "For multiple values, separate them by a comma.",
+                       label = "2. s: shirinkage parameter",
                        value = "0"
                        ),
              textInput(inputId = ns("k"),
-                       label = "3. k: Enter the maximum number of segments",
-                       placeholder = "For multiple values, separate them by a comma.",
+                       label = "3. k: maximum number of segments",
                        value = "2"
                        ),
              radioButtons(inputId = ns("sscMethod"),
@@ -494,8 +495,8 @@ mod_segmentation_server <- function(id, global){
                               s = s,
                               k = k,
                               method = input$sscMethod,
-                              msiRun = input$msiRunSSC
-                              #dist = input$sscDist,
+                              msiRun = input$msiRunSSC,
+                              dist = input$sscDist
                               )
       Cardinal::summary(msiSSC$result)
     }) |>

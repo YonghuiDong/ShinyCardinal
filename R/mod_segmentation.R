@@ -118,7 +118,7 @@ mod_segmentation_ui <- function(id){
                          ),
              radioButtons(inputId = ns("modePCAImage"),
                           label = "Choose light or dark mode",
-                          choices = list("light" = "light", "dark" = "dark"),
+                          choices = list("Light" = "light", "Dark" = "dark"),
                           selected = "dark",
                           inline = TRUE
                           ),
@@ -173,15 +173,16 @@ mod_segmentation_ui <- function(id){
                          selected = NULL
                          ),
              p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-             p(style = "color:#C70039;", "1. Multiple values can be entered for r, s and k."),
-             p(style = "color:#C70039;", "2. For multiple values, separate them by a comma."),
-             p(style = "color:#C70039;", "3. Multiple values increase computation time."),
+             p(style = "color:#C70039;", "1. Use integers for r, s, and k."),
+             p(style = "color:#C70039;", "2. Multiple values can be entered for r, s and k."),
+             p(style = "color:#C70039;", "3. For multiple values, separate them by a comma."),
+             p(style = "color:#C70039;", "4. Multiple values increase computation time."),
              textInput(inputId = ns("r"),
                        label = "1. r: spatial smoothing radii.",
                        value = "2"
                        ),
              textInput(inputId = ns("s"),
-                       label = "2. s: shirinkage parameter",
+                       label = "2. s: shrinkage parameter",
                        value = "0"
                        ),
              textInput(inputId = ns("k"),
@@ -189,15 +190,15 @@ mod_segmentation_ui <- function(id){
                        value = "2"
                        ),
              radioButtons(inputId = ns("sscMethod"),
-                          label = "4. Choose the method to use to calculate the spatial smoothing weights",
-                          choices = list("gaussian" = "gaussian", "adaptive" = "adaptive"),
+                          label = "4. Select a method to calculate spatial smoothing weights",
+                          choices = list("Gaussian" = "gaussian", "Adaptive" = "adaptive"),
                           selected = "gaussian",
                           inline = TRUE
                           ),
              radioButtons(inputId = ns("sscDist"),
-                          label = "5. Choose the type of distance metric",
-                          choices = list("radial" = "radial", "manhattan" = "manhattan",
-                                         "minkowski" = "minkowski", "chebyshev" = "chebyshev"),
+                          label = "5. Select a distance metric type",
+                          choices = list("Radial" = "radial", "Manhattan" = "manhattan",
+                                         "Minkowski" = "minkowski", "Chebyshev" = "chebyshev"),
                           selected = "chebyshev",
                           inline = FALSE
                           ),
@@ -209,8 +210,8 @@ mod_segmentation_ui <- function(id){
              hr(),
              p(style = "color:#C70039;", "Set image parameters:"),
              radioButtons(inputId = ns("modeSSCImage"),
-                          label = "Do you prefer light or dark mode?",
-                          choices = list("light" = "light", "dark" = "dark"),
+                          label = "Choose light or dark mode?",
+                          choices = list("Light" = "light", "Dark" = "dark"),
                           selected = "dark",
                           inline = TRUE
                           ),

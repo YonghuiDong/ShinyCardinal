@@ -9,7 +9,7 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
-#' sscResult <- getSSCC(x, r = 1, k = 2, s = 0, msiRun = "run0")
+#' sscResult <- getSSC(x, r = 1, k = 2, s = 0, msiRun = "run0")
 #' plotSSCImage(sscResult, r = 1, k = 2, s = 0, cluster = c(1, 2), superpose = T)
 
 plotSSCImage <- function(sscResult, r, k, s, clusters, superpose = TRUE){

@@ -512,6 +512,7 @@ mod_segmentation_server <- function(id, global){
                                       k = input$outputK,
                                       s = input$outputS
                                       )
+      shiny::req(sscClusterNum)
       updateSelectInput(session = session,
                         inputId = "sscClusters",
                         choices = 1:sscClusterNum,
@@ -615,7 +616,7 @@ mod_segmentation_server <- function(id, global){
       cat("Mass features with t-statistics of zero do not contribute to the segmentation.")
     })
 
-    ##(3.7) Plot SSC t-statistic Spec -----------------------------------------
+    #(3.7) Plot SSC t-statistic Spec -------------------------------------------
     output$sscStatisticSpec <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(msiSSC$result)

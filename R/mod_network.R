@@ -127,7 +127,7 @@ mod_network_ui <- function(id){
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::verbatimTextOutput(outputId = ns("allNetworkInfo"))
-                ),
+               ),
                shiny::uiOutput(outputId = ns("downloadAllNetworkButton")),
                visNetwork::visNetworkOutput(outputId = ns("showAllNetwork"), height = "800px")
                )
@@ -221,7 +221,7 @@ mod_network_server <- function(id, global = global){
       global$processedMSIData <- readRDS(input$rdsMSI$datapath)
       if(is.null(global$processedMSIData)){
         cat("MSI data not loaded, please check if your rds file is empty.\n")
-      } else {
+      } else{
         cat("MSI data loaded successfully!\n")
         global$processedMSIData
       }
@@ -229,20 +229,20 @@ mod_network_server <- function(id, global = global){
       bindEvent(input$loadData)
 
     #(2) Network analysis for all features =====================================
-    #(2.0) Update MSI run ------------------------------------------------------
+    #(2.1) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData, {
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
       updateSelectInput(session = session,
-                        inputId = "msiRunAll", ## no name space
+                        inputId = "msiRunAll",
                         choices = levels(Cardinal::run(global$cleanedMSIData)),
                         selected = levels(Cardinal::run(global$cleanedMSIData))[1]
                         )
 
     })
 
-    #(2.1) Get network object --------------------------------------------------
+    #(2.2) Get network object --------------------------------------------------
     allNetwork <- reactiveValues(PCC = NULL, plot = NULL)
     output$allNetworkInfo <- renderPrint({
       shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
@@ -250,11 +250,11 @@ mod_network_server <- function(id, global = global){
                                nth = input$nthAll,
                                msiRun = input$msiRunAll
                                )
-      cat("You can navigate the network by using either the mouse or the zoom and movement buttons below.")
+      cat("You can navigate the network using mouse or the zoom and movement buttons below.")
     }) |>
       bindEvent(input$colocAll)
 
-    #(2.2) Show network --------------------------------------------------------
+    #(2.3) Show network --------------------------------------------------------
     output$showAllNetwork <- visNetwork::renderVisNetwork({
       shiny::req(allNetwork$PCC)
       allNetwork$plot <- plotAllNetwork(PCC = allNetwork$PCC,
@@ -264,7 +264,7 @@ mod_network_server <- function(id, global = global){
       allNetwork$plot
     })
 
-    #(2.3) Download all Network -------------------------------------------------
+    #(2.4) Download all Network -------------------------------------------------
     output$downloadAllNetworkButton <- renderUI({
       shiny::req(allNetwork$plot)
       downloadButton(
@@ -277,7 +277,7 @@ mod_network_server <- function(id, global = global){
 
     output$downloadAllNetwork <- downloadHandler(
         filename = function(){
-          paste0(Sys.Date(), "_allNetwork", ".html")
+          paste0("allNetwork", ".html")
         },
         content = function(file){
           visNetwork::visSave(graph = allNetwork$plot, file = file)
@@ -285,19 +285,19 @@ mod_network_server <- function(id, global = global){
     )
 
     #(3) Network analysis for single feature ===================================
-    #(3.0) Update MSI run ------------------------------------------------------
+    #(3.1) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData, {
       if(is.null(global$cleanedMSIData)){
         global$cleanedMSIData <- global$processedMSIData
       }
       updateSelectInput(session = session,
-                        inputId = "msiRunSingle", ## no name space
+                        inputId = "msiRunSingle",
                         choices = levels(Cardinal::run(global$cleanedMSIData)),
                         selected = levels(Cardinal::run(global$cleanedMSIData))[1]
                         )
     })
 
-    #(3.1) Get network object --------------------------------------------------
+    #(3.2) Get network object --------------------------------------------------
     singleNetwork <- reactiveValues(PCC = NULL, plot = NULL)
     output$singleNetworkInfo <- renderPrint({
       shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
@@ -306,17 +306,16 @@ mod_network_server <- function(id, global = global){
       shiny::validate(need(input$singleMZ >= mzMin & input$singleMZ <= mzMax,
                            message = paste("m/z value should between", mzMin, "and", mzMax, sep = " "))
                       )
-
       singleNetwork$PCC <- getPCC(msiData = global$cleanedMSIData,
                                   mz = input$singleMZ,
                                   nth = input$nthSingle,
                                   msiRun = input$msiRunAll
                                   )
-      cat("You can navigate the network by using either the mouse or the zoom and movement buttons below.")
+      cat("You can navigate the network using mouse or the zoom and movement buttons below.")
     }) |>
       bindEvent(input$colocSingle)
 
-    #(3.2) Show network --------------------------------------------------------
+    #(3.3) Show network --------------------------------------------------------
     output$showSingleNetwork <- visNetwork::renderVisNetwork({
       shiny::req(singleNetwork$PCC)
       singleNetwork$plot <- plotSingleNetwork(PCC = singleNetwork$PCC,
@@ -327,7 +326,7 @@ mod_network_server <- function(id, global = global){
       singleNetwork$plot
     })
 
-    #(3.3) Download single network ---------------------------------------------
+    #(3.4) Download single network ---------------------------------------------
     output$downloadSingleNetworkButton <- renderUI({
       shiny::req(singleNetwork$plot)
       downloadButton(
@@ -340,20 +339,19 @@ mod_network_server <- function(id, global = global){
 
     output$downloadSingleNetwork <- downloadHandler(
       filename = function(){
-        paste0(Sys.Date(), "_Network_", input$singleMZ, ".html")
+        paste0("Network_", input$singleMZ, ".html")
       },
       content = function(file){
         visNetwork::visSave(graph = singleNetwork$plot, file = file)
       }
     )
 
-    #(3.4) Plot pseudo MS/MS spectrum ------------------------------------------
+    #(3.5) Plot pseudo MS/MS spectrum ------------------------------------------
     output$pseudoMS <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::req(singleNetwork$PCC)
       plotMSMS(msiData = global$cleanedMSIData, PCC = singleNetwork$PCC, threshold = input$pccSingleThreshold)
     })
-
 
 
 })}

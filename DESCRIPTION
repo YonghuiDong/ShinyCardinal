@@ -1,6 +1,6 @@
 Package: ShinyCardinal
 Title: PKG_TITLE
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: person('Yonghui', 'Dong', email = 'yonghui.dong@gmail.com', role = c('cre', 'aut'))
 Description: Analysis of Mass Spectrometry Imaging Data.
 License: What license is it under?

@@ -79,12 +79,9 @@ mod_identification_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
-               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "1. This moduel is optional."),
-               p(style = "color:#C70039;", "2. If you're starting directly from this module, you need to upload the rds file."),
                radioButtons(inputId = ns("mzValueType"),
-                            label = "1. Choose m/z value",
-                            choices = list("enter m/z values" = "singleMZ", "all m/z values" = "allMZ"),
+                            label = "1. Choose m/z value for identification",
+                            choices = list("Enter m/z values" = "singleMZ", "All m/z values" = "allMZ"),
                             selected = "allMZ",
                             inline = TRUE
                             ),
@@ -94,7 +91,7 @@ mod_identification_ui <- function(id){
                  textInput(inputId = ns("mzValues"),
                            label = "Enter m/z values",
                            value = "",
-                           placeholder = "For multiple values, use comma to seperate them."
+                           placeholder = "For multiple values, use comma to seperate them"
                            )
                  ),
                radioButtons(inputId = ns("ionMode"),
@@ -139,9 +136,6 @@ mod_identification_ui <- function(id){
                )
              )
       )
-
-
-
 
 ))}
 
@@ -198,9 +192,6 @@ mod_identification_server <- function(id, global){
         )
     }) |>
       bindEvent(input$identify)
-
-
-
 
 })}
 

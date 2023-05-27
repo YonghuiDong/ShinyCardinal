@@ -6,13 +6,9 @@
 
 <b><span style="color:#5c5d61; font-size:22px;">Feature Request/Bug Report</span></b>
 
-To report bugs or request new features of <span style="color:#d17789;">ShinyCardinal</span>, please send an email to:
+To report bugs or request new features of ShinyCardinal, please send an email to:
 
 [Dr.Yonghui Dong <i class="fa fa-envelope-o fa-xl" aria-hidden="true"></i>](mailto:yonghui.dong@gmail.com) or [Dr.Uwe Heinig <i class="fa fa-envelope-o fa-xl" aria-hidden="true"></i>](mailto:Uwe.Heinig@weizmann.ac.il)
-
-To file bugs or request new features of Cardinal R package, please visit:
-
-[Cardinal GitHub issue](https://github.com/kuwisdelu/Cardinal/issues)
 
 <b><span style="color:#5c5d61; font-size:22px;">Cardinal Support</span></b>
 
@@ -23,7 +19,7 @@ If you need any help, please visit [Cardinal google help group](https://groups.g
 <b><span style="color:#5c5d61; font-size:22px;">Please Cite</span></b>
 
 
-If you use <span style="color:#d17789;">ShinyCardinal</span>, please cite the following references:
+If you use ShinyCardinal, please cite the following references:
 
 > 1.Dong.Y., Heinig, W., 2023. ShinyCardinal: a web app for statistical analysis of mass spectrometry imaging data.
 >

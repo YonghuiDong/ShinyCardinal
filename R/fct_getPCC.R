@@ -15,11 +15,16 @@
 #' getPCC(mse, mz = 493.3798)
 
 getPCC <- function(msiData, mz = NULL, nth = 1, msiRun = "All"){
+  #(1) subset by run -----------------------------------------------------------
   if(msiRun != "All"){
     msiData <- msiData[Cardinal::run(msiData) == msiRun]
   }
-  nth <- ifelse(nth > max(Cardinal::pixels(msiData)), 1, nth) # make sure nth is smaller than max pixels.
-  msiData <- msiData[, seq(1, max(Cardinal::pixels(msiData)), by = nth)]
+  #(2) subset by pixel ---------------------------------------------------------
+  nth <- ifelse(nth > max(Cardinal::pixels(msiData)), 1, nth)
+  if(nth > 1){
+    msiData <- msiData[, seq(1, max(Cardinal::pixels(msiData)), by = nth)]
+  }
+  #(3) calculate PCC -----------------------------------------------------------
   if(is.null(mz)){
     specData <- Cardinal::spectra(msiData)
     rownames(specData) <- round(Cardinal::mz(msiData), 4)

@@ -21,7 +21,10 @@ mod_uploadData_ui <- function(id){
                solidHeader = TRUE,
                collapsible = TRUE,
                collapsed = FALSE,
-               closable = FALSE
+               closable = FALSE,
+               p("1. The purpose of data preprocessing is to improve image quality, and facilate downstream data mining."),
+               p("2. A typical MSI data preprocessing workflow includes normalization, baseline reduction, smoothing,
+                 peak picking, spectral alignment, and binning.")
                )
              ),
 

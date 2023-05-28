@@ -201,11 +201,17 @@ mod_uploadData_ui <- function(id){
                            step = 1
                            ),
                p(style = "color:#C70039;", "Step 2. Peak Alignment"),
+               radioButtons(inputId = ns("msiDataType"),
+                            label = "2.1 Choose MSI data type",
+                            choices = c("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
+                            selected = "HR",
+                            inline = TRUE
+                            ),
                sliderInput(inputId = ns("paTolerance"),
-                           label = "2.1 Choose peak aligment tolerance (ppm)",
+                           label = "2.2 Choose peak aligment tolerance (ppm)",
                            min = 1,
-                           max = 100,
-                           value = 10,
+                           max = 20,
+                           value = 5,
                            step = 1
                            ),
                actionButton(inputId = ns("getRefPeaks"),
@@ -250,8 +256,8 @@ mod_uploadData_ui <- function(id){
                p(style = "color:#C70039;", "Step 1. Normalization "),
                selectInput(inputId = ns("norMethod"),
                            label = "Select normalization method",
-                           choices = list("total ion current normalization" = "tic",
-                                          "root mean square normalization" = "rms"
+                           choices = list("Total ion current normalization" = "tic",
+                                          "Root mean square normalization" = "rms"
                                           ),
                            selected = "tic"
                            ),
@@ -262,9 +268,9 @@ mod_uploadData_ui <- function(id){
                              ),
                selectInput(inputId = ns("smoothMethod"),
                             label = "Select smoothing method",
-                            choices = list("gaussian smoothing" = "gaussian",
+                            choices = list("Gaussian smoothing" = "gaussian",
                                            "Savitzky-Golay smoothing" = "sgolay",
-                                           "moving average smoothing" = "ma"
+                                           "Moving average smoothing" = "ma"
                                            ),
                             selected = "gaussian"
                             ),
@@ -275,8 +281,8 @@ mod_uploadData_ui <- function(id){
                              ),
                selectInput(inputId = ns("blReductionMethod"),
                            label = "Select baseline reduction method",
-                           choices = list("local minima" = "locmin",
-                                          "binned medians" = "median"
+                           choices = list("Local minima" = "locmin",
+                                          "Binned medians" = "median"
                                           ),
                           selected = "locmin"
                           ),
@@ -284,10 +290,10 @@ mod_uploadData_ui <- function(id){
                sliderInput(inputId = ns("pbTolerance"),
                            label = "Choose peak binning tolerance (ppm)",
                            min = 1,
-                           max = 100,
-                           value = 10,
+                           max = 20,
+                           value = 5,
                            step = 1
-                          ),
+                           ),
                strong("5. (optional) Choose number of workers for parallel computation"),
                sliderInput(inputId = ns("getProcessMSIWorkers"),
                            label = "",
@@ -445,15 +451,15 @@ mod_uploadData_server <- function(id, global){
       shiny::validate(need(global$msiData, message = "MSI data not found."))
 
       #(3.2) Calculate mean spectrum -----------------------------------------
-      specData$meanSpec <- global$msiData[, seq(1, max(Cardinal::pixels(global$msiData)), by = input$nth)] |>
-        getMeanSpec(msiData = _,
-                    worker = input$meanSpecWorkers
-                    )
+      specData$meanSpec <- getMeanSpec(msiData = global$msiData,
+                                       nth = input$nth,
+                                       worker = input$meanSpecWorkers
+                                       )
       plotMeanSpec(meanSpec = specData$meanSpec, nth = input$nth)
     }) |>
       bindEvent(input$getMeanSpec)
 
-    #(3.3) Show reference peak info --------------------------------------------
+    #(3.3) Show mean peak info -------------------------------------------------
     output$meanPeakInfo <- shiny::renderPrint({
       shiny::req(specData$meanSpec)
       cat("Below is the mean peak information:\n")
@@ -463,6 +469,12 @@ mod_uploadData_server <- function(id, global){
 
     #(4) Get Reference Peaks ===================================================
     #(4.1) Calculate and display reference spec --------------------------------
+    observe({
+      switch(EXPR = input$msiDataType,
+             "HR" = updateSliderInput(inputId = "paTolerance", min = 1, max = 20, value = 5, step = 1),
+             "LR" = updateSliderInput(inputId = "paTolerance", min = 20, max = 200, value = 50, step = 5)
+             )
+    })
     output$refPeakPlot <- plotly::renderPlotly({
       shiny::validate(need(specData$meanSpec, message = "Mean spec not found."))
       specData$refPeaks <- getRefPeaks(meanSpec = specData$meanSpec,
@@ -484,6 +496,12 @@ mod_uploadData_server <- function(id, global){
 
     #(5) Process MSI Data ======================================================
     #(5.1) Process and display MSI data --------------------------------------
+    observe({
+      switch(EXPR = input$msiDataType,
+             "HR" = updateSliderInput(inputId = "pbTolerance", min = 1, max = 20, value = 5, step = 1),
+             "LR" = updateSliderInput(inputId = "pbTolerance", min = 20, max = 200, value = 50, step = 5)
+             )
+    })
     output$processedMSIInfo <- shiny::renderPrint({
       shiny::validate(
         need(global$msiData, message = "MSI data not found."),

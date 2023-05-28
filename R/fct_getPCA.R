@@ -15,18 +15,12 @@
 #' getPCA(msiData = mse, msiRun = "run0")
 
 getPCA <- function(msiData, ncomp = 3, center = TRUE, scale = FALSE, msiRun = "All"){
-  if(msiRun == "All"){
-    Cardinal::PCA(msiData,
-                  ncomp = ncomp,
-                  center = center,
-                  scale = scale
-                  )
-  } else {
+  if(msiRun != "All"){
     msiData <- msiData[Cardinal::run(msiData) == msiRun]
-    Cardinal::PCA(msiData,
-                  ncomp = ncomp,
-                  center = center,
-                  scale = scale
-                  )
   }
+  Cardinal::PCA(msiData,
+                ncomp = ncomp,
+                center = center,
+                scale = scale
+                )
 }

@@ -16,28 +16,18 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
-#' res <- getSSC(x, r = 1, k = 2, s = 0, msiRun = "run0")
+#' res <- getSSC(x, r = 1, k = 2, s = 0, msiRun = "All")
 
-getSSC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive",
-                    dist = "chebyshev", msiRun = "All"){
-  if(msiRun == "All"){
-    Cardinal::spatialShrunkenCentroids(
-      x = msiData,
-      r = r,
-      s = s,
-      k = k,
-      method = method,
-      dist = dist
-      )
-  } else {
+getSSC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive", dist = "chebyshev", msiRun = "All"){
+  if(msiRun != "All"){
     msiData <- msiData[Cardinal::run(msiData) == msiRun]
-    Cardinal::spatialShrunkenCentroids(
-      x = msiData,
-      r = r,
-      s = s,
-      k = k,
-      method = method,
-      dist = dist
-    )
   }
+  Cardinal::spatialShrunkenCentroids(
+    x = msiData,
+    r = r,
+    s = s,
+    k = k,
+    method = method,
+    dist = dist
+  )
 }

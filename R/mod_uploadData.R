@@ -12,7 +12,7 @@ mod_uploadData_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
-      #(1) User guide ==========================================================
+      #(0) User guide ==========================================================
       column(width = 12,
              box(
                width = 12,
@@ -22,16 +22,16 @@ mod_uploadData_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               p("1. The purpose of data preprocessing is to improve image quality, and facilate downstream data mining."),
+               p("1. The purpose of data preprocessing is to improve image quality, and prepare data for downstream data mining."),
                p("2. A typical MSI data preprocessing workflow includes normalization, baseline reduction, smoothing,
                  peak picking, spectral alignment, and binning."),
-               p("3. Please watch this tutorial video for MSI data preprocessing:",
+               p("3. Please watch this video tutorial for MSI data preprocessing:",
                  a(href = "url", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank")
                  )
                )
              ),
 
-      #(2) Data Input ==========================================================
+      #(1) Data Input ==========================================================
       column(width = 12, h6("Upload MSI Data")),
       column(width = 5,
              box(
@@ -46,10 +46,9 @@ mod_uploadData_ui <- function(id){
                strong("1. Read Files"),
                br(),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "Choose one of the two provided methods to read MSI files."),
+               p(style = "color:#C70039;", "Choose one of the two methods to read MSI files."),
                strong("Method 1: Read MSI files locally."),
-               p(style = "color:#C70039;", "1. Use method 1 when running ShinyCardinal locally.
-                 It's fast."),
+               p(style = "color:#C70039;", "1. Use method 1 when running ShinyCardinal locally. It's fast."),
                p(style = "color:#C70039;", "2. Please choose the directory where MSI files are located."),
                p(style = "color:#C70039;", "3. For multiple MSI runs (files), place them in the same directory."),
                actionButton(ns("chooseMSI"), label = "Choose Directory", icon = icon("sitemap")),
@@ -66,6 +65,7 @@ mod_uploadData_ui <- function(id){
                          placeholder = "Pleaae select both .imzMl and .ibd files",
                          accept = c(".imzML", ".ibd")
                          ),
+               hr(),
                radioButtons(inputId = ns("msiDataType"),
                             label = "2.1 Choose MSI data type",
                             choices = c("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
@@ -79,6 +79,7 @@ mod_uploadData_ui <- function(id){
                            value = 10,
                            step = 1
                            ),
+               hr(),
                radioButtons(inputId = ns("setMass"),
                            label = "3. Do you want to set mass range?",
                            choices = list("Yes" = "Yes", "No" = "No"),
@@ -91,10 +92,10 @@ mod_uploadData_ui <- function(id){
                            max = 5000,
                            value = c(50, 1500)
                            ),
+               hr(),
                strong("4. (optional) Choose MSI data mode"),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "This parameter applies only when multiple runs loaded with
-                 unknown/different modes."),
+               p(style = "color:#C70039;", "This parameter applies only when multiple runs loaded with unknown/different modes."),
                radioButtons(inputId = ns("msiDataMode"),
                             label = NULL,
                             choices = c("Profile mode" = "0", "Centroid mode" = "1"),
@@ -109,7 +110,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(2.1) Load Data ---------------------------------------------------------
+      #(1.1) Load Data ---------------------------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -127,7 +128,7 @@ mod_uploadData_ui <- function(id){
               )
             ),
 
-      #(3) Get Mean Spectrum ===================================================
+      #(2) Get Mean Spectrum ===================================================
       column(width = 12, h6("Calculate Mean Spectrum")),
       column(width = 5,
              box(
@@ -157,16 +158,16 @@ mod_uploadData_ui <- function(id){
                            max = 10,
                            value = 1,
                            step = 1
-                          ),
+                           ),
                actionButton(inputId = ns("getMeanSpec"),
                             label = "Calculate",
                             icon = icon("paper-plane"),
                             style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                             )
-              ),
+              )
             ),
 
-      #(3.2) Get Mean Spectrum Result ------------------------------------------
+      #(2.2) Get Mean Spectrum Result ------------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -185,7 +186,7 @@ mod_uploadData_ui <- function(id){
               )
             ),
 
-      #(4) Get Reference Peaks =================================================
+      #(3) Get Reference Peaks =================================================
       column(width = 12, h6("Calculate Reference Peaks")),
       column(width = 5,
              box(
@@ -200,9 +201,9 @@ mod_uploadData_ui <- function(id){
                p(style = "color:#C70039;", "Step 1. Peak Picking "),
                selectInput(inputId = ns("ppMethod"),
                            label = "1.1 Select peak picking method",
-                           choices = list("mean absolute deviations noise (mad)" = "mad",
-                                           "simple standard deviations noise (simple)" = "simple",
-                                           "adaptive standard deviations noise (adaptive)" = "adaptive"),
+                           choices = list("Mean absolute deviations noise (mad)" = "mad",
+                                          "Simple standard deviations noise (simple)" = "simple",
+                                          "Adaptive standard deviations noise (adaptive)" = "adaptive"),
                            selected = "mad"
                            ),
                sliderInput(inputId = ns("ppSNR"),
@@ -228,7 +229,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(4.2) Get Reference Peaks Result ----------------------------------------
+      #(3.2) Get Reference Peaks Result ----------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -247,7 +248,7 @@ mod_uploadData_ui <- function(id){
               )
             ),
 
-      #(5) Process MSI Data ====================================================
+      #(4) Process MSI Data ====================================================
       column(width = 12, h6("Process MSI Data")),
       column(width = 5,
              box(
@@ -316,7 +317,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(5.2) Process MSI Data Result -------------------------------------------
+      #(4.2) Process MSI Data Result -------------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -345,10 +346,10 @@ mod_uploadData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    #(2) Load MSI Data =========================================================
+    #(1) Load MSI Data =========================================================
     filePath <- reactiveValues(root = "~", current = "~", imzmlPath = NULL, ibdPath = NULL)
 
-    #(2.1) Option 1 ------------------------------------------------------------
+    #(1.1) Option 1 ------------------------------------------------------------
     observeEvent(input$chooseMSI, {
       showModal(
         modalDialog(
@@ -359,7 +360,7 @@ mod_uploadData_server <- function(id, global){
                    actionButton(inputId = ns("button_back"),
                                 label = "Back",
                                 icon = icon("undo"),
-                                style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                                style = "color: #fff; background-color: #a077b5; border-color: #a077b5"
                                 )
                   ),
             column(width = 10,
@@ -375,7 +376,7 @@ mod_uploadData_server <- function(id, global){
             actionButton(inputId = ns("ok"),
                          label = "OK",
                          icon = icon("check"),
-                         style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                         style = "color: #fff; background-color: #a077b5; border-color: #a077b5"
                         )
           )
         )
@@ -419,10 +420,10 @@ mod_uploadData_server <- function(id, global){
              "LR" = updateSliderInput(inputId = "massResolution", min = 20, max = 200, value = 50, step = 5)
              )
     })
+
     output$msiDataInfo <- renderPrint({
       if(identical(filePath$imzmlPath, character(0)) | is.null(filePath$imzmlPath)){
-        #(2.2) Option 2 --------------------------------------------------------
-        ## validate input
+        #(1.2) Option 2 --------------------------------------------------------
         shiny::validate(need(input$imzmlFile$datapath != "", message = "No MSI files found."))
         ## Get data path
         oldName <- input$imzmlFile$datapath
@@ -455,14 +456,14 @@ mod_uploadData_server <- function(id, global){
     }) |>
       bindEvent(input$loadData)
 
-    #(3) Get Mean Spectrum =====================================================
+    #(2) Get Mean Spectrum =====================================================
     specData <- reactiveValues(meanSpec = NULL, refPeaks = NULL)
 
     output$meanSpecPlot <- plotly::renderPlotly({
-      #(3.1) validate input --------------------------------------------------
+      #(2.1) validate input --------------------------------------------------
       shiny::validate(need(global$msiData, message = "MSI data not found."))
 
-      #(3.2) Calculate mean spectrum -----------------------------------------
+      #(2.2) Calculate mean spectrum -----------------------------------------
       specData$meanSpec <- getMeanSpec(msiData = global$msiData,
                                        nth = input$nth,
                                        worker = input$meanSpecWorkers
@@ -471,7 +472,7 @@ mod_uploadData_server <- function(id, global){
     }) |>
       bindEvent(input$getMeanSpec)
 
-    #(3.3) Show mean peak info -------------------------------------------------
+    #(2.3) Show mean peak info -------------------------------------------------
     output$meanPeakInfo <- shiny::renderPrint({
       shiny::req(specData$meanSpec)
       cat("Below is the mean peak information:\n")
@@ -479,8 +480,8 @@ mod_uploadData_server <- function(id, global){
       specData$meanSpec
     })
 
-    #(4) Get Reference Peaks ===================================================
-    #(4.1) Calculate and display reference spec --------------------------------
+    #(3) Get Reference Peaks ===================================================
+    #(3.1) Calculate and display reference spec --------------------------------
     observe({
       switch(EXPR = input$msiDataType,
              "HR" = updateSliderInput(inputId = "paTolerance", min = 1, max = 20, value = 5, step = 1),
@@ -498,7 +499,7 @@ mod_uploadData_server <- function(id, global){
     })|>
       bindEvent(input$getRefPeaks)
 
-    #(4.2) Show reference peak info --------------------------------------------
+    #(3.2) Show reference peak info --------------------------------------------
     output$refPeakInfo <- shiny::renderPrint({
       shiny::req(specData$refPeaks)
       cat("Below is the reference peak information:\n")
@@ -506,8 +507,8 @@ mod_uploadData_server <- function(id, global){
       specData$refPeaks
     })
 
-    #(5) Process MSI Data ======================================================
-    #(5.1) Process and display MSI data --------------------------------------
+    #(4) Process MSI Data ======================================================
+    #(4.1) Process and display MSI data ----------------------------------------
     observe({
       switch(EXPR = input$msiDataType,
              "HR" = updateSliderInput(inputId = "pbTolerance", min = 1, max = 20, value = 5, step = 1),
@@ -535,7 +536,7 @@ mod_uploadData_server <- function(id, global){
     }) |>
       bindEvent(input$processMSIData)
 
-      #(5.2) Download processed MSI data ---------------------------------------
+    #(4.2) Download processed MSI data -----------------------------------------
     output$downloadButton <- renderUI({
       shiny::req(global$processedMSIData)
       downloadButton(

@@ -24,7 +24,10 @@ mod_uploadData_ui <- function(id){
                closable = FALSE,
                p("1. The purpose of data preprocessing is to improve image quality, and facilate downstream data mining."),
                p("2. A typical MSI data preprocessing workflow includes normalization, baseline reduction, smoothing,
-                 peak picking, spectral alignment, and binning.")
+                 peak picking, spectral alignment, and binning."),
+               p("3. Please watch this tutorial video for MSI data preprocessing:",
+                 a(href = "url", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank")
+                 )
                )
              ),
 
@@ -63,10 +66,16 @@ mod_uploadData_ui <- function(id){
                          placeholder = "Pleaae select both .imzMl and .ibd files",
                          accept = c(".imzML", ".ibd")
                          ),
+               radioButtons(inputId = ns("msiDataType"),
+                            label = "2.1 Choose MSI data type",
+                            choices = c("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
+                            selected = "HR",
+                            inline = TRUE
+                            ),
                sliderInput(inputId = ns("massResolution"),
-                           label = "2. Set mass resolution (ppm)",
+                           label = "2.2 Set mass resolution (ppm)",
                            min = 1,
-                           max = 100,
+                           max = 20,
                            value = 10,
                            step = 1
                            ),
@@ -204,14 +213,8 @@ mod_uploadData_ui <- function(id){
                            step = 1
                            ),
                p(style = "color:#C70039;", "Step 2. Peak Alignment"),
-               radioButtons(inputId = ns("msiDataType"),
-                            label = "2.1 Choose MSI data type",
-                            choices = c("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
-                            selected = "HR",
-                            inline = TRUE
-                            ),
                sliderInput(inputId = ns("paTolerance"),
-                           label = "2.2 Choose peak aligment tolerance (ppm)",
+                           label = "Choose peak aligment tolerance (ppm)",
                            min = 1,
                            max = 20,
                            value = 5,
@@ -410,6 +413,12 @@ mod_uploadData_server <- function(id, global){
       removeModal()
     })
 
+    observe({
+      switch(EXPR = input$msiDataType,
+             "HR" = updateSliderInput(inputId = "massResolution", min = 1, max = 20, value = 10, step = 1),
+             "LR" = updateSliderInput(inputId = "massResolution", min = 20, max = 200, value = 50, step = 5)
+             )
+    })
     output$msiDataInfo <- renderPrint({
       if(identical(filePath$imzmlPath, character(0)) | is.null(filePath$imzmlPath)){
         #(2.2) Option 2 --------------------------------------------------------

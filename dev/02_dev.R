@@ -81,7 +81,7 @@ usethis::use_test("app")
 # Documentation
 
 ## Vignette ----
-usethis::use_vignette("MSI")
+usethis::use_vignette("ShinyCardinal")
 devtools::build_vignettes()
 
 ## Code Coverage----

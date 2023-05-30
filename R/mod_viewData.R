@@ -545,6 +545,7 @@ mod_viewData_server <- function(id, global){
       cat("Below is deisotoped MSI data. \n")
       global$cleanedMSIData
     }) |>
+      bindCache(input$deisotopeTol, input$deisotopePCC) |>
       bindEvent(input$deisotope)
 
     #(2.2) Reset feature -------------------------------------------------------

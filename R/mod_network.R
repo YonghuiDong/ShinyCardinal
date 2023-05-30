@@ -252,6 +252,7 @@ mod_network_server <- function(id, global = global){
                                )
       cat("You can navigate the network using mouse or the zoom and movement buttons below.")
     }) |>
+      bindCache(input$nthAll, input$msiRunAll) |>
       bindEvent(input$colocAll)
 
     #(2.3) Show network --------------------------------------------------------

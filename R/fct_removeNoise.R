@@ -13,6 +13,10 @@
 #' removeNoise(msiData = mse, subDF = subDF)
 
 removeNoise <- function(msiData, subDF){
-  msiData[-which(msiData@featureData@mz %in% subDF$mz), ]
+  inx <- which(msiData@featureData@mz %in% subDF$mz)
+  if(!identical(inx, integer(0))){
+    msiData <- msiData[-inx, ]
+  }
+  return(msiData)
 }
 

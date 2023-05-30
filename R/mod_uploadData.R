@@ -32,7 +32,7 @@ mod_uploadData_ui <- function(id){
              ),
 
       #(1) Data Input ==========================================================
-      column(width = 12, h6("Upload MSI Data")),
+      column(width = 12, h6("Read MSI Data")),
       column(width = 5,
              box(
                width = 12,

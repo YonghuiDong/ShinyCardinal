@@ -605,6 +605,7 @@ mod_viewData_server <- function(id, global){
       cat("\n")
       massList$colocedFeatures
     }) |>
+      bindCache(input$noisePeak, input$nth) |>
       bindEvent(input$noiseColoc)
 
     #(3.2) Display buttons -----------------------------------------------------

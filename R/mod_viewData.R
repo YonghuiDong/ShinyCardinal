@@ -779,19 +779,21 @@ mod_viewData_server <- function(id, global){
             Cardinal::darkmode()
           }
           pdf(file = file, onefile = TRUE)
-          for(i in msiInfo$mzList){
-            print(plotImage(msiData = global$cleanedMSIData,
-                            mz = i,
-                            smooth.image = input$smoothImage,
-                            plusminus = input$massWindow,
-                            colorscale = input$colorImage,
-                            normalize.image = input$normalizeImage,
-                            contrast.enhance = input$contrastImage,
-                            superpose = FALSE,
-                            msiRun = input$msiRun
-                            )
-                  )
-          }
+          withProgress(message = 'Making plot', value = 0, {
+            for(i in seq_along(msiInfo$mzList)){
+              print(plotImage(msiData = global$cleanedMSIData,
+                              mz = msiInfo$mzList[i],
+                              smooth.image = input$smoothImage,
+                              plusminus = input$massWindow,
+                              colorscale = input$colorImage,
+                              contrast.enhance = input$contrastImage,
+                              superpose = FALSE,
+                              msiRun = input$msiRun
+                              )
+                    )
+              incProgress(1/length(msiInfo$mzList), detail = paste("Ploting image", i))
+            }
+          })
           dev.off()
         } else{
           #download combined images

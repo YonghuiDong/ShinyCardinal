@@ -270,6 +270,7 @@ mod_network_ui <- function(id){
                shiny::uiOutput(outputId = ns("downloadSingleNetworkButton")),
                visNetwork::visNetworkOutput(outputId = ns("showSingleNetwork"), height = "400px"),
                plotly::plotlyOutput(outputId = ns("pseudoMS")),
+               br(),
                shinycssloaders::withSpinner(
                  image = 'www/img/cardinal.gif',
                  shiny::plotOutput(outputId = ns("singleNetworkImage"))
@@ -467,7 +468,7 @@ mod_network_server <- function(id, global = global){
                      )
     })
     output$downloadSNImage <- downloadHandler(
-      filename = function(){paste0(input$singleMZ, "_", input$msiRunSingle, "_networkImage.", "pdf")},
+      filename = function(){paste0(input$singleMZ, "_networkImage.", "pdf")},
       content = function(file){
         if(input$modeImage == "light"){
           Cardinal::lightmode()
@@ -476,7 +477,7 @@ mod_network_server <- function(id, global = global){
         }
         pdf(file, onefile = TRUE)
         withProgress(message = 'Making plot', value = 0, {
-          for(i in 1:length(singleNetwork$MZs)){
+          for(i in seq_along(singleNetwork$MZs)){
             print(plotImage(msiData = global$cleanedMSIData,
                             mz = singleNetwork$MZs[i],
                             smooth.image = input$smoothImage,

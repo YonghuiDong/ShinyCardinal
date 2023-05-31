@@ -127,7 +127,16 @@ mod_segmentation_ui <- function(id){
                           choices = list("Yes" = 1, "No" = 0),
                           selected = 0,
                           inline = TRUE
-                          )
+                          ),
+             hr(),
+             p(style = "color:#C70039;", "Send PCA images for ROI analysis"),
+             actionButton(inputId = ns("sendPCA2ROI"),
+                          label = "Send",
+                          icon = icon("paper-plane"),
+                          style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                          ),
+             br(),
+             shiny::verbatimTextOutput(outputId = ns("sendPCAInfo"))
              )
            ),
 
@@ -251,7 +260,16 @@ mod_segmentation_ui <- function(id){
                                 choices = NULL,
                                 multiple = TRUE
                                 )
-                    )
+                    ),
+             column(width = 12, hr()),
+             p(style = "color:#C70039;", "Send SSC images for ROI analysis"),
+             actionButton(inputId = ns("sendSSC2ROI"),
+                          label = "Send",
+                          icon = icon("paper-plane"),
+                          style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                          ),
+             br(),
+             shiny::verbatimTextOutput(outputId = ns("sendSSCInfo"))
              )
            ),
 
@@ -456,6 +474,15 @@ mod_segmentation_server <- function(id, global){
       )
     })
 
+    #(2.9) Send PCA image for ROI analysis -------------------------------------
+    output$sendPCAInfo <- renderPrint({
+      shiny::validate(need(input$superposePCAImage == "1", message = "Superpose PCA images first."))
+      shiny::req(msiPCA$image)
+      global$ionImage <- msiPCA$image
+      cat("Done! Go to ROI module for ROI analysis.\n")
+    }) |>
+      bindEvent(input$sendPCA2ROI)
+
     #(3) SSC ===================================================================
     #(3.1) Update MSI run ------------------------------------------------------
     observeEvent(global$processedMSIData, {
@@ -633,7 +660,7 @@ mod_segmentation_server <- function(id, global){
       msiSSC$tStatistics$specPlot
     })
 
-    #(3.8) Show SSC t-statistic table -----------------------------------------
+    #(3.8) Show SSC t-statistic table ------------------------------------------
     output$sscStatisticTable <- DT::renderDT(server = FALSE, {
       shiny::req(msiSSC$tStatistics)
       DT::datatable(
@@ -647,6 +674,18 @@ mod_segmentation_server <- function(id, global){
         rownames = FALSE
       )
     })
+
+    #(3.9) Send SSC image for ROI analysis -------------------------------------
+    output$sendSSCInfo <- renderPrint({
+      shiny::validate(need(input$superposeSSCImage == "1", message = "Superpose SSC images first."))
+      shiny::req(msiSSC$image)
+      global$ionImage <- msiSSC$image
+      cat("Done! Go to ROI module for ROI analysis.\n")
+    }) |>
+      bindEvent(input$sendSSC2ROI)
+
+
+
 
 })}
 

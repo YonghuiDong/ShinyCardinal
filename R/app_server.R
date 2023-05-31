@@ -9,7 +9,8 @@ app_server <- function(input, output, session) {
   global <- reactiveValues(
     msiData = NULL,
     processedMSIData = NULL,
-    cleanedMSIData = NULL
+    cleanedMSIData = NULL,
+    ionImage = NULL
   )
   # Your application server logic
   mod_home_server("home_1")

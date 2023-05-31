@@ -79,6 +79,7 @@ mod_network_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
+               p(style = "color:#C70039;", "1. Perform network analysis"),
                selectInput(inputId = ns('msiRunAll'),
                            label = "(optional) Select a MSI run for network analysis",
                            choices = NULL,
@@ -98,6 +99,7 @@ mod_network_ui <- function(id){
                                    ),
                br(),
                br(),
+               p(style = "color:#C70039;", "2. Modify network"),
                sliderInput(inputId = ns("allLabelSize"),
                            label = "Set label size",
                            min = 10,
@@ -144,6 +146,7 @@ mod_network_ui <- function(id){
                collapsible = TRUE,
                collapsed = TRUE,
                closable = FALSE,
+               p(style = "color:#C70039;", "1. Perform network analysis"),
                selectInput(inputId = ns('msiRunSingle'),
                            label = "(optional) Select a MSI run for network analysis",
                            choices = NULL,
@@ -170,6 +173,7 @@ mod_network_ui <- function(id){
                                    ),
                br(),
                br(),
+               p(style = "color:#C70039;", "2. Modify network"),
                sliderInput(inputId = ns("singleLabelSize"),
                            label = "Set label size",
                            min = 10,
@@ -183,7 +187,70 @@ mod_network_ui <- function(id){
                            max = 1,
                            value = 0.9,
                            step = 0.01
-                           )
+                           ),
+               hr(),
+               p(style = "color:#C70039;", "3. Plot ion images"),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p("1. Up to 6 images are displayed."),
+               p("2. Download the images to view all of them."),
+               sliderInput(inputId = ns("zlim"),
+                           label = "Set the range of intensity bar",
+                           min = 0,
+                           max = 1,
+                           value = c(0, 1),
+                           step = 0.001
+                           ),
+               selectInput(inputId = ns("contrastImage"),
+                           label = "Select image contrast enhancement method",
+                           multiple = FALSE,
+                           choices = list("none" = "none", "histogram" = "histogram", "suppression" = "suppression"),
+                           selected = "suppression"
+                           ),
+               selectInput(inputId = ns("smoothImage"),
+                           label = "Select image smoothing method",
+                           multiple = FALSE,
+                           choices = list("none" = "none", "gaussian" = "gaussian", "adaptive" = "adaptive"),
+                           selected = "none"
+                           ),
+               selectInput(inputId = ns("colorImage"),
+                           label = "Slect color scale",
+                           multiple = FALSE,
+                           choices = list("cividis" = "cividis",
+                                          "cividis black" = "cividisBlack",
+                                          "viridis" = "viridis",
+                                          "viridis black" = "viridisBlack",
+                                          "magma" = "magma",
+                                          "inferno" = "inferno",
+                                          "plasma" = "plasma",
+                                          "rainbow" = "rainbow",
+                                          "darkrainbow" = "darkrainbow",
+                                          "jet" = "jet",
+                                          "hot" = "hot",
+                                          "cool" = "cool",
+                                          "redblack" = "redblack",
+                                          "greenblack" = "greenblack",
+                                          "blueblack" = "blueblack",
+                                          "grayscale" = "grayscale"
+                                          ),
+                           selected = "viridis"
+                           ),
+               radioButtons(inputId = ns("modeImage"),
+                            label = "Use light or dark mode?",
+                            choices = list("Light" = "light", "Dark" = "dark"),
+                            selected = "dark",
+                            inline = TRUE
+                            ),
+               radioButtons(inputId = ns("showColorkey"),
+                            label = "Should show colorkey?",
+                            choices = list("Yes" = "1", "No" = "0"),
+                            selected = "1",
+                            inline = TRUE
+                            ),
+               actionButton(inputId = ns("plotSingleNetworkImage"),
+                            label = "Plot",
+                            icon = icon("paper-plane"),
+                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                            )
                )
              ),
       #(3.2) Network Analysis for single feature result ------------------------
@@ -202,9 +269,16 @@ mod_network_ui <- function(id){
                ),
                shiny::uiOutput(outputId = ns("downloadSingleNetworkButton")),
                visNetwork::visNetworkOutput(outputId = ns("showSingleNetwork"), height = "400px"),
-               plotly::plotlyOutput(outputId = ns("pseudoMS"))
+               plotly::plotlyOutput(outputId = ns("pseudoMS")),
+               shinycssloaders::withSpinner(
+                 image = 'www/img/cardinal.gif',
+                 shiny::plotOutput(outputId = ns("singleNetworkImage"))
+               ),
+               br(),
+               shiny::uiOutput(outputId = ns("downloadSNImageButton"))
              )
       )
+
 
 ))}
 
@@ -299,7 +373,7 @@ mod_network_server <- function(id, global = global){
     })
 
     #(3.2) Get network object --------------------------------------------------
-    singleNetwork <- reactiveValues(PCC = NULL, plot = NULL)
+    singleNetwork <- reactiveValues(PCC = NULL, plot = NULL, MZs = NULL, image = NULL)
     output$singleNetworkInfo <- renderPrint({
       shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
       mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)
@@ -354,6 +428,71 @@ mod_network_server <- function(id, global = global){
       plotMSMS(msiData = global$cleanedMSIData, PCC = singleNetwork$PCC, threshold = input$pccSingleThreshold)
     })
 
+    #(3.6) Plot single network images ------------------------------------------
+
+    output$singleNetworkImage <- renderPlot({
+      shiny::req(global$cleanedMSIData)
+      shiny::req(singleNetwork$PCC)
+      singleNetwork$MZs <- singleNetwork$PCC[singleNetwork$PCC$correlation >= input$pccSingleThreshold, ]$mz
+      if(length(singleNetwork$MZs) <= 6){
+        snMZs <- singleNetwork$MZs
+      } else{
+        snMZs <- singleNetwork$MZs[1:6]
+      }
+      singleNetwork$Image <- plotImage(msiData = global$cleanedMSIData,
+                                       mz = snMZs,
+                                       smooth.image = input$smoothImage,
+                                       colorscale = input$colorImage,
+                                       zlim = input$zlim,
+                                       colorkey = as.logical(as.numeric(input$showColorkey)),
+                                       contrast.enhance = input$contrastImage,
+                                       msiRun = input$msiRunSingle
+                                       )
+      if(input$modeImage == "light"){
+        Cardinal::lightmode()
+      } else{
+        Cardinal::darkmode()
+      }
+      singleNetwork$Image
+    }) |>
+      bindEvent(input$plotSingleNetworkImage)
+
+    #(3.7) Download ion images -------------------------------------------------
+    output$downloadSNImageButton <- renderUI({
+      shiny::req(print(singleNetwork$Image))
+      downloadButton(outputId = ns("downloadSNImage"),
+                     label = "Download Image",
+                     icon = icon("download"),
+                     style="color: #fff; background-color: #a077b5; border-color: #a077b5"
+                     )
+    })
+    output$downloadSNImage <- downloadHandler(
+      filename = function(){paste0(input$singleMZ, "_", input$msiRunSingle, "_networkImage.", "pdf")},
+      content = function(file){
+        if(input$modeImage == "light"){
+          Cardinal::lightmode()
+        } else{
+          Cardinal::darkmode()
+        }
+        pdf(file, onefile = TRUE)
+        withProgress(message = 'Making plot', value = 0, {
+          for(i in 1:length(singleNetwork$MZs)){
+            print(plotImage(msiData = global$cleanedMSIData,
+                            mz = singleNetwork$MZs[i],
+                            smooth.image = input$smoothImage,
+                            colorscale = input$colorImage,
+                            zlim = input$zlim,
+                            colorkey = as.logical(as.numeric(input$showColorkey)),
+                            contrast.enhance = input$contrastImage,
+                            msiRun = input$msiRunSingle
+                            )
+                  )
+            incProgress(1/length(singleNetwork$MZs), detail = paste("Ploting image", i))
+          }
+        })
+        dev.off()
+      }
+    )
 
 })}
 

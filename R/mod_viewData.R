@@ -680,7 +680,7 @@ mod_viewData_server <- function(id, global){
         }
     })
 
-    msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL, ionImage = NULL)
+    msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL)
 
     #(4.1) Show Input m/z Info  ------------------------------------------------
     output$mzList <- renderPrint({
@@ -695,35 +695,35 @@ mod_viewData_server <- function(id, global){
       shiny::validate(need(min(msiInfo$mzList) >= msiInfo$mzMin & max(msiInfo$mzList) <= msiInfo$mzMax,
                            message = paste("m/z value should between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " ")))
       ## Get ion images
-      msiInfo$ionImage <- plotImage(msiData = global$cleanedMSIData,
-                                    mz = msiInfo$mzList,
-                                    smooth.image = input$smoothImage,
-                                    plusminus = input$massWindow,
-                                    colorscale = input$colorImage,
-                                    zlim = input$zlim,
-                                    colorkey = as.logical(as.numeric(input$showColorkey)),
-                                    contrast.enhance = input$contrastImage,
-                                    superpose = as.logical(as.numeric(input$superposeImage)),
-                                    msiRun = input$msiRun
-                                    )
+      global$ionImage <- plotImage(msiData = global$cleanedMSIData,
+                                   mz = msiInfo$mzList,
+                                   smooth.image = input$smoothImage,
+                                   plusminus = input$massWindow,
+                                   colorscale = input$colorImage,
+                                   zlim = input$zlim,
+                                   colorkey = as.logical(as.numeric(input$showColorkey)),
+                                   contrast.enhance = input$contrastImage,
+                                   superpose = as.logical(as.numeric(input$superposeImage)),
+                                   msiRun = input$msiRun
+                                   )
       cat(msiInfo$mzList)
     }) |>
       bindEvent(input$viewImage)
 
     #(4.2) Show MSI images -----------------------------------------------------
     output$ionImage <- renderPlot({
-      shiny::req(msiInfo$ionImage)
+      shiny::req(global$ionImage)
       if(input$modeImage == "light"){
         Cardinal::lightmode()
       } else{
         Cardinal::darkmode()
       }
-      msiInfo$ionImage
+      global$ionImage
     })
 
     #(4.3) Enlarge and Download MSI images -------------------------------------
     output$downloadImageButton <- renderUI({
-      shiny::req(print(msiInfo$ionImage))
+      shiny::req(print(global$ionImage))
       tagList(
         column(width = 6,
                selectInput(inputId = ns("downloadImageType"),
@@ -763,7 +763,7 @@ mod_viewData_server <- function(id, global){
         plotOutput(outputId = ns("enlargedImage"), height = "1000px"),
       ))
       output$enlargedImage <- renderPlot({
-        msiInfo$ionImage
+        global$ionImage
       })
     })
 
@@ -797,11 +797,11 @@ mod_viewData_server <- function(id, global){
           #download combined images
           if(input$downloadImageType == "pdf"){
             pdf(file)
-            print(msiInfo$ionImage)
+            print(global$ionImage)
             dev.off()
           } else{
             png(file, width = 8000, height = 8000, res = 900)
-            print(msiInfo$ionImage)
+            print(global$ionImage)
             dev.off()
           }
         }
@@ -811,7 +811,7 @@ mod_viewData_server <- function(id, global){
     #(4.4) Display selected  spectrum ------------------------------------------
     observeEvent(input$viewImage, {
       output$resetButton <- renderUI({
-        shiny::req(msiInfo$ionImage)
+        shiny::req(global$ionImage)
         actionButton(
           inputId = ns("reset"),
           label = "Reset",
@@ -820,7 +820,7 @@ mod_viewData_server <- function(id, global){
         )
       })
       output$undoButton <- renderUI({
-        shiny::req(msiInfo$ionImage)
+        shiny::req(global$ionImage)
         actionButton(
           inputId = ns("undo"),
           label = "Undo",
@@ -852,11 +852,11 @@ mod_viewData_server <- function(id, global){
         rv_click$df <- data.frame(x = double(), y = double())
       })
       output$info <- renderText({
-        shiny::req(msiInfo$ionImage)
+        shiny::req(global$ionImage)
         print("Please click on the image to select pixels of interest.")
       })
       output$pixelTable <- renderTable({
-        shiny::req(msiInfo$ionImage)
+        shiny::req(global$ionImage)
         shiny::req(nrow(rv_click$df) > 0)
         rv_click$df
       })
@@ -892,8 +892,8 @@ mod_viewData_server <- function(id, global){
     })
     output$ionImageROI <- renderPlot({
       shiny::req(global$cleanedMSIData)
-      shiny::req(msiInfo$ionImage)
-      print(msiInfo$ionImage)
+      shiny::req(global$ionImage)
+      print(global$ionImage)
       lines(x = inxROI$x,
             y = inxROI$y,
             type = "b",
@@ -912,7 +912,7 @@ mod_viewData_server <- function(id, global){
         (\(x) x[!duplicated(x), ])() |>
         na.omit(object = _)
       ## check input
-      shiny::req(msiInfo$ionImage)
+      shiny::req(global$ionImage)
       shiny::validate(
         need(nrow(roiData$roiDF) > 0, message = "No ROI selected!"),
         need(all(roiData$roiDF$x >= min(Cardinal::coord(global$cleanedMSIData)$x) & all(roiData$roiDF$x <= max(Cardinal::coord(global$cleanedMSIData)$x))),

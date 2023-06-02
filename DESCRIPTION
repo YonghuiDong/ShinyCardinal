@@ -1,7 +1,8 @@
 Package: ShinyCardinal
 Title: PKG_TITLE
 Version: 0.1.0
-Authors@R: person('Yonghui', 'Dong', email = 'yonghui.dong@gmail.com', role = c('cre', 'aut'))
+Authors@R: 
+    person("Yonghui", "Dong", , "yonghui.dong@gmail.com", role = c("cre", "aut"))
 Description: Analysis of Mass Spectrometry Imaging Data.
 License: What license is it under?
 Imports: 
@@ -19,10 +20,12 @@ Imports:
     shinydashboard,
     sp,
     visNetwork
+Suggests: 
+    BiocStyle,
+    knitr,
+    rmarkdown
+VignetteBuilder: 
+    knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
-Suggests: 
-    knitr,
-    rmarkdown
-VignetteBuilder: knitr

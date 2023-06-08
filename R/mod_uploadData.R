@@ -409,8 +409,8 @@ mod_uploadData_server <- function(id, global){
     ## OK button
     observeEvent(input$ok, {
       ## Get imzML and ibd file path
-      filePath$imzmlPath <- unique(list.files(path = filePath$current, pattern = ".imzML", full.names = TRUE))
-      filePath$ibdPath <- unique(list.files(path = filePath$current, pattern = ".ibd", full.names = TRUE))
+      filePath$imzmlPath <- unique(list.files(path = filePath$current, pattern = ".imzML", full.names = TRUE, ignore.case = TRUE))
+      filePath$ibdPath <- unique(list.files(path = filePath$current, pattern = ".ibd", full.names = TRUE, ignore.case = TRUE))
       removeModal()
     })
 
@@ -430,8 +430,8 @@ mod_uploadData_server <- function(id, global){
         newName <- file.path(dirname(input$imzmlFile$datapath), input$imzmlFile$name)
         file.rename(from = oldName, to = newName)
         msiFiles <- list.files(path = dirname(input$imzmlFile$datapath), full.names = TRUE)
-        filePath$imzmlPath <- unique(grep(pattern = ".imzML", x = msiFiles, value = TRUE))
-        filePath$ibdPath <- unique(grep(pattern = ".ibd", x = msiFiles, value = TRUE))
+        filePath$imzmlPath <- unique(grep(pattern = ".imzML", x = msiFiles, value = TRUE, ignore.case = TRUE))
+        filePath$ibdPath <- unique(grep(pattern = ".ibd", x = msiFiles, value = TRUE, ignore.case = TRUE))
       }
 
       ## Load MSI data

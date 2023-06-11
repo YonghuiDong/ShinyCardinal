@@ -1023,7 +1023,7 @@ mod_viewData_server <- function(id, global){
     #(5.5) Crop MSI data ======================================================
     output$croppingInfo <- renderPrint({
       shiny::req(global$cleanedMSIData)
-      shiny::req(roiData$roiList)
+      shiny::validate(need(length(roiData$roiList) > 0, message = "ROI not found."))
       shiny::req(roiData$cropType)
       #(5.5.1) Get and assign cropped data -------------------------------------
       croppedData <- cropData(msiData = global$cleanedMSIData,
@@ -1031,6 +1031,7 @@ mod_viewData_server <- function(id, global){
                               cropType = roiData$cropType
                               )
       global$cleanedMSIData <- croppedData
+      roiData$roiList <- NULL # reset ROI
       #(5.5.2) Show reset button -----------------------------------------------
       output$resetCropButton <- renderUI({
         shiny::req(croppedData)
@@ -1041,7 +1042,9 @@ mod_viewData_server <- function(id, global){
           style="color: #fff; background-color: #a077b5; border-color: #a077b5"
         )
       })
-      cat("Data cropping done. Below is the cropped data information.\n")
+      cat("Data cropping done. Select another ROIs in case you want continue cropping the data.\n")
+      cat("Click the reset button to restore the data.\n")
+      cat("Below is the cropped data information.\n")
       global$cleanedMSIData
     }) |>
       bindEvent(input$cropMSIData)

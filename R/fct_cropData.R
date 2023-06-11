@@ -18,7 +18,7 @@
 
 cropData <- function(msiData, ROIs = NULL, cropType = NULL){
   subData <- NULL
-  for (i in 1:length(ROIs)){
+  for (i in seq_along(ROIs)){
     if(cropType[[i]] == "inside"){
       croppedData <- msiData[ROIs[[i]]]
     } else{

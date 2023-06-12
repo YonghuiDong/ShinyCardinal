@@ -13,7 +13,7 @@
 #' plotMSMS(msiData = mse, PCC = PCC)
 
 plotMSMS <- function(msiData, PCC, threshold = 0.9){
-  PCC <- PCC[PCC$correlation >= threshold,]
+  PCC <- subset(PCC, correlation >= threshold)
   Int <- as.vector(rep(NA, dim(PCC)[1]))
   for (i in 1:length(PCC$mz)) {
     Int[i] <- sum(Cardinal::spectra(msiData)[Cardinal::features(msiData,  mz = PCC$mz[i]), ])

@@ -434,7 +434,7 @@ mod_network_server <- function(id, global = global){
     output$singleNetworkImage <- renderPlot({
       shiny::req(global$cleanedMSIData)
       shiny::req(singleNetwork$PCC)
-      singleNetwork$MZs <- singleNetwork$PCC[singleNetwork$PCC$correlation >= input$pccSingleThreshold, ]$mz
+      singleNetwork$MZs <- subset(singleNetwork$PCC, correlation >= input$pccSingleThreshold)$mz
       if(length(singleNetwork$MZs) <= 6){
         snMZs <- singleNetwork$MZs
       } else{

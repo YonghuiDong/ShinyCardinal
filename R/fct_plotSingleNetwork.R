@@ -15,7 +15,7 @@
 
 plotSingleNetwork <- function(PCC, mz, threshold = 0.9, labelSize = 40){
   #(1) Prepare igraph network object -------------------------------------------
-  PCC <- PCC[PCC$correlation >= threshold, ]
+  PCC <- subset(PCC, correlation >= threshold)
 
   ## In many times, the user input mz is not identical to the real mz in the data.
   ## I need to use the one from the real data, otherwise, the edges will disappear.

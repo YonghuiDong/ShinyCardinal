@@ -39,7 +39,7 @@ plotAllNetwork <- function(PCC, threshold = 0.9, labelSize = 40){
   #(1) Prepare network object --------------------------------------------------
   PCC[upper.tri(PCC, diag = TRUE)] <- 0
   cor_df <- as.data.frame(as.table(PCC))
-  cor_df <- cor_df[cor_df$Freq >= threshold, ]
+  cor_df <- subset(cor_df, Freq >= threshold)
   id <- unique(c(cor_df$Var1, cor_df$Var2))
   nodes <- data.frame(id = id, label = id)
   edges <- data.frame(to = cor_df$Var1, from = cor_df$Var2, value = cor_df$Freq)

@@ -1031,7 +1031,8 @@ mod_viewData_server <- function(id, global){
                               cropType = roiData$cropType
                               )
       global$cleanedMSIData <- croppedData
-      roiData$roiList <- NULL # reset ROI
+      roiData$roiList <- list()
+      roiData$cropType <- list()
       #(5.5.2) Show reset button -----------------------------------------------
       output$resetCropButton <- renderUI({
         shiny::req(croppedData)
@@ -1051,6 +1052,8 @@ mod_viewData_server <- function(id, global){
 
     output$resetCropMessage <- renderPrint({
       global$cleanedMSIData <- global$processedMSIData
+      roiData$roiList <- list()
+      roiData$cropType <- list()
       cat("Data cropping canceled.\n")
       cat("Note: Background noise and matrix peak removal result is also deleted if you have done that step.\n")
       global$cleanedMSIData

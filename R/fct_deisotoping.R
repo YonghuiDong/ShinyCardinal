@@ -25,6 +25,7 @@ deisotoping <- function(msiData, tol = 0.006, PCC = 0.85) {
     idx_iso <- c(idx_iso, idx)
   }
   if(length(idx_iso) > 0){
+    idx_iso <- unique(idx_iso[!is.na(idx_iso)])
     msiData <- msiData[-idx_iso, ]
   }
   return(msiData)

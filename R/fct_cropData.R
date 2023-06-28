@@ -29,4 +29,3 @@ cropData <- function(msiData, ROIs = NULL, cropType = NULL){
   return(subData)
 }
 
-

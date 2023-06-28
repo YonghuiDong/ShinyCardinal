@@ -21,27 +21,77 @@
 #' roiStat(roiMSIData = x)
 
 roiStat <- function(roiMSIData){
-  #(1) Get mean intensity for each ROI MSI data -------------------------------
+  #(1) Get mean intensity for each ROI MSI data --------------------------------
   roiMean <- Cardinal::aggregate(x = roiMSIData, FUN= c('mean'), groups = Cardinal::run(roiMSIData), as = 'DataFrame') |>
     as.data.frame(x = _) |>
     transform(mz = round(mz, 4))
-  #(2) Means test --------------------------------------------------------------
-  numPerLevel <- sapply(levels(roiMSIData$condition), function(sLevel) sum(roiMSIData$condition == sLevel))
-  if(!is.null(roiMSIData$condition) & length(levels(roiMSIData$condition)) >= 2 & all(numPerLevel >= 2)){
+
+  #(2) Remove rows with all means == 0 -----------------------------------------
+  roiMean <- roiMean[rowSums(roiMean[, -which(names(roiMean) == "mz")], na.rm = TRUE) > 0, ]
+
+  #(3) Calculate fold change ---------------------------------------------------
+  dfNames <- colnames(roiMean)
+  columns <- grepl("mean", dfNames)
+  dfSub <- roiMean[, columns]
+  string <- colnames(dfSub)
+  Group <- sub(".*_(.*?)\\..*", "\\1", string)
+  FC <- getFC(t(dfSub), Group)
+
+  #(4) Means test --------------------------------------------------------------
+  if(any(table(Group) > 1)){
     fit <- Cardinal::meansTest(x = roiMSIData, ~ condition, groups = Cardinal::run(roiMSIData))
     roiStat <- Cardinal::summary(fit) |>
       as.data.frame(x = _) |>
-      within(data = _, rm("Feature"))
+      subset(x = _, select = -Feature)
   } else{
     roiStat <- NULL
   }
-  #(3) Show result -------------------------------------------------------------
+
+  #(5) Show result -------------------------------------------------------------
   if(!is.null(roiStat)){
-    cbind(roiMean, roiStat) |>
-      (\(x) x[rowSums(x[, -which(names(x) == "mz")], na.rm = TRUE) > 0, ])() ## rm rows with all means == 0
+    cbind(roiMean, FC, roiStat)
   } else{
-    roiMean |>
-      (\(x) x[rowSums(x[, -which(names(x) == "mz")], na.rm = TRUE) > 0, ])() ## rm rows with all means == 0
+    cbind(roiMean, FC)
   }
 }
 
+
+
+#' @title Calculate fold change
+#' @description Calculate fold change among different samples.
+#' @param x sample ion intensity matrix, row are samples, columns are features.
+#' @param Group sample group information
+#' @return a dataframe with mean values and fold changes
+#' @export
+#' @noRd
+#' @examples
+#' x <- matrix(runif(2*300), ncol = 2, nrow = 300)
+#' Group <- rep_len(LETTERS[1:2], 300)
+#' ret <- getFC(dat, Group = myGroup)
+
+
+getFC <- function(x, Group = NULL){
+  cat ("\n- Calculating Fold Changes...\n")
+  #(1) Check input -------------------------------------------------------------
+  Group <- as.factor(Group)
+  if(is.null(Group)){stop("Please include group information")}
+  if(length(levels(Group)) <= 1){stop("At least two sample groups should be included")}
+  if(length(Group) != nrow(x)){stop("Missing group informaiton detected")}
+
+  #(2) Calculate FC ------------------------------------------------------------
+  df <- data.frame(x, Group = Group)
+  mean_int <- aggregate(. ~ Group, data = df, FUN = mean)
+  row_name <- mean_int$Group
+  mean_int <- as.matrix(subset(x = mean_int, select = -Group))
+  rownames(mean_int) <- row_name
+  j <- combn(levels(Group), 2)
+  f_change1 <- mean_int[j[1,],] / mean_int[j[2,],]
+  f_change2 <- mean_int[j[2,],] / mean_int[j[1,],]
+
+  #(3) remove NaN in f_change Matrix -------------------------------------------
+  f_change <- rbind(f_change1, f_change2)
+  f_change[is.nan(f_change)] <- 0
+  rownames(f_change) <- c(paste0("FoldChange_", j[1,], "_vs_", j[2,]), paste0("FoldChange_", j[2,], "_vs_", j[1,]))
+  ret <- as.data.frame(t(f_change))
+  return(round(ret, 2))
+}

@@ -19,6 +19,7 @@ plotSingleNetwork <- function(PCC, mz, threshold = 0.9, labelSize = 40){
 
   ## In many times, the user input mz is not identical to the real mz in the data.
   ## I need to use the one from the real data, otherwise, the edges will disappear.
+  PCC <- PCC[!duplicated(PCC$mz), ] # sometimes there are duplicated rows.
   mzFrom <- PCC[round(PCC$correlation, 7) == 1, ]$mz ##see #18
   if(length(mzFrom) > 1){
     mzFrom <- mzFrom[which.min(abs(mzFrom - mz))]

@@ -1,0 +1,36 @@
+---
+title: "ShinyCardinal"
+author: Yonghui Dong
+output:
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+_Bioconductor_ R Markdown format is build on top of _R_ package 
+
+# Data Preprocessing
+
+# Image Analysis
+
+## Read data
+
+## Deisotoping
+
+## Background and Matrix peak removal
+
+## Image Visualization
+
+## Region of Interest Analysis
+
+### Statistics
+
+### Image Cropping
+
+# Network Analysis
+
+# Metabolite Identification

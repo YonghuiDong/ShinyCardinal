@@ -535,9 +535,9 @@ mod_viewData_ui <- function(id){
                shiny::uiOutput(outputId = ns("resetCropButton")),
                shiny::verbatimTextOutput(outputId = ns("resetCropMessage")),
                DT::dataTableOutput(outputId = ns("intConTable")),
+               shiny::verbatimTextOutput(outputId = ns("calCurveInfo")),
                plotly::plotlyOutput(outputId = ns("calCurve")),
-               DT::dataTableOutput(outputId = ns("predictionTable")),
-               plotly::plotlyOutput(outputId = ns("calCurve2"))
+               DT::dataTableOutput(outputId = ns("predictionTable"))
                )
              )
 
@@ -1101,7 +1101,7 @@ mod_viewData_server <- function(id, global){
       shiny::req(global$cleanedMSIData)
       shiny::validate(
         need(length(roiData$roiList) > 1, message = "At least two ROIs are needed."),
-        need(input$mzIS >= min(Cardinal::mz(global$cleanedMSIData)) & input$mzIS <= max(Cardinal::mz(global$cleanedMSIData)), message = "The entered m/z is out of range.")
+        need(input$mzIS >= min(Cardinal::mz(global$cleanedMSIData)) & input$mzIS <= max(Cardinal::mz(global$cleanedMSIData)), message = "Entered m/z is out of range.")
       )
       roiMSIData <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiList)
       ISQuan$df <- roiQuantification(roiMSIData = roiMSIData, mz = input$mzIS)
@@ -1111,8 +1111,13 @@ mod_viewData_server <- function(id, global){
     output$intConTable <- DT::renderDataTable(server = FALSE, {
       shiny::req(nrow(ISQuan$df) >= 2)
       DT::datatable(ISQuan$df,
-                    editable = "cell",
-                    caption = "Intensity ~ concentration table"
+                    editable = TRUE,
+                    caption = "Intensity ~ concentration table",
+                    extensions = "Buttons",
+                    options = list(dom = 'Bfrtip',
+                                   buttons = list(list(extend = 'csv', filename= 'IS_Table')),
+                                   scrollX = TRUE
+                                   )
                     )
     })
 
@@ -1130,23 +1135,29 @@ mod_viewData_server <- function(id, global){
                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                    )
     })
-    observeEvent(input$plotCal, {
+    observeEvent(input$plotCal, ignoreNULL = FALSE, {
       shiny::validate(need(length(input$intConTable_rows_selected) >= 2, message = "Please select at least two rows."))
       ISQuan$subDF <- ISQuan$df[input$intConTable_rows_selected, ]
       shiny::validate(need(all(ISQuan$subDF$Concentration >= 0), message = "Concentration cannot be negative values."))
       result <- plotCalCurve(df = ISQuan$subDF)
       ISQuan$fit <- result$fit
       ISQuan$plot <- result$plot
-    })
-    output$calCurve <- plotly::renderPlotly({
-     shiny::req(ISQuan$plot)
-     ISQuan$plot
+      output$calCurve <- plotly::renderPlotly({
+        ISQuan$plot
+      })
     })
 
-    #(5.6.4) Quantification ----------------------------------------------------
-    output$getQuan <- renderUI({
+    output$calCurveInfo <- renderPrint({
       shiny::req(nrow(ISQuan$df) >= 2)
       shiny::req(ISQuan$plot)
+      cat("Below is the calibration curve: \n")
+      cat("The quantified results will also be displayed in the calibration curve. \n")
+      cat("Points falling outside the calibration range will be highlighted in red, indicating potential inaccuracy in the quantification result. Otherwise they will be in green color.")
+    })
+
+    #(5.6.5) Quantification ----------------------------------------------------
+    output$getQuan <- renderUI({
+      shiny::req(nrow(ISQuan$df) >= 2)
       tagList(
         textInput(inputId = ns("quanInt"),
                   label = "Enter intensities for quantification",
@@ -1155,7 +1166,7 @@ mod_viewData_server <- function(id, global){
                   ),
         actionButton(inputId = ns("ISQuantify"),
                      label = "Quantify",
-                     icon = icon("balance-scale"),
+                     icon = icon("paper-plane"),
                      style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                      )
       )
@@ -1165,24 +1176,32 @@ mod_viewData_server <- function(id, global){
       shiny::req(ISQuan$fit)
       shiny::validate(need(input$mzValues != "", message = "Intensities are missing."))
       ISQuan$prediction <- getQuan(mod = ISQuan$fit, Intensity = text2Num(input$quanInt))
-      DT::datatable(ISQuan$prediction)
+      DT::datatable(ISQuan$prediction,
+                    caption = "Quantification table",
+                    extensions = "Buttons",
+                    options = list(dom = 'Bfrtip',
+                                   buttons = list(list(extend = 'csv', filename= 'IS_Quantification')),
+                                   scrollX = TRUE
+                                   )
+                    )
     }) |>
       bindEvent(input$ISQuantify)
 
-    observeEvent(input$ISQuantify, {
+    observeEvent(input$ISQuantify, ignoreNULL = FALSE, {
       shiny::req(ISQuan$plot)
       shiny::req(nrow(ISQuan$subDF) >=2)
       shiny::req(nrow(ISQuan$prediction) >= 1)
-      ISQuan$plot <- updateCalPlot(plot = ISQuan$plot, subDF = ISQuan$subDF, prediction = ISQuan$prediction)
+      output$calCurve <- plotly::renderPlotly({
+        color <- ifelse(ISQuan$prediction$Intensity >= min(ISQuan$subDF$Intensity) & ISQuan$prediction$Intensity <= max(ISQuan$subDF$Intensity), "#9ed9b4", "#fc0317")
+        ISQuan$plot %>%
+          plotly::add_markers(data = ISQuan$prediction,
+                              x = ~ Intensity,
+                              y = ~ Concentration,
+                              marker = list(color = color, symbol = 'x', size = 15, line = list(color = "#999797", width = 2))
+                              )
+      })
     })
 
-    # output$calCurve2 <- plotly::renderPlotly({
-    #   shiny::req(ISQuan$plot)
-    #   shiny::req(nrow(ISQuan$subDF) >=2)
-    #   shiny::req(nrow(ISQuan$prediction) >= 1)
-    #   updateCalPlot(plot = ISQuan$plot, subDF = ISQuan$subDF, prediction = ISQuan$prediction)
-    # }) |>
-    #   bindEvent(input$ISQuantify)
 
 })}
 

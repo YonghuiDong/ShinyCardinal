@@ -130,7 +130,7 @@ mod_viewData_ui <- function(id){
              )
       ),
 
-      #(2) Background noise and matrix removal =================================
+      #(3) Background noise and matrix removal =================================
       column(width = 12, h5("Remove Background Noises and Matrix Peaks (optional)")),
       column(width = 4,
              box(
@@ -183,7 +183,7 @@ mod_viewData_ui <- function(id){
               )
             ),
 
-      ##(2.2) Background noise and matrix removal output -----------------------
+      ##(3.2) Background noise and matrix removal output -----------------------
       column(width = 8,
              box(
                width = 12,
@@ -204,7 +204,7 @@ mod_viewData_ui <- function(id){
                )
              ),
 
-      #(3) Image View ==========================================================
+      #(4) Image View ==========================================================
       column(width = 12, h6("View MSI Images")),
       column(width = 4,
              box(
@@ -305,7 +305,7 @@ mod_viewData_ui <- function(id){
               )
             ),
 
-      #(3.2) Output ============================================================
+      #(4.2) Output ============================================================
       column(width = 8,
              box(
                width = 12,
@@ -343,7 +343,7 @@ mod_viewData_ui <- function(id){
               )
             ),
 
-      #(4) Image Analysis ======================================================
+      #(5) Image Analysis ======================================================
       column(width = 12, h6("Image Analysis")),
       column(width = 4,
              box(
@@ -466,10 +466,39 @@ mod_viewData_ui <- function(id){
                                    icon = icon("eraser"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
-                      )
+                      ),
+               br(),
+               br(),
+               hr(style="border-top: solid 2px; border-color: #c9d6d3;"),
+               strong("6. (optional) Internal standard-based quantification"),
+               br(),
+               br(),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. No specific requirement for ROI name."),
+               numericInput(inputId = ns("mzIS"),
+                            label = "Enter m/z value of the internal standard",
+                            value = NA
+                            ),
+               column(width = 12,
+                      actionButton(inputId = ns("showQuanTable"),
+                                   label = "Show intensity-concentration table",
+                                   icon = icon("table"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+                      ),
+               br(),
+               br(),
+               p(style = "color:#C70039;", "2. Once the table is displayed, please fill the concentration information."),
+               p(style = "color:#C70039;", "3. Then click the plot button to generate calibration curve."),
+               column(width = 12, shiny::uiOutput(outputId = ns("showPlotCalCurveButton"))),
+               br(),
+               br(),
+               p(style = "color:#C70039;", "4. Enter the intensites for quantification."),
+               p(style = "color:#C70039;", "5. Click Quantify button to get quantification result."),
+               column(width = 12, shiny::uiOutput(outputId = ns("getQuan"))),
                )
              ),
-      #(4.2) Image analysis Output ---------------------------------------------
+      #(5.2) Image analysis Output ---------------------------------------------
       column(width = 8,
              box(
                width = 12,
@@ -504,7 +533,11 @@ mod_viewData_ui <- function(id){
                plotly::plotlyOutput(outputId = ns("roiProfiles")),
                shiny::verbatimTextOutput(outputId = ns("croppingInfo")),
                shiny::uiOutput(outputId = ns("resetCropButton")),
-               shiny::verbatimTextOutput(outputId = ns("resetCropMessage"))
+               shiny::verbatimTextOutput(outputId = ns("resetCropMessage")),
+               DT::dataTableOutput(outputId = ns("intConTable")),
+               plotly::plotlyOutput(outputId = ns("calCurve")),
+               DT::dataTableOutput(outputId = ns("predictionTable")),
+               plotly::plotlyOutput(outputId = ns("calCurve2"))
                )
              )
 
@@ -1020,7 +1053,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$plotROIProfile)
 
-    #(5.5) Crop MSI data ======================================================
+    #(5.5) Crop MSI data =======================================================
     output$croppingInfo <- renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::validate(need(length(roiData$roiList) > 0, message = "ROI not found."))
@@ -1059,6 +1092,97 @@ mod_viewData_server <- function(id, global){
       global$cleanedMSIData
     }) |>
       bindEvent(input$resetCropping)
+
+    #(5.6) IS-based quantification =============================================
+
+    ISQuan <- reactiveValues(df = NULL, subDF = NULL, fit = NULL, plot = NULL, prediction = NULL)
+    #(5.6.1) Get quantification table ------------------------------------------
+    observeEvent(input$showQuanTable, {
+      shiny::req(global$cleanedMSIData)
+      shiny::validate(
+        need(length(roiData$roiList) > 1, message = "At least two ROIs are needed."),
+        need(input$mzIS >= min(Cardinal::mz(global$cleanedMSIData)) & input$mzIS <= max(Cardinal::mz(global$cleanedMSIData)), message = "The entered m/z is out of range.")
+      )
+      roiMSIData <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiList)
+      ISQuan$df <- roiQuantification(roiMSIData = roiMSIData, mz = input$mzIS)
+    })
+
+    #(5.6.2) Display quantification table --------------------------------------
+    output$intConTable <- DT::renderDataTable(server = FALSE, {
+      shiny::req(nrow(ISQuan$df) >= 2)
+      DT::datatable(ISQuan$df,
+                    editable = "cell",
+                    caption = "Intensity ~ concentration table"
+                    )
+    })
+
+    #(5.6.3) Update cell values ------------------------------------------------
+    observeEvent(input$intConTable_cell_edit, {
+      ISQuan$df[input$intConTable_cell_edit$row, input$intConTable_cell_edit$col] <- input$intConTable_cell_edit$value
+    })
+
+    #(5.6.4) Display calibration curve -----------------------------------------
+    output$showPlotCalCurveButton <- renderUI({
+      shiny::req(nrow(ISQuan$df) >= 2)
+      actionButton(inputId = ns("plotCal"),
+                   label = "Plot",
+                   icon = icon("paper-plane"),
+                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                   )
+    })
+    observeEvent(input$plotCal, {
+      shiny::validate(need(length(input$intConTable_rows_selected) >= 2, message = "Please select at least two rows."))
+      ISQuan$subDF <- ISQuan$df[input$intConTable_rows_selected, ]
+      shiny::validate(need(all(ISQuan$subDF$Concentration >= 0), message = "Concentration cannot be negative values."))
+      result <- plotCalCurve(df = ISQuan$subDF)
+      ISQuan$fit <- result$fit
+      ISQuan$plot <- result$plot
+    })
+    output$calCurve <- plotly::renderPlotly({
+     shiny::req(ISQuan$plot)
+     ISQuan$plot
+    })
+
+    #(5.6.4) Quantification ----------------------------------------------------
+    output$getQuan <- renderUI({
+      shiny::req(nrow(ISQuan$df) >= 2)
+      shiny::req(ISQuan$plot)
+      tagList(
+        textInput(inputId = ns("quanInt"),
+                  label = "Enter intensities for quantification",
+                  value = NULL,
+                  placeholder = "For multiple values, please use comma to seperate them."
+                  ),
+        actionButton(inputId = ns("ISQuantify"),
+                     label = "Quantify",
+                     icon = icon("balance-scale"),
+                     style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                     )
+      )
+    })
+
+    output$predictionTable <- DT::renderDT({
+      shiny::req(ISQuan$fit)
+      shiny::validate(need(input$mzValues != "", message = "Intensities are missing."))
+      ISQuan$prediction <- getQuan(mod = ISQuan$fit, Intensity = text2Num(input$quanInt))
+      DT::datatable(ISQuan$prediction)
+    }) |>
+      bindEvent(input$ISQuantify)
+
+    observeEvent(input$ISQuantify, {
+      shiny::req(ISQuan$plot)
+      shiny::req(nrow(ISQuan$subDF) >=2)
+      shiny::req(nrow(ISQuan$prediction) >= 1)
+      ISQuan$plot <- updateCalPlot(plot = ISQuan$plot, subDF = ISQuan$subDF, prediction = ISQuan$prediction)
+    })
+
+    # output$calCurve2 <- plotly::renderPlotly({
+    #   shiny::req(ISQuan$plot)
+    #   shiny::req(nrow(ISQuan$subDF) >=2)
+    #   shiny::req(nrow(ISQuan$prediction) >= 1)
+    #   updateCalPlot(plot = ISQuan$plot, subDF = ISQuan$subDF, prediction = ISQuan$prediction)
+    # }) |>
+    #   bindEvent(input$ISQuantify)
 
 })}
 

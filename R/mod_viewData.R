@@ -1096,8 +1096,8 @@ mod_viewData_server <- function(id, global){
     #(5.6) IS-based quantification =============================================
 
     ISQuan <- reactiveValues(df = NULL, subDF = NULL, fit = NULL, plot = NULL, prediction = NULL)
-    #(5.6.1) Get quantification table ------------------------------------------
-    observeEvent(input$showQuanTable, {
+    #(5.6.1) Get and display quantification table ------------------------------
+    output$intConTable <- DT::renderDataTable(server = FALSE, {
       shiny::req(global$cleanedMSIData)
       shiny::validate(
         need(length(roiData$roiList) > 1, message = "At least two ROIs are needed."),
@@ -1105,10 +1105,6 @@ mod_viewData_server <- function(id, global){
       )
       roiMSIData <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiList)
       ISQuan$df <- roiQuantification(roiMSIData = roiMSIData, mz = input$mzIS)
-    })
-
-    #(5.6.2) Display quantification table --------------------------------------
-    output$intConTable <- DT::renderDataTable(server = FALSE, {
       shiny::req(nrow(ISQuan$df) >= 2)
       DT::datatable(ISQuan$df,
                     editable = TRUE,
@@ -1119,14 +1115,15 @@ mod_viewData_server <- function(id, global){
                                    scrollX = TRUE
                                    )
                     )
-    })
+    }) |>
+      bindEvent(input$showQuanTable)
 
-    #(5.6.3) Update cell values ------------------------------------------------
+    #(5.6.2) Update cell values ------------------------------------------------
     observeEvent(input$intConTable_cell_edit, {
       ISQuan$df[input$intConTable_cell_edit$row, input$intConTable_cell_edit$col] <- input$intConTable_cell_edit$value
     })
 
-    #(5.6.4) Display calibration curve -----------------------------------------
+    #(5.6.3) Display calibration curve -----------------------------------------
     output$showPlotCalCurveButton <- renderUI({
       shiny::req(nrow(ISQuan$df) >= 2)
       actionButton(inputId = ns("plotCal"),
@@ -1135,27 +1132,20 @@ mod_viewData_server <- function(id, global){
                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                    )
     })
-    observeEvent(input$plotCal, ignoreNULL = FALSE, {
-      shiny::validate(need(length(input$intConTable_rows_selected) >= 2, message = "Please select at least two rows."))
-      ISQuan$subDF <- ISQuan$df[input$intConTable_rows_selected, ]
-      shiny::validate(need(all(ISQuan$subDF$Concentration >= 0), message = "Concentration cannot be negative values."))
-      result <- plotCalCurve(df = ISQuan$subDF)
-      ISQuan$fit <- result$fit
-      ISQuan$plot <- result$plot
+
+    observeEvent(input$plotCal, {
       output$calCurve <- plotly::renderPlotly({
+        shiny::validate(need(length(input$intConTable_rows_selected) >= 2, message = "Please select at least two rows."))
+        ISQuan$subDF <- ISQuan$df[input$intConTable_rows_selected, ]
+        shiny::validate(need(all(ISQuan$subDF$Concentration >= 0), message = "Concentration cannot be negative values."))
+        result <- plotCalCurve(df = ISQuan$subDF)
+        ISQuan$fit <- result$fit
+        ISQuan$plot <- result$plot
         ISQuan$plot
       })
     })
 
-    output$calCurveInfo <- renderPrint({
-      shiny::req(nrow(ISQuan$df) >= 2)
-      shiny::req(ISQuan$plot)
-      cat("Below is the calibration curve: \n")
-      cat("The quantified results will also be displayed in the calibration curve. \n")
-      cat("Points falling outside the calibration range will be highlighted in red, indicating potential inaccuracy in the quantification result. Otherwise they will be in green color.")
-    })
-
-    #(5.6.5) Quantification ----------------------------------------------------
+    #(5.6.4) Quantification ----------------------------------------------------
     output$getQuan <- renderUI({
       shiny::req(nrow(ISQuan$df) >= 2)
       tagList(
@@ -1202,6 +1192,13 @@ mod_viewData_server <- function(id, global){
       })
     })
 
+    output$calCurveInfo <- renderPrint({
+      shiny::req(nrow(ISQuan$df) >= 2)
+      shiny::req(ISQuan$plot)
+      cat("Below is the calibration curve: \n")
+      cat("The quantified results will also be displayed in the calibration curve. \n")
+    }) |>
+      bindEvent(input$ISQuantify)
 
 })}
 

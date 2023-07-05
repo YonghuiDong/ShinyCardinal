@@ -6,7 +6,7 @@ output:
     css: custom.css
 ---
 
-<b><span style="color:#6682c4; font-size:30px;">𓅫 Welcome to ShinyCardinal (v0.1.2)</span></b>
+<b><span style="color:#6682c4; font-size:30px;">𓅫 Welcome to ShinyCardinal (v0.2.0)</span></b>
 
 <img src='img/logo.png' height="180" style = "float: right; margin: 20px;"/>
 
@@ -19,8 +19,6 @@ Mass spectrometry imaging (MSI) is a well-established analytical technique that 
 ---
 
 <b><span style="color:#5c5d61; font-size:22px;">Workflow</span></b>
-
-The workflow includes pre-processing (e.g., missing value imputation, QC-based feature filtering, normalization, transformation and scaling), univariate and multivariate statistical analyses, and visualization of the given metabolomics data. To aid interpretation, a comprehensive HTML report is generated that includes interactive visualizations, tables, summary statistics, and detailed explanations for the users, facilitating an in-depth inspection of the results (Fig. 1).
 
 <img src='img/workflow.png' alt='workflow' title='workflow' style="vertical-align:middle;margin:0px 100px" width='600'/>
 
@@ -45,6 +43,8 @@ Fig. 1 Workflow and main features of ShinyCardinal.
 
 - Region of interest (ROI) analysis, including ROI selection, visualization, comparison (statistics) and profiling.
 
+- Internal standard based-quantification (qMSI)
+
 - Image segmentation using principal component analysis (PCA) and spatial shrunken centroid (SSC).
 
 - Network analysis, colocalization analysis, and pseudo-MS/MS generation.
@@ -54,30 +54,60 @@ Fig. 1 Workflow and main features of ShinyCardinal.
 
 <b><span style="color:#5c5d61; font-size:22px;">How to use ShinyCardinal</span></b>
 
-Using ShinyCardinal is straightforward. Simply follow the step-by-step instructions provided in each tab to perform your data analysis. For further guidance, consult the user manual, or experiment with the included demo data to get a hands-on feel for the software.
+Using ShinyCardinal is straightforward. Simply follow the step-by-step instructions provided in each tab to perform your data analysis. 
+
+For further guidance, please watch the <a href="https://www.youtube.com/@MSI_WIS/videos" target="_new">tutorial videos</a>.
+
 
 <b><span style="color:#5c5d61; font-size:22px;">Demo data</span></b>
 
-To assist in preparing input data for MetaboReport, you can use the two demo datasets as reference.
+You can use the following data sets to experiment and become familiar with ShinyCardinal.. 
 
-> **Data Set1: MALDI imaging**: 
+Please note that the RDS-format data refers to the preprocessed imzML data, which has undergone normalization, peak picking, and peak alignment using ShinyCardinal. As a result, this data is significantly cleaner and smaller in size. 
+
+Please note that the following data sets are distributed under the CC BY 4.0 license. If you intend to use any of them in your publication or other work, please ensure to give proper credit to the authors.
+
+<b><span style="color:#5c5d61;">Data Set 1: MALDI Imaging</span></b>
+
+> <b><span style="color:#d17789;">Description</span></b>: Brain tissue was dissected from euthanised mouse. MALDI imaging was performed in positive ion mode over an m/z range of 300 – 2000 using a Thermo MALDI LTQ Orbitrap XL instrument. The spatial resolution was 50 μm. Raw data, in profile mode, was converted to mzML format using ProteoWizard, and then to imzML format using imzMLConverter.
 >
-> Description: A 15-micron tissue section of wild type mouse cerebellum was coated with 2,5-dihydroxybenzoic acid (DHB) matrix and analysed by MSI in positive ion mode over an m/z range of 300-2000 using a Thermo MALDI LTQ Orbitrap XL instrument. The spatial resolution was 50 micrometers.
+> <b><span style="color:#d17789;">Credit</span></b>: Bond, Nicholas J., Albert Koulman, Julian L. Griffin, and Zoe Hall. "massPix: an R package for annotation and interpretation of mass spectrometry imaging data for lipidomics." Metabolomics 13 (2017): 1-5.
 >
-> Download Link: <a href="https://www.ebi.ac.uk/metabolights/editor/MTBLS487/descriptors" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
+> <b><span style="color:#d17789;">Download Link</span></b>: (1) imzML format <a href="https://www.ebi.ac.uk/metabolights/editor/MTBLS487/descriptors" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>; (2) RDS format <a href="https://www.dropbox.com/s/cgdzhsmrzs2rnhh/MALDI_Mouse2Brains.rds?dl=0" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
 >
-> **Data Set 2: SIMS imaging**
+> <b><span style="color:#d17789;">Note</span></b>: 
+> 
+
+<b><span style="color:#5c5d61;">Data Set 2: AP-MALDI Imaging</span></b>
+
+> <b><span style="color:#d17789;">Description</span></b>: Mouse urinary bladder sections were scanned by MS with 10 μm spatial resolution with a AP-SMALDI. MS imaging data was converted to imzML format using the 'RAW to imzML' converter.
 >
-> Description:
+> <b><span style="color:#d17789;">Credit</span></b>: Römpp, Andreas, Sabine Guenther, Yvonne Schober, Oliver Schulz, Zoltan Takats, Wolfgang Kummer, and Bernhard Spengler. "Histology by mass spectrometry: label‐free tissue characterization obtained from high‐accuracy bioanalytical imaging." Angewandte chemie international edition 49, no. 22 (2010): 3834-3838.
 >
-> Download link:
+> <b><span style="color:#d17789;">Download Link</span></b>: (1) imzML format <a href="https://www.ebi.ac.uk/pride/archive/projects/PXD001283" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>; (2) RDS format <a href="https://www.dropbox.com/s/lclimkantn52plq/MALDI_MouseUrinaryBladder.rds?dl=0" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
 >
-> **Data Set 3: DESI imaging**
+> <b><span style="color:#d17789;">Note</span></b>: 
+> 
+
+<b><span style="color:#5c5d61;">Data Set 3: DESI Imaging</span></b>
+
+> <b><span style="color:#d17789;">Description</span></b>: Liver samples were dissected from dult male Hans Wistar rats. DESI MSI analysis was performed using a Q-Exactive mass spectrometer operated in positive ion mode. Mass spectra were collected in the mass range of m/z 200 – 600 at a mass resolution of 140,000 (at m/z 200). Individual horizontal line scans were combined into imzML format using the imzML converter.
 >
-> Description: DESI imaging data were acquired in the negative-ion mode over an m/z range of 200-1050 using a Thermo Exactive instrument (Thermo Scientific GmbH, Bremen, Germany) coupled to a home-built automated DESI-imaging source. All Thermo raw files of one imaging experiment were converted to imzML format using the imzML converter v1.1.4.5i.
+> <b><span style="color:#d17789;">Credit</span></b>: Swales, John G., Nicole Strittmatter, James W. Tucker, Malcolm R. Clench, Peter JH Webborn, and Richard JA Goodwin. "Spatial quantitation of drugs in tissues using liquid extraction surface analysis mass spectrometry imaging." Scientific reports 6, no. 1 (2016): 37648.
 >
-> Download link: <a href="https://www.ebi.ac.uk/metabolights/editor/MTBLS176/files" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
+> <b><span style="color:#d17789;">Download Link</span></b>: (1) imzML format <a href="https://metaspace2020.eu/dataset/2016-12-09_10h16m23s" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>; (2) RDS format <a href="https://www.dropbox.com/s/vgi2yc0wusi9fqt/DESI_MouseLiver.rds?dl=0" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
 >
+> <b><span style="color:#d17789;">Note</span></b>:
+
+<b><span style="color:#5c5d61;">Data Set 4: SIMS Imaging</span></b>
+
+> <b><span style="color:#d17789;">Description</span></b>: 
+>
+> <b><span style="color:#d17789;">Credit</span></b>: MSI unit, Weizmann Institute of Science.
+>
+> <b><span style="color:#d17789;">Download Link</span></b>:
+>
+> <b><span style="color:#d17789;">Note</span></b>:
 
 ---
 <a href= 'https://www.weizmann.ac.il'><img src='img/WIS.png' alt='WIS' title='Weizmann Institute of Science' width='400'/></a>

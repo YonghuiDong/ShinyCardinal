@@ -14,7 +14,9 @@ plotCalCurve <- function(df){
     plotly::plot_ly(x = ~Intensity) %>%
     plotly::add_markers(y = ~Concentration, marker = list(color = "#ffe9ec", size = 10, line = list(color = "#cf8a8a", width = 2))) %>%
     plotly::add_lines(x = ~Intensity, y = fitted(fit), line = list(color = "#6c87b8", dash = 'dot', width = 4)) %>%
-    plotly::layout(showlegend = FALSE, title = title)
+    plotly::layout(showlegend = FALSE, title = title) %>%
+    plotly::config(toImageButtonOptions = list(format = "svg", filename = "calibrationCurve"))
+
   result <- list(fit = fit, plot = plot)
   return(result)
 }

@@ -25,6 +25,7 @@ roiStat <- function(roiMSIData){
   roiMean <- Cardinal::aggregate(x = roiMSIData, FUN= c('mean'), groups = Cardinal::run(roiMSIData), as = 'DataFrame') |>
     as.data.frame(x = _) |>
     transform(mz = round(mz, 4))
+  roiMean <- round(roiMean, 4)
 
   #(2) Remove rows with all means == 0 -----------------------------------------
   roiMean <- roiMean[rowSums(roiMean[, -which(names(roiMean) == "mz")], na.rm = TRUE) > 0, ]
@@ -65,10 +66,9 @@ roiStat <- function(roiMSIData){
 #' @export
 #' @noRd
 #' @examples
-#' x <- matrix(runif(2*300), ncol = 2, nrow = 300)
+#' dat <- matrix(runif(2*300), ncol = 2, nrow = 300)
 #' Group <- rep_len(LETTERS[1:2], 300)
-#' ret <- getFC(dat, Group = myGroup)
-
+#' ret <- getFC(dat, Group = Group)
 
 getFC <- function(x, Group = NULL){
   cat ("\n- Calculating Fold Changes...\n")
@@ -80,11 +80,11 @@ getFC <- function(x, Group = NULL){
 
   #(2) Calculate FC ------------------------------------------------------------
   df <- data.frame(x, Group = Group)
-  mean_int <- aggregate(. ~ Group, data = df, FUN = mean)
+  mean_int <- stats::aggregate(. ~ Group, data = df, FUN = mean)
   row_name <- mean_int$Group
   mean_int <- as.matrix(subset(x = mean_int, select = -Group))
   rownames(mean_int) <- row_name
-  j <- combn(levels(Group), 2)
+  j <- utils::combn(levels(Group), 2)
   f_change1 <- mean_int[j[1,],] / mean_int[j[2,],]
   f_change2 <- mean_int[j[2,],] / mean_int[j[1,],]
 

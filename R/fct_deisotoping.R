@@ -20,7 +20,7 @@ deisotoping <- function(msiData, tol = 0.006, PCC = 0.85) {
     m <- mzs [i]
     idx <- c(which((mzs >= (m + lb)) & (mzs <= (m + ub))))
     if(length(idx) > 0){
-      idx <- idx[sapply(idx, function(j) cor(t(Cardinal::iData(msiData[i, ])), t(Cardinal::iData(msiData[j, ])))) >= PCC]
+      idx <- idx[sapply(idx, function(j) stats::cor(t(Cardinal::iData(msiData[i, ])), t(Cardinal::iData(msiData[j, ])))) >= PCC]
     }
     idx_iso <- c(idx_iso, idx)
   }

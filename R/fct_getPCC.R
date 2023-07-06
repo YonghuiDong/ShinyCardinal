@@ -28,7 +28,7 @@ getPCC <- function(msiData, mz = NULL, nth = 1, msiRun = "All"){
   if(is.null(mz)){
     specData <- Cardinal::spectra(msiData)
     rownames(specData) <- round(Cardinal::mz(msiData), 4)
-    cor(t(specData))
+    stats::cor(t(specData))
   } else {
     Cardinal::colocalized(object = msiData, mz = mz, n = Inf) |>
       subset(x = _, select = c("mz", "correlation")) |>

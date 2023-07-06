@@ -24,7 +24,7 @@ roiQuantification <- function(roiMSIData, mz){
   subROIMSIData <- roiMSIData[fid, ]
   DF <- data.frame(Group = Cardinal::run(subROIMSIData), Intensity = as.vector(Cardinal::iData(subROIMSIData)))
   #(2) Get mean intensity ------------------------------------------------------
-  roiMean <- aggregate(Intensity ~ Group, data = DF, FUN = mean)
+  roiMean <- stats::aggregate(Intensity ~ Group, data = DF, FUN = mean)
   #(3) Format data -------------------------------------------------------------
   if(any(roiMean$Intensity >= 1)){
     roiMean$Intensity <- round(roiMean$Intensity, 2)

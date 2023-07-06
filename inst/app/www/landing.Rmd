@@ -14,7 +14,7 @@ output:
 
 Mass spectrometry imaging (MSI) is a well-established analytical technique that allows direct mapping of a wide variety of chemical classes from different biological samples, providing information concerning analyte identity, relative abundance, and spatial distribution.
 
-<b><span style="color:#d17789; font-size:20px;">ShinyCardinal</span></b> is the web application of R package <a href="https://cardinalmsi.org" target="_new">Cardinal</a>. It is designed to aid researchers in reading, processing, visualizing and analyzing their MSI data. It offers a structured and intuitive workflow, making it a flexible and user-friendly tool for users of all levels.
+<b><span style="color:#d17789; font-size:20px;">ShinyCardinal</span></b> is the web application, built on the basis of the R package <a href="https://cardinalmsi.org" target="_new">Cardinal</a>. Alongside incorporating most of the existing features in Cardinal, ShinyCardinal has also introduced many additional functions (Fig.1). It is designed to aid researchers in reading, processing, visualizing and analyzing their MSI data. With its structured and intuitive workflow, ShinyCardinal offers a flexible and user-friendly tool suitable for users of all levels.
 
 ---
 
@@ -56,16 +56,16 @@ Fig. 1 Workflow and main features of ShinyCardinal.
 
 Using ShinyCardinal is straightforward. Simply follow the step-by-step instructions provided in each tab to perform your data analysis. 
 
-For further guidance, please watch the <a href="https://www.youtube.com/@MSI_WIS/videos" target="_new">tutorial videos</a>.
+For further guidance, please watch the tutorial videos. <a href="https://www.youtube.com/@MSI_WIS/videos" target="_new"><i class="fa fa-youtube"></i></a>
 
 
 <b><span style="color:#5c5d61; font-size:22px;">Demo data</span></b>
 
-You can use the following data sets to experiment and become familiar with ShinyCardinal.. 
+You can use the following demo data sets to experiment with ShinyCardinal.
 
-Please note that the RDS-format data refers to the preprocessed imzML data, which has undergone normalization, peak picking, and peak alignment using ShinyCardinal. As a result, this data is significantly cleaner and smaller in size. 
+Please note that the RDS format data refers to the preprocessed imzML data, which has undergone normalization, peak picking, and peak alignment using ShinyCardinal. As a result, this data is significantly cleaner and smaller in size. 
 
-Please note that the following data sets are distributed under the CC BY 4.0 license. If you intend to use any of them in your publication or other work, please ensure to give proper credit to the authors.
+Please note that the following data sets are distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_new">CC BY 4.0 license</a>. If you intend to use any of them in your publication or other work, please ensure to give proper credit to the authors.
 
 <b><span style="color:#5c5d61;">Data Set 1: MALDI Imaging</span></b>
 

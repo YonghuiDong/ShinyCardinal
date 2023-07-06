@@ -15,7 +15,7 @@
 
 ## Run checks ----
 ## Check the package before sending to prod
-devtools::check()
+# devtools::check()
 #rhub::check_for_cran()
 
 # Deploy
@@ -23,7 +23,7 @@ devtools::check()
 ## Local, CRAN or Package Manager ----
 ## This will build a tar.gz that can be installed locally,
 ## sent to CRAN, or to a package manager
-devtools::build()
+# devtools::build()
 
 ## RStudio ----
 ## If you want to deploy on RStudio related platforms

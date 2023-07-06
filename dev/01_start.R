@@ -36,16 +36,16 @@ golem::install_dev_deps()
 
 ## Create Common Files ----
 ## See ?usethis for more information
-usethis::use_mit_license("Golem User") # You can set another license here
-usethis::use_readme_rmd(open = FALSE)
+# usethis::use_mit_license("Golem User") # You can set another license here
+# usethis::use_readme_rmd(open = FALSE)
 # Note that `contact` is required since usethis version 2.1.5
 # If your {usethis} version is older, you can remove that param
-usethis::use_code_of_conduct(contact = "Golem User")
-usethis::use_lifecycle_badge("Experimental")
-usethis::use_news_md(open = FALSE)
+# usethis::use_code_of_conduct(contact = "Golem User")
+# usethis::use_lifecycle_badge("Experimental")
+# usethis::use_news_md(open = FALSE)
 
 ## Use git ----
-usethis::use_git()
+# usethis::use_git()
 
 ## Init Testing Infrastructure ----
 ## Create a template for tests
@@ -63,4 +63,4 @@ golem::use_utils_server(with_test = TRUE)
 # You're now set! ----
 
 # go to dev/02_dev.R
-rstudioapi::navigateToFile("dev/02_dev.R")
+# rstudioapi::navigateToFile("dev/02_dev.R")

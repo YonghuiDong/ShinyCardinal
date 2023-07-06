@@ -466,7 +466,7 @@ mod_uploadData_server <- function(id, global){
       #(2.2) Calculate mean spectrum -----------------------------------------
       specData$meanSpec <- getMeanSpec(msiData = global$msiData,
                                        nth = input$nth,
-                                       worker = input$meanSpecWorkers
+                                       workers = input$meanSpecWorkers
                                        )
       plotMeanSpec(meanSpec = specData$meanSpec, nth = input$nth)
     }) |>

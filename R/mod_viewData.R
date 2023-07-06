@@ -633,7 +633,7 @@ mod_viewData_server <- function(id, global){
       colocDF <- colocAnalysis(msiData = global$cleanedMSIData,
                                precursor = input$noisePeak,
                                nth = input$nth,
-                               worker = input$colocWorkers
+                               workers = input$colocWorkers
                                )
       massList$colocedFeatures <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
       cat("Below are the detected backgroup noises and/or matrix peaks:\n")

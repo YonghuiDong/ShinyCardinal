@@ -20,7 +20,10 @@ mod_network_ui <- function(id){
                solidHeader = TRUE,
                collapsible = TRUE,
                collapsed = FALSE,
-               closable = FALSE
+               closable = FALSE,
+               p("1. Network analysis allows to cluster ions stemming from the same precursor or different ions with similar substructures (i.e., ions sharing the same in-source fragments).
+                 These clustered ions provide valuable information on multimers, adducts, natural isotopes, and in-source fragments, which significantly facilitates metabolite identification in MSI experiments."),
+               p("2. Please watch video tutorials about network analysis:", a(href = "https://www.youtube.com/watch?v=c49wlOuERN8", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
                )
       ),
 

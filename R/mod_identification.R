@@ -20,7 +20,9 @@ mod_identification_ui <- function(id){
                solidHeader = TRUE,
                collapsible = TRUE,
                collapsed = FALSE,
-               closable = FALSE
+               closable = FALSE,
+               p("1. Please watch video tutorials about metabolite identification based on accurate mass:",
+                 a(href = "https://www.youtube.com/watch?v=vjhJwCZFpN0", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
              )
       ),
 

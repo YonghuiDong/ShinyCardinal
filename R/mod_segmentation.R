@@ -21,6 +21,9 @@ mod_segmentation_ui <- function(id){
              collapsible = TRUE,
              collapsed = FALSE,
              closable = FALSE,
+             p("1. Spatial segmentation partitions an MSI data into distinct regions associated with different physiological or pathological status. The MSI dataset is represented
+               by a segmentation map, where pixels with similar mass spectra share the same color."),
+             p("2. Please watch video tutorials 9 and 10 about image segmentation with PCA and SSC:", a(href = "https://www.youtube.com/@MSI_WIS/videos", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
              )
            ),
 

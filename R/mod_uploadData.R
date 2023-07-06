@@ -25,8 +25,8 @@ mod_uploadData_ui <- function(id){
                p("1. The purpose of data preprocessing is to improve image quality, and prepare data for downstream data mining."),
                p("2. A typical MSI data preprocessing workflow includes normalization, baseline reduction, smoothing,
                  peak picking, spectral alignment, and binning."),
-               p("3. Please watch this video tutorial for MSI data preprocessing:",
-                 a(href = "url", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank")
+               p("3. Please watch this video tutorial about MSI data preprocessing:",
+                 a(href = "https://www.youtube.com/watch?v=1UslDNg7rWU&t=468s", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank")
                  )
                )
              ),

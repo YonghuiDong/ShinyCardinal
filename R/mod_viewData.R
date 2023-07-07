@@ -24,7 +24,8 @@ mod_viewData_ui <- function(id){
                p("1. This section includes the most commont MSI data analysis tools, i.e., deisotoping, background noises and matrix peaks removal, image visualization, ROI analysis,
                     MSI data cropping and internal standard-based quantification."),
                p("2. Some steps are optional, feel free to skip them if they are not relevant to your studies."),
-               p("3. Please watch video tutorials 2-8:", a(href = "https://www.youtube.com/@MSI_WIS/videos", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
+               p("3. The web version of ShinyCardinal does not support parallel computation. Please always set the number of workers to 1 to avoid out of memory error."),
+               p("4. Please watch video tutorials 2-8:", a(href = "https://www.youtube.com/@MSI_WIS/videos", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
               )
             ),
 

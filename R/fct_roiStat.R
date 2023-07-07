@@ -25,12 +25,14 @@ roiStat <- function(roiMSIData){
   roiMean <- Cardinal::aggregate(x = roiMSIData, FUN= c('mean'), groups = Cardinal::run(roiMSIData), as = 'DataFrame') |>
     as.data.frame(x = _) |>
     transform(mz = round(mz, 4))
-  roiMean <- round(roiMean, 4)
 
   #(2) Remove rows with all means == 0 -----------------------------------------
   roiMean <- roiMean[rowSums(roiMean[, -which(names(roiMean) == "mz")], na.rm = TRUE) > 0, ]
 
-  #(3) Calculate fold change ---------------------------------------------------
+  #(3) Round mean intensity apart from mz column -------------------------------
+  roiMean[, -1] <- round(roiMean[, -1], 2)
+
+  #(4) Calculate fold change ---------------------------------------------------
   dfNames <- colnames(roiMean)
   columns <- grepl("mean", dfNames)
   dfSub <- roiMean[, columns]
@@ -38,7 +40,7 @@ roiStat <- function(roiMSIData){
   Group <- sub(".*_(.*?)\\..*", "\\1", string)
   FC <- getFC(t(dfSub), Group)
 
-  #(4) Means test --------------------------------------------------------------
+  #(5) Means test --------------------------------------------------------------
   if(any(table(Group) > 1)){
     fit <- Cardinal::meansTest(x = roiMSIData, ~ condition, groups = Cardinal::run(roiMSIData))
     roiStat <- Cardinal::summary(fit) |>
@@ -48,7 +50,7 @@ roiStat <- function(roiMSIData){
     roiStat <- NULL
   }
 
-  #(5) Show result -------------------------------------------------------------
+  #(6) Show result -------------------------------------------------------------
   if(!is.null(roiStat)){
     cbind(roiMean, FC, roiStat)
   } else{

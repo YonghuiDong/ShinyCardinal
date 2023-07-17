@@ -29,6 +29,8 @@ app_ui <- function(request) {
             hr(),
             menuItem(text = strong("Identification"), tabName = "identification", icon = icon("info-circle")),
             hr(),
+            menuItem(text = strong("Export"), tabName = "export", icon = icon("arrow-circle-down")),
+            hr(),
             menuItem(text = strong("Contact"), tabName = "contact", icon = icon("smile"))
           )
         ),
@@ -42,6 +44,7 @@ app_ui <- function(request) {
             tabItem(tabName = "segmentation", mod_segmentation_ui("segmentation_1")),
             tabItem(tabName = "network", mod_network_ui("network_1")),
             tabItem(tabName = "identification", mod_identification_ui("identification_1")),
+            tabItem(tabName = "export", mod_export_ui("export_1")),
             tabItem(tabName = "contact", mod_contact_ui("contact_1"))
           )
         )

@@ -54,6 +54,10 @@ Fig. 1 Workflow and main features of ShinyCardinal.
 
 <b><span style="color:#5c5d61; font-size:22px;">How to use ShinyCardinal</span></b>
 
+ShinyCardinal accept imzML format as input. Please read the <a href="https://docs.google.com/document/d/e/2PACX-1vTT4QrMQ2RJMjziscaU8S3gbznlv6Rm5ojwrsdAXPbR5bt7Ivp-ThkC0hefrk3ZdVqiyCX7VU_ddA62/pub" target="_new">user guide</a> provided by METASPCE regarding how to convert raw MSI data into imzML format. 
+
+Please note that ShinyCardinal accepts both profile mode and centroid mode, as well as processed and continuous imzML files. To understand the difference between profiled and centroid mode, and processed and continuous files, please kindly refer to <a href="https://doi.org/10.1016/j.jprot.2012.07.026" target="_new">this publication</a>.
+
 Using ShinyCardinal is straightforward. Simply follow the step-by-step instructions provided in each tab to perform your data analysis. 
 
 For further guidance, please watch the tutorial videos. <a href="https://www.youtube.com/@MSI_WIS/videos" target="_new"><i class="fa fa-youtube"></i></a>
@@ -61,7 +65,7 @@ For further guidance, please watch the tutorial videos. <a href="https://www.you
 
 <b><span style="color:#5c5d61; font-size:22px;">Demo data</span></b>
 
-You can use the following demo data sets to experiment with ShinyCardinal.
+You can use the following demo data sets to get familiar with ShinyCardinal.
 
 Please note that the RDS format data refers to the preprocessed imzML data, which has undergone normalization, peak picking, and peak alignment using ShinyCardinal. As a result, this data is significantly cleaner and smaller in size. 
 

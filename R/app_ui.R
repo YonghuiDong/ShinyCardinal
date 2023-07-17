@@ -29,7 +29,7 @@ app_ui <- function(request) {
             hr(),
             menuItem(text = strong("Identification"), tabName = "identification", icon = icon("info-circle")),
             hr(),
-            menuItem(text = strong("Export"), tabName = "export", icon = icon("arrow-circle-down")),
+            menuItem(text = strong("Export"), tabName = "export", icon = icon("share-square")),
             hr(),
             menuItem(text = strong("Contact"), tabName = "contact", icon = icon("smile"))
           )

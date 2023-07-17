@@ -26,8 +26,10 @@ golem::add_module(name = "viewData", with_test = FALSE) # Name of the module
 golem::add_module(name = "segmentation", with_test = FALSE) # Name of the module
 golem::add_module(name = "network", with_test = FALSE) # Name of the module
 golem::add_module(name = "identification", with_test = FALSE)
+golem::add_module(name = "export", with_test = FALSE)
 golem::add_module(name = "contact", with_test = FALSE) # Name of the module
 golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
+golem::add_module(name = "readRDS", with_test = FALSE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*

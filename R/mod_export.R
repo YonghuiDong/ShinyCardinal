@@ -21,7 +21,8 @@ mod_export_ui <- function(id){
                collapsible = TRUE,
                collapsed = FALSE,
                closable = FALSE,
-               p("1. Please watch video tutorials about metabolite identification based on accurate mass:",
+               p("1. This module enables export of MSI data into data frame (.csv) and centroid imzML files."),
+               p("2. Please watch the video tutorial about how to export MSI data:",
                  a(href = "https://www.youtube.com/watch?v=vjhJwCZFpN0", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
                )
              ),

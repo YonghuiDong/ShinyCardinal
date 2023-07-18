@@ -20,54 +20,17 @@ mod_viewData_ui <- function(id){
                solidHeader = TRUE,
                collapsible = TRUE,
                collapsed = FALSE,
-               closable = FALSE
+               closable = FALSE,
+               p("1. This section includes the most commont MSI data analysis tools, i.e., deisotoping, background noises and matrix peaks removal, image visualization, ROI analysis,
+                    MSI data cropping and internal standard-based quantification."),
+               p("2. Some steps are optional, feel free to skip them if they are not relevant to your studies."),
+               p("3. The web version of ShinyCardinal does not support parallel computation. Please always set the number of workers to 1 to avoid out of memory error."),
+               p("4. Please watch video tutorials 2-8:", a(href = "https://www.youtube.com/@MSI_WIS/videos", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
               )
             ),
 
       #(1) Optional: upload MSI rds Data =======================================
-      column(width = 12, h5("Upload MSI rds Data (optional)")),
-      column(width = 4,
-             box(
-               width = 12,
-               title = strong("Input Parameters"),
-               status = "primary",
-               solidHeader = TRUE,
-               collapsible = TRUE,
-               collapsed = TRUE,
-               closable = FALSE,
-               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "1. This moduel is optional."),
-               p(style = "color:#C70039;", "2. If you're starting directly from this module, you need to upload the rds file."),
-               fileInput(inputId = ns("rdsMSI"),
-                         label = "Please select the rds file.",
-                         multiple = FALSE,
-                         placeholder = "",
-                         accept = c(".rds")
-                         ),
-               actionButton(inputId = ns("loadData"),
-                            label = "Load",
-                            icon = icon("paper-plane"),
-                            style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
-                            )
-              )
-            ),
-      #(1.2) Upload MSI rds data result ----------------------------------------
-      column(width = 8,
-             box(
-               width = 12,
-               title = strong("Result"),
-               status = "success",
-               solidHeader = TRUE,
-               collapsible = TRUE,
-               collapsed = TRUE,
-               closable = FALSE,
-               shinycssloaders::withSpinner(
-                 image = 'www/img/cardinal.gif',
-                 shiny::verbatimTextOutput(outputId = ns("infoMSIData"))
-                )
-              )
-            ),
-
+      mod_readRDS_ui(ns("readRDS_1")),
       #(2) Deisotoping =========================================================
       column(width = 12, h5("Deisotoping (optional)")),
       column(width = 4,
@@ -130,7 +93,7 @@ mod_viewData_ui <- function(id){
              )
       ),
 
-      #(2) Background noise and matrix removal =================================
+      #(3) Background noise and matrix removal =================================
       column(width = 12, h5("Remove Background Noises and Matrix Peaks (optional)")),
       column(width = 4,
              box(
@@ -183,7 +146,7 @@ mod_viewData_ui <- function(id){
               )
             ),
 
-      ##(2.2) Background noise and matrix removal output -----------------------
+      ##(3.2) Background noise and matrix removal output -----------------------
       column(width = 8,
              box(
                width = 12,
@@ -204,7 +167,7 @@ mod_viewData_ui <- function(id){
                )
              ),
 
-      #(3) Image View ==========================================================
+      #(4) Image View ==========================================================
       column(width = 12, h6("View MSI Images")),
       column(width = 4,
              box(
@@ -305,7 +268,7 @@ mod_viewData_ui <- function(id){
               )
             ),
 
-      #(3.2) Output ============================================================
+      #(4.2) Output ============================================================
       column(width = 8,
              box(
                width = 12,
@@ -343,7 +306,7 @@ mod_viewData_ui <- function(id){
               )
             ),
 
-      #(4) Image Analysis ======================================================
+      #(5) Image Analysis ======================================================
       column(width = 12, h6("Image Analysis")),
       column(width = 4,
              box(
@@ -466,10 +429,39 @@ mod_viewData_ui <- function(id){
                                    icon = icon("eraser"),
                                    style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                                    )
-                      )
+                      ),
+               br(),
+               br(),
+               hr(style="border-top: solid 2px; border-color: #c9d6d3;"),
+               strong("6. (optional) Internal standard-based quantification"),
+               br(),
+               br(),
+               p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+               p(style = "color:#C70039;", "1. No specific requirement for ROI name."),
+               numericInput(inputId = ns("mzIS"),
+                            label = "Enter m/z value of the internal standard",
+                            value = NA
+                            ),
+               column(width = 12,
+                      actionButton(inputId = ns("showQuanTable"),
+                                   label = "Show intensity-concentration table",
+                                   icon = icon("table"),
+                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                                   )
+                      ),
+               br(),
+               br(),
+               p(style = "color:#C70039;", "2. Once the table is displayed, please fill the concentration information."),
+               p(style = "color:#C70039;", "3. Then click the plot button to generate calibration curve."),
+               column(width = 12, shiny::uiOutput(outputId = ns("showPlotCalCurveButton"))),
+               br(),
+               br(),
+               p(style = "color:#C70039;", "4. Enter the intensites for quantification."),
+               p(style = "color:#C70039;", "5. Click Quantify button to get quantification result."),
+               column(width = 12, shiny::uiOutput(outputId = ns("getQuan"))),
                )
              ),
-      #(4.2) Image analysis Output ---------------------------------------------
+      #(5.2) Image analysis Output ---------------------------------------------
       column(width = 8,
              box(
                width = 12,
@@ -504,7 +496,11 @@ mod_viewData_ui <- function(id){
                plotly::plotlyOutput(outputId = ns("roiProfiles")),
                shiny::verbatimTextOutput(outputId = ns("croppingInfo")),
                shiny::uiOutput(outputId = ns("resetCropButton")),
-               shiny::verbatimTextOutput(outputId = ns("resetCropMessage"))
+               shiny::verbatimTextOutput(outputId = ns("resetCropMessage")),
+               DT::dataTableOutput(outputId = ns("intConTable")),
+               shiny::verbatimTextOutput(outputId = ns("calCurveInfo")),
+               plotly::plotlyOutput(outputId = ns("calCurve")),
+               DT::dataTableOutput(outputId = ns("predictionTable"))
                )
              )
 
@@ -516,20 +512,8 @@ mod_viewData_ui <- function(id){
 mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
-
     #(1) Load MSI rds Data =====================================================
-    output$infoMSIData <- shiny::renderPrint({
-      shiny::validate(need(!is.null(input$rdsMSI), message = "rds file not found"))
-      global$processedMSIData <- readRDS(input$rdsMSI$datapath)
-      if(is.null(global$processedMSIData)){
-        cat("MSI data not loaded, please check if your rds file is empty.\n")
-      } else {
-        cat("MSI data loaded successfully!\n")
-        global$processedMSIData
-      }
-    }) |>
-      bindEvent(input$loadData)
-
+    mod_readRDS_server("readRDS_1", global = global)
     #(2) Deisotoping ===========================================================
     #(2.1) deisotoping ---------------------------------------------------------
     observe({
@@ -596,7 +580,7 @@ mod_viewData_server <- function(id, global){
       colocDF <- colocAnalysis(msiData = global$cleanedMSIData,
                                precursor = input$noisePeak,
                                nth = input$nth,
-                               worker = input$colocWorkers
+                               workers = input$colocWorkers
                                )
       massList$colocedFeatures <- colocDF[colocDF$correlation >= input$colocThreshould, c("mz", "correlation")]
       cat("Below are the detected backgroup noises and/or matrix peaks:\n")
@@ -1020,7 +1004,7 @@ mod_viewData_server <- function(id, global){
     }) |>
       bindEvent(input$plotROIProfile)
 
-    #(5.5) Crop MSI data ======================================================
+    #(5.5) Crop MSI data =======================================================
     output$croppingInfo <- renderPrint({
       shiny::req(global$cleanedMSIData)
       shiny::validate(need(length(roiData$roiList) > 0, message = "ROI not found."))
@@ -1059,6 +1043,113 @@ mod_viewData_server <- function(id, global){
       global$cleanedMSIData
     }) |>
       bindEvent(input$resetCropping)
+
+    #(5.6) IS-based quantification =============================================
+
+    ISQuan <- reactiveValues(df = NULL, subDF = NULL, fit = NULL, plot = NULL, prediction = NULL)
+    #(5.6.1) Get and display quantification table ------------------------------
+    output$intConTable <- DT::renderDataTable(server = FALSE, {
+      shiny::req(global$cleanedMSIData)
+      shiny::validate(
+        need(length(roiData$roiList) > 1, message = "At least two ROIs are needed."),
+        need(input$mzIS >= min(Cardinal::mz(global$cleanedMSIData)) & input$mzIS <= max(Cardinal::mz(global$cleanedMSIData)), message = "Entered m/z is out of range.")
+      )
+      roiMSIData <- combine2(msiData = global$cleanedMSIData, roiList = roiData$roiList)
+      ISQuan$df <- roiQuantification(roiMSIData = roiMSIData, mz = input$mzIS)
+      shiny::req(nrow(ISQuan$df) >= 2)
+      DT::datatable(ISQuan$df,
+                    editable = TRUE,
+                    caption = "Intensity ~ concentration table",
+                    extensions = "Buttons",
+                    options = list(dom = 'Bfrtip',
+                                   buttons = list(list(extend = 'csv', filename= 'IS_Table')),
+                                   scrollX = TRUE
+                                   )
+                    )
+    }) |>
+      bindEvent(input$showQuanTable)
+
+    #(5.6.2) Update cell values ------------------------------------------------
+    observeEvent(input$intConTable_cell_edit, {
+      ISQuan$df[input$intConTable_cell_edit$row, input$intConTable_cell_edit$col] <- input$intConTable_cell_edit$value
+    })
+
+    #(5.6.3) Display calibration curve -----------------------------------------
+    output$showPlotCalCurveButton <- renderUI({
+      shiny::req(nrow(ISQuan$df) >= 2)
+      actionButton(inputId = ns("plotCal"),
+                   label = "Plot",
+                   icon = icon("paper-plane"),
+                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                   )
+    })
+
+    observeEvent(input$plotCal, {
+      output$calCurve <- plotly::renderPlotly({
+        shiny::validate(need(length(input$intConTable_rows_selected) >= 2, message = "Please select at least two rows."))
+        ISQuan$subDF <- ISQuan$df[input$intConTable_rows_selected, ]
+        shiny::validate(need(all(ISQuan$subDF$Concentration >= 0), message = "Concentration cannot be negative values."))
+        result <- plotCalCurve(df = ISQuan$subDF)
+        ISQuan$fit <- result$fit
+        ISQuan$plot <- result$plot
+        ISQuan$plot
+      })
+    })
+
+    #(5.6.4) Quantification ----------------------------------------------------
+    output$getQuan <- renderUI({
+      shiny::req(nrow(ISQuan$df) >= 2)
+      tagList(
+        textInput(inputId = ns("quanInt"),
+                  label = "Enter intensities for quantification",
+                  value = NULL,
+                  placeholder = "For multiple values, please use comma to seperate them."
+                  ),
+        actionButton(inputId = ns("ISQuantify"),
+                     label = "Quantify",
+                     icon = icon("paper-plane"),
+                     style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
+                     )
+      )
+    })
+
+    output$predictionTable <- DT::renderDT({
+      shiny::req(ISQuan$fit)
+      shiny::validate(need(input$mzValues != "", message = "Intensities are missing."))
+      ISQuan$prediction <- getQuan(mod = ISQuan$fit, Intensity = text2Num(input$quanInt))
+      DT::datatable(ISQuan$prediction,
+                    caption = "Quantification table",
+                    extensions = "Buttons",
+                    options = list(dom = 'Bfrtip',
+                                   buttons = list(list(extend = 'csv', filename= 'IS_Quantification')),
+                                   scrollX = TRUE
+                                   )
+                    )
+    }) |>
+      bindEvent(input$ISQuantify)
+
+    observeEvent(input$ISQuantify, ignoreNULL = FALSE, {
+      shiny::req(ISQuan$plot)
+      shiny::req(nrow(ISQuan$subDF) >=2)
+      shiny::req(nrow(ISQuan$prediction) >= 1)
+      output$calCurve <- plotly::renderPlotly({
+        color <- ifelse(ISQuan$prediction$Intensity >= min(ISQuan$subDF$Intensity) & ISQuan$prediction$Intensity <= max(ISQuan$subDF$Intensity), "#9ed9b4", "#fc0317")
+        ISQuan$plot %>%
+          plotly::add_markers(data = ISQuan$prediction,
+                              x = ~ Intensity,
+                              y = ~ Concentration,
+                              marker = list(color = color, symbol = 'x', size = 15, line = list(color = "#999797", width = 2))
+                              )
+      })
+    })
+
+    output$calCurveInfo <- renderPrint({
+      shiny::req(nrow(ISQuan$df) >= 2)
+      shiny::req(ISQuan$plot)
+      cat("Below is the calibration curve: \n")
+      cat("The quantified results will also be displayed in the calibration curve. \n")
+    }) |>
+      bindEvent(input$ISQuantify)
 
 })}
 

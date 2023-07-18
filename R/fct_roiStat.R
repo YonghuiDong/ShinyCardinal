@@ -29,7 +29,10 @@ roiStat <- function(roiMSIData){
   #(2) Remove rows with all means == 0 -----------------------------------------
   roiMean <- roiMean[rowSums(roiMean[, -which(names(roiMean) == "mz")], na.rm = TRUE) > 0, ]
 
-  #(3) Calculate fold change ---------------------------------------------------
+  #(3) Round mean intensity apart from mz column -------------------------------
+  roiMean[, -1] <- round(roiMean[, -1], 2)
+
+  #(4) Calculate fold change ---------------------------------------------------
   dfNames <- colnames(roiMean)
   columns <- grepl("mean", dfNames)
   dfSub <- roiMean[, columns]
@@ -37,7 +40,7 @@ roiStat <- function(roiMSIData){
   Group <- sub(".*_(.*?)\\..*", "\\1", string)
   FC <- getFC(t(dfSub), Group)
 
-  #(4) Means test --------------------------------------------------------------
+  #(5) Means test --------------------------------------------------------------
   if(any(table(Group) > 1)){
     fit <- Cardinal::meansTest(x = roiMSIData, ~ condition, groups = Cardinal::run(roiMSIData))
     roiStat <- Cardinal::summary(fit) |>
@@ -47,7 +50,7 @@ roiStat <- function(roiMSIData){
     roiStat <- NULL
   }
 
-  #(5) Show result -------------------------------------------------------------
+  #(6) Show result -------------------------------------------------------------
   if(!is.null(roiStat)){
     cbind(roiMean, FC, roiStat)
   } else{
@@ -65,10 +68,9 @@ roiStat <- function(roiMSIData){
 #' @export
 #' @noRd
 #' @examples
-#' x <- matrix(runif(2*300), ncol = 2, nrow = 300)
+#' dat <- matrix(runif(2*300), ncol = 2, nrow = 300)
 #' Group <- rep_len(LETTERS[1:2], 300)
-#' ret <- getFC(dat, Group = myGroup)
-
+#' ret <- getFC(dat, Group = Group)
 
 getFC <- function(x, Group = NULL){
   cat ("\n- Calculating Fold Changes...\n")
@@ -80,11 +82,11 @@ getFC <- function(x, Group = NULL){
 
   #(2) Calculate FC ------------------------------------------------------------
   df <- data.frame(x, Group = Group)
-  mean_int <- aggregate(. ~ Group, data = df, FUN = mean)
+  mean_int <- stats::aggregate(. ~ Group, data = df, FUN = mean)
   row_name <- mean_int$Group
   mean_int <- as.matrix(subset(x = mean_int, select = -Group))
   rownames(mean_int) <- row_name
-  j <- combn(levels(Group), 2)
+  j <- utils::combn(levels(Group), 2)
   f_change1 <- mean_int[j[1,],] / mean_int[j[2,],]
   f_change2 <- mean_int[j[2,],] / mean_int[j[1,],]
 

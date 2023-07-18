@@ -40,7 +40,14 @@ mod_export_ui <- function(id){
                collapsed = TRUE,
                closable = FALSE,
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-               p(style = "color:#C70039;", "1. Click the button to download centroid imzmL file."),
+               p(style = "color:#C70039;", "1. Please select data format to export."),
+               p(style = "color:#C70039;", "2. Click the button to export the data."),
+               radioButtons(inputId = ns("fileType"),
+                            label = "Choose file type to export",
+                            choices = list("Data Frame" = "dataframe", "Centroid imzML" = "imzML"),
+                            selected = "dataframe",
+                            inline = TRUE
+                            ),
                actionButton(inputId = ns("go"),
                             label = "Go",
                             icon = icon("paper-plane"),
@@ -84,20 +91,37 @@ mod_export_server <- function(id, global){
     })|>
       bindEvent(input$go)
 
-    output$downloadFile <- downloadHandler(
-      filename = function(){paste0("MSIDataFiles.zip")},
-      content = function(file) {
-        showModal(modalDialog(title = "Downloading...", footer = NULL))
-        bundle_dir_name <- file.path(tempdir(),'bundle')
-        if(dir.exists(bundle_dir_name)){
-          unlink(bundle_dir_name, recursive = TRUE, force = TRUE)
-        }
-        dir.create(bundle_dir_name)
-        Cardinal::writeImzML(object = global$cleanedMSIData, folder = bundle_dir_name, name = 'centroild')
-        on.exit(removeModal())
-        utils::zip(zipfile = file, files = bundle_dir_name, extras = '-j')
+
+    observeEvent(input$fileType, {
+      if(input$fileType == "imzML"){
+        output$downloadFile <- downloadHandler(
+          filename = function(){paste0("MSIDataFiles.zip")},
+          content = function(file) {
+            shiny::withProgress(message = "Downloading", detail = "Be patient...", value = 0.4, {
+                bundle_dir_name <- file.path(tempdir(),'bundle')
+                if(dir.exists(bundle_dir_name)){
+                  unlink(bundle_dir_name, recursive = TRUE, force = TRUE)
+                }
+                dir.create(bundle_dir_name)
+                Cardinal::writeImzML(object = global$cleanedMSIData, folder = bundle_dir_name, name = 'centroild')
+                utils::zip(zipfile = file, files = bundle_dir_name, extras = '-j')
+            })
+          }
+        )
+      } else{
+        output$downloadFile <- downloadHandler(
+          filename = function(){paste0("MSIData.csv")},
+          content = function(file){
+            shiny::withProgress(message = "Downloading", detail = "Be patient...", value = 0.4, {
+              write.csv(x = exportData(msiData = global$cleanedMSIData), file = file, row.names = FALSE)
+            })
+          }
+        )
       }
-    )
+
+    })
+
+
 
 
 })}

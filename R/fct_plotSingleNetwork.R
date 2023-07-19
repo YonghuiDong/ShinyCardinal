@@ -3,6 +3,7 @@
 #' @param PCC pearson correlation coefficient obtained from getPCC function.
 #' @param threshold PCC threshold.
 #' @param labelSize label size.
+#' @importFrom igraph layout_nicely
 #' @return network Plot.
 #' @noRd
 #' @examples

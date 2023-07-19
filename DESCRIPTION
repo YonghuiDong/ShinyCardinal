@@ -1,6 +1,6 @@
 Package: ShinyCardinal
 Title: PKG_TITLE
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: 
     person("Yonghui", "Dong", , "yonghui.dong@gmail.com", role = c("cre", "aut"))
 Description: Analysis of Mass Spectrometry Imaging Data.
@@ -14,11 +14,12 @@ Imports:
     igraph,
     MSbox,
     plotly,
-    pkgload,
     shiny (>= 1.7.4),
     shinycssloaders,
     shinydashboard,
     sp,
+    stats,
+    utils,
     visNetwork
 Suggests: 
     BiocStyle,

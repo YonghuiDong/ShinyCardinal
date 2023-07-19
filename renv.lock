@@ -43,10 +43,6 @@
       "Package": "Biobase",
       "Version": "2.60.0",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/Biobase",
-      "git_branch": "RELEASE_3_17",
-      "git_last_commit": "8dc10d2",
-      "git_last_commit_date": "2023-04-25",
       "Requirements": [
         "BiocGenerics",
         "R",
@@ -57,12 +53,8 @@
     },
     "BiocGenerics": {
       "Package": "BiocGenerics",
-      "Version": "0.45.3",
+      "Version": "0.46.0",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/BiocGenerics",
-      "git_branch": "devel",
-      "git_last_commit": "5d95680",
-      "git_last_commit_date": "2023-03-28",
       "Requirements": [
         "R",
         "graphics",
@@ -70,7 +62,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "e0f409b65b8940f22da846f791f4453a"
+      "Hash": "c179ae59955c36f5d0068ed29ce832f7"
     },
     "BiocManager": {
       "Package": "BiocManager",
@@ -86,10 +78,6 @@
       "Package": "BiocParallel",
       "Version": "1.34.2",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/BiocParallel",
-      "git_branch": "RELEASE_3_17",
-      "git_last_commit": "77491b2",
-      "git_last_commit_date": "2023-05-22",
       "Requirements": [
         "BH",
         "R",
@@ -108,10 +96,6 @@
       "Package": "BiocStyle",
       "Version": "2.28.0",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/BiocStyle",
-      "git_branch": "RELEASE_3_17",
-      "git_last_commit": "b358aa5",
-      "git_last_commit_date": "2023-04-25",
       "Requirements": [
         "BiocManager",
         "bookdown",
@@ -122,6 +106,15 @@
         "yaml"
       ],
       "Hash": "2572da7135319ae140c1efead16c3f01"
+    },
+    "BiocVersion": {
+      "Package": "BiocVersion",
+      "Version": "3.17.1",
+      "Source": "Bioconductor",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "f7c0d5521799b7b0d0a211143ed0bfcb"
     },
     "Cardinal": {
       "Package": "Cardinal",
@@ -189,10 +182,6 @@
       "Package": "EBImage",
       "Version": "4.42.0",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/EBImage",
-      "git_branch": "RELEASE_3_17",
-      "git_last_commit": "1ed3e67",
-      "git_last_commit_date": "2023-04-25",
       "Requirements": [
         "BiocGenerics",
         "RCurl",
@@ -261,10 +250,6 @@
       "Package": "ProtGenerics",
       "Version": "1.32.0",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/ProtGenerics",
-      "git_branch": "RELEASE_3_17",
-      "git_last_commit": "30c6458",
-      "git_last_commit_date": "2023-04-25",
       "Requirements": [
         "methods"
       ],
@@ -317,10 +302,6 @@
       "Package": "S4Vectors",
       "Version": "0.38.1",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/S4Vectors",
-      "git_branch": "RELEASE_3_17",
-      "git_last_commit": "17a9d8c",
-      "git_last_commit_date": "2023-05-01",
       "Requirements": [
         "BiocGenerics",
         "R",
@@ -1106,10 +1087,6 @@
       "Package": "matter",
       "Version": "2.2.0",
       "Source": "Bioconductor",
-      "git_url": "https://git.bioconductor.org/packages/matter",
-      "git_branch": "RELEASE_3_17",
-      "git_last_commit": "54f665e",
-      "git_last_commit_date": "2023-04-25",
       "Requirements": [
         "BiocGenerics",
         "BiocParallel",
@@ -1204,13 +1181,13 @@
     },
     "openssl": {
       "Package": "openssl",
-      "Version": "2.0.6",
+      "Version": "2.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "askpass"
       ],
-      "Hash": "0f7cd2962e3044bb940cca4f4b5cecbe"
+      "Hash": "273a6bb4a9844c296a459d2176673270"
     },
     "packrat": {
       "Package": "packrat",
@@ -1356,7 +1333,12 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.0",
-      "Source": "Repository"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "c321cd99d56443dbffd1c9e673c0c1a2"
     },
     "rlang": {
       "Package": "rlang",

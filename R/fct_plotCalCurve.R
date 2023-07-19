@@ -9,7 +9,7 @@
 
 plotCalCurve <- function(df){
   fit <- lm(Concentration ~ Intensity, data = df)
-  title <- paste0("\n", "y = ", round(coef(fit)[1], 2), " + ", round(coef(fit)[2], 2), "x; ", "R² = ", round(summary(fit)$r.squared, 3))
+  title <- paste0("\n", "y = ", round(coef(fit)[1], 2), " + ", round(coef(fit)[2], 2), "x; ", "R^2 = ", round(summary(fit)$r.squared, 3))
   plot <- df %>%
     plotly::plot_ly(x = ~Intensity) %>%
     plotly::add_markers(y = ~Concentration, marker = list(color = "#ffe9ec", size = 10, line = list(color = "#cf8a8a", width = 2))) %>%

@@ -11,6 +11,8 @@ Imports:
     config (>= 0.3.1),
     DT,
     golem (>= 0.3.5.9001),
+    graphics,
+    grDevices,
     igraph,
     MSbox,
     plotly,

@@ -4,4 +4,4 @@
 #options(rsconnect.max.bundle.size=5368709120)
 pkgload::load_all(export_all = FALSE, helpers = FALSE, attach_testthat = FALSE) # use it when I need to deploy
 options( "golem.app.prod" = TRUE)
-ShinyCardinal::run_app() # add parameters here (if any)
+#ShinyCardinal::run_app() # add parameters here (if any)

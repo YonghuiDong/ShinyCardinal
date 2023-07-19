@@ -85,7 +85,7 @@ mod_export_server <- function(id, global){
       shiny::validate(need(global$processedMSIData, message = "MSI data not found."))
       if(is.null(global$cleanedMSIData)){global$cleanedMSIData <- global$processedMSIData}
       downloadButton(outputId = ns("downloadFile"),
-                     label = "Download zip",
+                     label = "Download",
                      icon = icon("download"),
                      style="color: #fff; background-color: #a077b5; border-color: #a077b5"
                      )

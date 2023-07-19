@@ -507,7 +507,8 @@ mod_viewData_ui <- function(id){
       ))}
 
 #' viewData Server Functions
-#'
+#' @importFrom grDevices dev.off pdf png
+#' @importFrom graphics lines par
 #' @noRd
 mod_viewData_server <- function(id, global){
   moduleServer( id, function(input, output, session){

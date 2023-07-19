@@ -114,7 +114,7 @@ mod_export_server <- function(id, global){
           filename = function(){paste0("MSIData.csv")},
           content = function(file){
             shiny::withProgress(message = "Downloading", detail = "Be patient...", value = 0.4, {
-              write.csv(x = exportData(msiData = global$cleanedMSIData), file = file, row.names = FALSE)
+              utils::write.csv(x = exportData(msiData = global$cleanedMSIData), file = file, row.names = FALSE)
             })
           }
         )

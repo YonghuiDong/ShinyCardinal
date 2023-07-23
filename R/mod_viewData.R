@@ -193,7 +193,7 @@ mod_viewData_ui <- function(id){
                br(),
                p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
                p(style = "color:#C70039;", "1. Without mass tolerance, exact m/z is displayed."),
-               p(style = "color:#C70039;", "2. Otherwise, entered m/z ± tolerance is displayed."),
+               p(style = "color:#C70039;", "2. Otherwise, entered m/z +/- tolerance is displayed."),
                numericInput(inputId = ns("massWindow"),
                             label = NULL,
                             min = 0,

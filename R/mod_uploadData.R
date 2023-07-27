@@ -553,7 +553,9 @@ mod_uploadData_server <- function(id, global){
         paste0("processedMSIData", ".rds")
       },
       content = function(file){
-        saveRDS(global$processedMSIData, file)
+        shiny::withProgress(message = "Downloading", detail = "Be patient...", value = 0.4, {
+          saveRDS(global$processedMSIData, file)
+        })
       }
     )
 

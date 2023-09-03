@@ -128,6 +128,9 @@ mod_uploadData_ui <- function(id){
                 )
               )
             ),
+      #(2) Plot MSI images =====================================================
+      column(width = 12, h5("Display MSI images (optional)")),
+      mod_plotMSI_ui(ns("plotMSI_1"), inputWidth = 5),
 
       #(2) Get Mean Spectrum ===================================================
       column(width = 12, h6("Calculate Mean Spectrum")),
@@ -346,7 +349,6 @@ mod_uploadData_ui <- function(id){
 mod_uploadData_server <- function(id, global){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
-
     #(1) Load MSI Data =========================================================
     filePath <- reactiveValues(root = "~", current = "~", imzmlPath = NULL, ibdPath = NULL)
 
@@ -456,6 +458,9 @@ mod_uploadData_server <- function(id, global){
       global$msiData
     }) |>
       bindEvent(input$loadData)
+
+    #(2) Display MSI images ====================================================
+    mod_plotMSI_server("plotMSI_1", msiData = reactive({global$msiData}), global = global)
 
     #(2) Get Mean Spectrum =====================================================
     specData <- reactiveValues(meanSpec = NULL, refPeaks = NULL)

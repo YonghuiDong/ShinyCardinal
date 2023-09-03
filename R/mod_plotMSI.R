@@ -28,7 +28,7 @@ mod_plotMSI_ui <- function(id, inputWidth = 4){
                          ),
              textInput(inputId = ns("mzValues"),
                        label = "1. Enter m/z values to visualize",
-                       placeholder = "For multiple m/z values, separate them by a comma"
+                       placeholder = "For multiple m/z values, separate them by a comma."
                        ),
              strong("2. Set mass tolerance window (Da)"),
              br(),
@@ -158,21 +158,17 @@ mod_plotMSI_server <- function(id, msiData, global){
     ns <- session$ns
     #(1.0) Update MSI run ======================================================
     observeEvent(msiData(),{
-      # In case users did not perform step #2
-      if(is.null(global$cleanedMSIData)){
-        global$cleanedMSIData <- msiData()
-      }
-      if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
+      if(length(levels(Cardinal::run(msiData()))) == 1){
         ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.
         updateSelectInput(session = session,
                           inputId = "msiRun", ## no name space
-                          choices = levels(Cardinal::run(global$cleanedMSIData)),
-                          selected = levels(Cardinal::run(global$cleanedMSIData))
+                          choices = levels(Cardinal::run(msiData())),
+                          selected = levels(Cardinal::run(msiData()))
                           )
       } else{
         updateSelectInput(session = session,
                           inputId = "msiRun", ## no name space
-                          choices = c("All" = "All", levels(Cardinal::run(global$cleanedMSIData))),
+                          choices = c("All" = "All", levels(Cardinal::run(msiData()))),
                           selected = "All"
                           )
       }
@@ -183,17 +179,17 @@ mod_plotMSI_server <- function(id, msiData, global){
     #(1.1) Show Input m/z Info  ================================================
     output$mzList <- renderPrint({
       shiny::validate(
-        need(global$cleanedMSIData, message = "MSI data not found."),
+        need(msiData(), message = "MSI data not found."),
         need(input$mzValues != "", message = "m/z value is missing."),
         need(input$massWindow > 0 | is.na(input$massWindow), message = "mass tolerance should be positive value.")
       )
       msiInfo$mzList <- unique(text2Num(input$mzValues))
-      msiInfo$mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)
-      msiInfo$mzMax <- round(max(Cardinal::mz(global$cleanedMSIData)), 4)
+      msiInfo$mzMin <- round(min(Cardinal::mz(msiData())), 4)
+      msiInfo$mzMax <- round(max(Cardinal::mz(msiData())), 4)
       shiny::validate(need(min(msiInfo$mzList) >= msiInfo$mzMin & max(msiInfo$mzList) <= msiInfo$mzMax,
                            message = paste("m/z value should between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " ")))
       ## Get ion images
-      global$ionImage <- plotImage(msiData = global$cleanedMSIData,
+      global$ionImage <- plotImage(msiData = msiData(),
                                    mz = msiInfo$mzList,
                                    smooth.image = input$smoothImage,
                                    plusminus = input$massWindow,
@@ -277,7 +273,7 @@ mod_plotMSI_server <- function(id, msiData, global){
           pdf(file = file, onefile = TRUE)
           withProgress(message = 'Making plot', value = 0, {
             for(i in seq_along(msiInfo$mzList)){
-              print(plotImage(msiData = global$cleanedMSIData,
+              print(plotImage(msiData = msiData(),
                               mz = msiInfo$mzList[i],
                               smooth.image = input$smoothImage,
                               plusminus = input$massWindow,
@@ -329,11 +325,11 @@ mod_plotMSI_server <- function(id, msiData, global){
       ## initiate click event
       rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
       observeEvent(input$plot_click, {
-        shiny::req(input$plot_click$x >= min(Cardinal::coord(global$cleanedMSIData)$x)
-                   & input$plot_click$x <= max(Cardinal::coord(global$cleanedMSIData)$x)
+        shiny::req(input$plot_click$x >= min(Cardinal::coord(msiData())$x)
+                   & input$plot_click$x <= max(Cardinal::coord(msiData())$x)
                    )
-        shiny::req(input$plot_click$y >= min(Cardinal::coord(global$cleanedMSIData)$y)
-                   & input$plot_click$y <= max(Cardinal::coord(global$cleanedMSIData)$y)
+        shiny::req(input$plot_click$y >= min(Cardinal::coord(msiData())$y)
+                   & input$plot_click$y <= max(Cardinal::coord(msiData())$y)
                    )
         rv_click$df <-
           isolate(rv_click$df) |>
@@ -360,8 +356,8 @@ mod_plotMSI_server <- function(id, msiData, global){
       })
       output$selectedSpec <- plotly::renderPlotly({
         shiny::req(nrow(rv_click$df) > 0)
-        shiny::req(global$cleanedMSIData)
-        plotPixelSpec(msiData = global$cleanedMSIData, pixelDF = rv_click$df)
+        shiny::req(msiData())
+        plotPixelSpec(msiData = msiData(), pixelDF = rv_click$df)
       })
     })
 

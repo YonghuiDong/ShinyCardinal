@@ -132,7 +132,7 @@ mod_uploadData_ui <- function(id){
       column(width = 12, h5("Display MSI images (optional)")),
       mod_plotMSI_ui(ns("plotMSI_1"), inputWidth = 5),
 
-      #(2) Get Mean Spectrum ===================================================
+      #(3) Get Mean Spectrum ===================================================
       column(width = 12, h6("Calculate Mean Spectrum")),
       column(width = 5,
              box(
@@ -171,7 +171,7 @@ mod_uploadData_ui <- function(id){
               )
             ),
 
-      #(2.2) Get Mean Spectrum Result ------------------------------------------
+      #(3.2) Get Mean Spectrum Result ------------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -190,7 +190,7 @@ mod_uploadData_ui <- function(id){
               )
             ),
 
-      #(3) Get Reference Peaks =================================================
+      #(4) Get Reference Peaks =================================================
       column(width = 12, h6("Calculate Reference Peaks")),
       column(width = 5,
              box(
@@ -233,7 +233,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(3.2) Get Reference Peaks Result ----------------------------------------
+      #(4.2) Get Reference Peaks Result ----------------------------------------
       column(width = 7,
              box(
                width = 12,
@@ -252,7 +252,7 @@ mod_uploadData_ui <- function(id){
               )
             ),
 
-      #(4) Process MSI Data ====================================================
+      #(5) Process MSI Data ====================================================
       column(width = 12, h6("Process MSI Data")),
       column(width = 5,
              box(
@@ -321,7 +321,7 @@ mod_uploadData_ui <- function(id){
                )
              ),
 
-      #(4.2) Process MSI Data Result -------------------------------------------
+      #(5.2) Process MSI Data Result -------------------------------------------
       column(width = 7,
              box(
                width = 12,

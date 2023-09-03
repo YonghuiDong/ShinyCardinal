@@ -21,8 +21,8 @@ mod_plotMSI_ui <- function(id, inputWidth = 4){
              collapsible = TRUE,
              collapsed = TRUE,
              closable = FALSE,
-             selectInput(inputId = ns('msiRun'),
-                         label = '(optional) Select a MSI run to display',
+             selectInput(inputId = ns("msiRun"),
+                         label = "(optional) Select a MSI run to display",
                          choices = NULL,
                          selected = NULL
                          ),
@@ -153,14 +153,14 @@ mod_plotMSI_ui <- function(id, inputWidth = 4){
 #' plotMSI Server Functions
 #'
 #' @noRd
-mod_plotMSI_server <- function(id){
-  moduleServer( id, function(input, output, session){
+mod_plotMSI_server <- function(id, msiData, global){
+  moduleServer(id, function(input, output, session){
     ns <- session$ns
     #(1.0) Update MSI run ======================================================
-    observeEvent(global$processedMSIData,{
-      ## In case users did not perform step #2
+    observeEvent(msiData(),{
+      # In case users did not perform step #2
       if(is.null(global$cleanedMSIData)){
-        global$cleanedMSIData <- global$processedMSIData
+        global$cleanedMSIData <- msiData()
       }
       if(length(levels(Cardinal::run(global$cleanedMSIData))) == 1){
         ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.

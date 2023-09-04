@@ -151,7 +151,11 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
                            )
                     ),
              shiny::tableOutput(outputId = ns("pixelTable")),
-             plotly::plotlyOutput(outputId = ns("selectedSpec"))
+             column(width = 12,
+                    shinycssloaders::withSpinner(
+                      plotly::plotlyOutput(outputId = ns("selectedSpec"))
+                    )
+                  )
              )
            )
 
@@ -309,7 +313,8 @@ mod_plotMSI_server <- function(id, msiData, global){
       }
     )
 
-    #(1.4) Display selected  spectrum ==========================================
+    #(1.4) Display selected spectrum ===========================================
+    rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
     observeEvent(input$viewImage, {
       output$resetButton <- renderUI({
         shiny::req(global$ionImage)
@@ -330,7 +335,6 @@ mod_plotMSI_server <- function(id, msiData, global){
           )
       })
       ## initiate click event
-      rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
       observeEvent(input$plot_click, {
         shiny::req(input$plot_click$x >= min(Cardinal::coord(msiData())$x)
                    & input$plot_click$x <= max(Cardinal::coord(msiData())$x)
@@ -361,11 +365,11 @@ mod_plotMSI_server <- function(id, msiData, global){
         shiny::req(nrow(rv_click$df) > 0)
         rv_click$df
       })
-      output$selectedSpec <- plotly::renderPlotly({
-        shiny::req(nrow(rv_click$df) > 0)
-        shiny::req(msiData())
-        plotPixelSpec(msiData = msiData(), pixelDF = rv_click$df)
-      })
+    })
+    output$selectedSpec <- plotly::renderPlotly({
+      shiny::req(nrow(rv_click$df) > 0)
+      shiny::req(msiData())
+      plotPixelSpec(msiData = msiData(), pixelDF = rv_click$df)
     })
 
 })}

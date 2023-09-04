@@ -23,7 +23,7 @@ mod_export_ui <- function(id){
                closable = FALSE,
                p("1. This module enables export of MSI data into data frame (.csv) and centroid imzML files."),
                p("2. Please watch the video tutorial about how to export MSI data:",
-                 a(href = "https://www.youtube.com/watch?v=vjhJwCZFpN0", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
+                 a(href = "https://www.youtube.com/watch?v=30ZL184f-Ec&t=3s", shiny::icon("youtube", style = "color:#d17789; font-size:25px;"), target="_blank"))
                )
              ),
 

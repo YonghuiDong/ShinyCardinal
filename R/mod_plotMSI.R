@@ -23,7 +23,7 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
              closable = FALSE,
              if(isTRUE(showNote)){
                div(
-                 p(style = "color:#C70039;", shiny::icon("warning"), strong("Warning:")),
+                 p(style = "color:#0d4aa1;", shiny::icon("bell"), strong("Warning:")),
                  p(style = "color:#0d4aa1;", "1. This module is solely for MSI data verification."),
                  p(style = "color:#0d4aa1;", "2. MSI image generation can be very slow for unpreprocessed data.")
                )

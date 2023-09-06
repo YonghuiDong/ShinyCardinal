@@ -156,7 +156,7 @@ mod_uploadData_ui <- function(id){
                sliderInput(inputId = ns("meanSpecWorkers"),
                            label = "",
                            min = 1,
-                           max = 10,
+                           max = maxCores(),
                            value = 1,
                            step = 1
                            ),
@@ -306,7 +306,7 @@ mod_uploadData_ui <- function(id){
                sliderInput(inputId = ns("getProcessMSIWorkers"),
                            label = "",
                            min = 1,
-                           max = 10,
+                           max = maxCores(),
                            value = 1,
                            step = 1
                           ),

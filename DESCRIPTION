@@ -15,6 +15,7 @@ Imports:
     grDevices,
     igraph,
     MSbox,
+    parallel,
     plotly,
     shiny (>= 1.7.4),
     shinycssloaders,

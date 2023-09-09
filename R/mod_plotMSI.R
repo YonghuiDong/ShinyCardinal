@@ -164,7 +164,7 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
 #' plotMSI Server Functions
 #'
 #' @noRd
-mod_plotMSI_server <- function(id, msiData, global){
+mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
     #(1.0) Update MSI run ======================================================
@@ -372,6 +372,14 @@ mod_plotMSI_server <- function(id, msiData, global){
       plotPixelSpec(msiData = msiData(), pixelDF = rv_click$df)
     })
 
+    #(1.5) Export input/output -------------------------------------------------
+    export_list <- list()
+    if (export_msiRun){
+      export_lis$msiRun <- reactive(input$msiRun)
+    }
+    if (length(export_list) > 0) {
+      return(export_list)
+    }
 })}
 
 ## To be copied in the UI

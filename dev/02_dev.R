@@ -69,6 +69,7 @@ golem::add_fct("plotSingleNetwork", with_test = FALSE)
 golem::add_fct("plotMSMS", with_test = FALSE)
 golem::add_fct("cropData", with_test = FALSE)
 golem::add_fct("exportData", with_test = FALSE)
+golem::add_fct("maxCores", with_test = FALSE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www

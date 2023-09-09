@@ -513,7 +513,7 @@ mod_viewData_server <- function(id, global){
         global$cleanedMSIData <- global$processedMSIData
       }
     })
-    mod_plotMSI_server("plotMSI_1", msiData = reactive({global$processedMSIData}), global = global)
+    plotMSIServer <- mod_plotMSI_server("plotMSI_1", msiData = reactive({global$processedMSIData}), global = global, export_msiRun = TRUE)
 
     #(5) Image Analysis ========================================================
 
@@ -568,12 +568,12 @@ mod_viewData_server <- function(id, global){
         need(all(roiData$roiDF$y >= min(Cardinal::coord(global$cleanedMSIData)$y) & all(roiData$roiDF$y <= max(Cardinal::coord(global$cleanedMSIData)$y))),
              message = "Selected ROI is out of y-aixs range"),
         need(input$roiName != "", message = "Please enter an ROI name"),
-        need(input$msiRun != "All", message = "Please select only one MSI run when selecting ROI."),
-        need(!(paste(input$roiName, input$msiRun, sep = ":") %in% names(roiData$roiList)), message = "ROI name already exists, choose a different one.")
+        need(plotMSIServer$msiRun() != "All", message = "Please select only one MSI run when selecting ROI."),
+        need(!(paste(input$roiName, plotMSIServer$msiRun(), sep = ":") %in% names(roiData$roiList)), message = "ROI name already exists, choose a different one.")
       )
       ## get roiList
       roiData$roiList <- append(roiData$roiList,
-                                setNames(list(getROI(msiData = global$cleanedMSIData, selectedRun = input$msiRun, roiDF = roiData$roiDF)), paste(input$roiName, input$msiRun, sep = ":"))
+                                setNames(list(getROI(msiData = global$cleanedMSIData, selectedRun = plotMSIServer$msiRun(), roiDF = roiData$roiDF)), paste(input$roiName, plotMSIServer$msiRun(), sep = ":"))
                                 )
       ## record corresponding cropType for each ROI
       roiData$cropType <- append(roiData$cropType, input$cropType)

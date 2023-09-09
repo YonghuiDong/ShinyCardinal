@@ -374,10 +374,10 @@ mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
 
     #(1.5) Export input/output -------------------------------------------------
     export_list <- list()
-    if (export_msiRun){
+    if(export_msiRun){
       export_lis$msiRun <- reactive(input$msiRun)
     }
-    if (length(export_list) > 0) {
+    if(length(export_list) > 0){
       return(export_list)
     }
 })}

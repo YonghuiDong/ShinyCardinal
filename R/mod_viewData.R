@@ -513,7 +513,7 @@ mod_viewData_server <- function(id, global){
         global$cleanedMSIData <- global$processedMSIData
       }
     })
-    plotMSIServer <- mod_plotMSI_server("plotMSI_1", msiData = reactive({global$processedMSIData}), global = global, export_msiRun = TRUE)
+    plotMSIServer <- mod_plotMSI_server("plotMSI_1", msiData = reactive({global$cleanedMSIData}), global = global, export_msiRun = TRUE)
 
     #(5) Image Analysis ========================================================
 

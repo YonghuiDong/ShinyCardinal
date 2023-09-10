@@ -654,10 +654,13 @@ mod_viewData_server <- function(id, global){
       bindEvent(input$compareROIs)
 
     #(5.4) Show mz intensity profile alone pixels ==============================
+    msiInfo <- reactiveValues(mzMin = NULL, mzMax = NULL)
     output$roiProfiles <- plotly::renderPlotly({
       shiny::req(global$cleanedMSIData)
       shiny::validate(need(input$mzROI != "", message = "m/z value not found"))
       mzROIList <- unique(text2Num(input$mzROI))
+      msiInfo$mzMin <- round(min(Cardinal::mz(global$cleanedMSIData)), 4)
+      msiInfo$mzMax <- round(max(Cardinal::mz(global$cleanedMSIData)), 4)
       shiny::validate(
         need(length(roiData$roiList) == 1, message = "Only one ROI is allowed for plotting ion intensity profiles"),
         need(min(mzROIList) >= msiInfo$mzMin & max(mzROIList) <= msiInfo$mzMax, message = paste("m/z value shoud between", msiInfo$mzMin, "and", msiInfo$mzMax, sep = " "))

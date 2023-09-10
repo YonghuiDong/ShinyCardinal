@@ -1116,7 +1116,7 @@ mod_viewData_server <- function(id, global){
 
     output$predictionTable <- DT::renderDT({
       shiny::req(ISQuan$fit)
-      shiny::validate(need(input$mzValues != "", message = "Intensities are missing."))
+      shiny::validate(need(input$quanInt != "", message = "Intensities are missing."))
       ISQuan$prediction <- getQuan(mod = ISQuan$fit, Intensity = text2Num(input$quanInt))
       DT::datatable(ISQuan$prediction,
                     caption = "Quantification table",

@@ -47,7 +47,7 @@ mod_preprocessMSI_ui <- function(id){
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                           )
-             )
+            )
     ),
 
     #(1.2) Output --------------------------------------------------------------
@@ -64,9 +64,9 @@ mod_preprocessMSI_ui <- function(id){
              shinycssloaders::withSpinner(
                image = 'www/img/cardinal.gif',
                plotly::plotlyOutput(outputId = ns("meanSpecPlot"))
-             ),
+              ),
              shiny::verbatimTextOutput(outputId = ns("meanPeakInfo"))
-           )
+            )
     ),
 
     #(2) Get Reference Peaks ===================================================
@@ -87,7 +87,8 @@ mod_preprocessMSI_ui <- function(id){
                          label = "1.1 Select peak picking method",
                          choices = list("Mean absolute deviations noise (mad)" = "mad",
                                         "Simple standard deviations noise (simple)" = "simple",
-                                        "Adaptive standard deviations noise (adaptive)" = "adaptive"),
+                                        "Adaptive standard deviations noise (adaptive)" = "adaptive"
+                                        ),
                          selected = "mad"
                          ),
              sliderInput(inputId = ns("ppSNR"),
@@ -110,7 +111,7 @@ mod_preprocessMSI_ui <- function(id){
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                           )
-           )
+            )
     ),
 
     #(2.2) Output --------------------------------------------------------------
@@ -129,11 +130,11 @@ mod_preprocessMSI_ui <- function(id){
                plotly::plotlyOutput(outputId = ns("refPeakPlot"))
              ),
              shiny::verbatimTextOutput(outputId = ns("refPeakInfo"))
-           )
+            )
     ),
 
     #(3) Process MSI Data ======================================================
-    #(3.1) Input -----------------------------------------------------------------
+    #(3.1) Input ---------------------------------------------------------------
     column(width = 12, h6("Process MSI Data")),
     column(width = 5,
            box(
@@ -199,7 +200,7 @@ mod_preprocessMSI_ui <- function(id){
                           icon = icon("paper-plane"),
                           style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
                           )
-           )
+            )
     ),
 
     #(3.2) Output --------------------------------------------------------------
@@ -220,7 +221,7 @@ mod_preprocessMSI_ui <- function(id){
              br(),
              br(),
              shiny::uiOutput(outputId = ns("downloadButton"))
-           )
+            )
     )
 
 )}
@@ -235,10 +236,10 @@ mod_preprocessMSI_server <- function(id, EXPR, global){
     #(1) Get Mean Spectrum =====================================================
     specData <- reactiveValues(meanSpec = NULL, refPeaks = NULL)
     output$meanSpecPlot <- plotly::renderPlotly({
-      #(1.1) validate input --------------------------------------------------
+      #(1.1) validate input ----------------------------------------------------
       shiny::validate(need(global$msiData, message = "MSI data not found."))
 
-      #(1.2) Calculate mean spectrum -----------------------------------------
+      #(1.2) Calculate mean spectrum -------------------------------------------
       specData$meanSpec <- getMeanSpec(msiData = global$msiData,
                                        nth = input$nth,
                                        workers = input$meanSpecWorkers
@@ -260,7 +261,7 @@ mod_preprocessMSI_server <- function(id, EXPR, global){
     observe({
       switch(EXPR = EXPR(),
              "HR" = updateSliderInput(inputId = "paTolerance", min = 1, max = 20, value = 5, step = 1),
-             "LR" = updateSliderInput(inputId = "paTolerance", min = 20, max = 200, value = 50, step = 5)
+             "LR" = updateSliderInput(inputId = "paTolerance", min = 20, max = 400, value = 50, step = 5)
              )
     })
     output$refPeakPlot <- plotly::renderPlotly({
@@ -287,7 +288,7 @@ mod_preprocessMSI_server <- function(id, EXPR, global){
     observe({
       switch(EXPR = EXPR(),
              "HR" = updateSliderInput(inputId = "pbTolerance", min = 1, max = 20, value = 5, step = 1),
-             "LR" = updateSliderInput(inputId = "pbTolerance", min = 20, max = 200, value = 50, step = 5)
+             "LR" = updateSliderInput(inputId = "pbTolerance", min = 20, max = 400, value = 50, step = 5)
              )
     })
     output$processedMSIInfo <- shiny::renderPrint({

@@ -95,7 +95,7 @@ mod_preprocessMSI_ui <- function(id){
                          label = "1.2 Choose signal to noise ratio",
                          min = 1,
                          max = 100,
-                         value = 10,
+                         value = 6,
                          step = 1
                          ),
              p(style = "color:#C70039;", "Step 2. Peak Alignment"),
@@ -260,7 +260,7 @@ mod_preprocessMSI_server <- function(id, EXPR, global){
     #(2.1) Calculate and display reference spec --------------------------------
     observe({
       switch(EXPR = EXPR(),
-             "HR" = updateSliderInput(inputId = "paTolerance", min = 1, max = 20, value = 5, step = 1),
+             "HR" = updateSliderInput(inputId = "paTolerance", min = 1, max = 20, value = 15, step = 1),
              "LR" = updateSliderInput(inputId = "paTolerance", min = 20, max = 400, value = 50, step = 5)
              )
     })
@@ -287,7 +287,7 @@ mod_preprocessMSI_server <- function(id, EXPR, global){
     #(3.1) Process and display MSI data ----------------------------------------
     observe({
       switch(EXPR = EXPR(),
-             "HR" = updateSliderInput(inputId = "pbTolerance", min = 1, max = 20, value = 5, step = 1),
+             "HR" = updateSliderInput(inputId = "pbTolerance", min = 1, max = 20, value = 15, step = 1),
              "LR" = updateSliderInput(inputId = "pbTolerance", min = 20, max = 400, value = 50, step = 5)
              )
     })

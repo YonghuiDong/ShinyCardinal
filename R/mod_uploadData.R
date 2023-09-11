@@ -40,7 +40,7 @@ mod_uploadData_ui <- function(id){
       column(width = 12, h5("Check MSI images (optional)")),
       mod_plotMSI_ui(ns("plotMSI_1"), inputWidth = 5, showNote = TRUE),
 
-      #(3) Get Mean Spectrum ===================================================
+      #(3) Preprocess MSI ======================================================
       mod_preprocessMSI_ui(ns("preprocessMSI_1"))
 
 ))}

@@ -10,7 +10,7 @@
 mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
   ns <- NS(id)
   tagList(
-    #(1.1) Input ===============================================================
+    #(1.1) Input ---------------------------------------------------------------
     column(width = inputWidth,
            box(
              width = 12,
@@ -26,17 +26,17 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
                  p(style = "color:#0d4aa1;", shiny::icon("bell"), strong("Warning:")),
                  p(style = "color:#0d4aa1;", "1. This module is solely for MSI data verification."),
                  p(style = "color:#0d4aa1;", "2. MSI image generation can be very slow for unpreprocessed data.")
-               )
-             },
+                )
+              },
              selectInput(inputId = ns("msiRun"),
                          label = "(optional) Select a MSI run to display",
                          choices = NULL,
                          selected = NULL
-                         ),
+                        ),
              textInput(inputId = ns("mzValues"),
                        label = "1. Enter m/z values to visualize",
                        placeholder = "For multiple m/z values, separate them by a comma."
-                       ),
+                      ),
              strong("2. Set mass tolerance window (Da)"),
              br(),
              br(),
@@ -117,7 +117,7 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
              )
            ),
 
-    #(1.2) Output ==============================================================
+    #(1.2) Output --------------------------------------------------------------
     column(width = (12-inputWidth),
            box(
              width = 12,
@@ -133,8 +133,8 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
                     shinycssloaders::withSpinner(
                       image = 'www/img/cardinal.gif',
                       shiny::verbatimTextOutput(outputId = ns("mzList"))
-                      )
-                    ),
+                    )
+                  ),
              column(width = 12,
                     shiny::plotOutput(outputId = ns("ionImage"),
                                       click = ns("plot_click"),
@@ -167,8 +167,8 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
 mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
-    #(1.0) Update MSI run ======================================================
-    observeEvent(msiData(),{
+    #(1.0) Update MSI run ------------------------------------------------------
+    observeEvent(msiData(), {
       if(length(levels(Cardinal::run(msiData()))) == 1){
         ## if there is only one run, I don't have to add "All"; It will be easier to record run name for ROI selection.
         updateSelectInput(session = session,
@@ -185,9 +185,8 @@ mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
       }
     })
 
+    #(1.1) Show Input m/z Info  ------------------------------------------------
     msiInfo <- reactiveValues(mzList = NULL, mzMin = NULL, mzMax = NULL)
-
-    #(1.1) Show Input m/z Info  ================================================
     output$mzList <- renderPrint({
       shiny::validate(
         need(msiData(), message = "MSI data not found."),
@@ -215,7 +214,7 @@ mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
     }) |>
       bindEvent(input$viewImage)
 
-    #(1.2) Show MSI images =====================================================
+    #(1.2) Show MSI images -----------------------------------------------------
     output$ionImage <- renderPlot({
       shiny::req(global$ionImage)
       if(input$modeImage == "light"){
@@ -226,7 +225,7 @@ mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
       global$ionImage
     })
 
-    #(1.3) Enlarge and Download MSI images =====================================
+    #(1.3) Enlarge and Download MSI images -------------------------------------
     output$downloadImageButton <- renderUI({
       shiny::req(print(global$ionImage))
       tagList(
@@ -282,7 +281,7 @@ mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
             Cardinal::darkmode()
           }
           pdf(file = file, onefile = TRUE)
-          withProgress(message = 'Making plot', value = 0, {
+          withProgress(message = 'Ploting', value = 0, {
             for(i in seq_along(msiInfo$mzList)){
               print(plotImage(msiData = msiData(),
                               mz = msiInfo$mzList[i],
@@ -294,7 +293,7 @@ mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
                               msiRun = input$msiRun
                               )
                     )
-              incProgress(1/length(msiInfo$mzList), detail = paste("Ploting image", i))
+              incProgress(1/length(msiInfo$mzList), detail = paste("image", i))
               }
             })
           dev.off()
@@ -313,7 +312,7 @@ mod_plotMSI_server <- function(id, msiData, global, export_msiRun = FALSE){
       }
     )
 
-    #(1.4) Display selected spectrum ===========================================
+    #(1.4) Display selected spectrum -------------------------------------------
     rv_click <- reactiveValues(df = data.frame(x = double(), y = double()))
     observeEvent(input$viewImage, {
       output$resetButton <- renderUI({

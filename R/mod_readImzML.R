@@ -46,7 +46,7 @@ mod_readImzML_ui <- function(id){
              hr(),
              radioButtons(inputId = ns("msiDataType"),
                           label = "2.1 Choose MSI data type",
-                          choices = c("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
+                          choices = list("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
                           selected = "HR",
                           inline = TRUE
                           ),
@@ -76,7 +76,7 @@ mod_readImzML_ui <- function(id){
              p(style = "color:#C70039;", "This parameter applies only when multiple runs loaded with unknown/different modes."),
              radioButtons(inputId = ns("msiDataMode"),
                           label = NULL,
-                          choices = c("Profile mode" = "0", "Centroid mode" = "1"),
+                          choices = list("Profile mode" = "0", "Centroid mode" = "1"),
                           selected = "0",
                           inline = TRUE
                           ),
@@ -103,8 +103,8 @@ mod_readImzML_ui <- function(id){
                image = 'www/img/cardinal.gif',
                shiny::verbatimTextOutput(outputId = ns("msiDataInfo"))
               )
-             )
-           )
+            )
+          )
 
 )}
 
@@ -184,7 +184,7 @@ mod_readImzML_server <- function(id, global, export_msiDataType = FALSE){
     observe({
       switch(EXPR = input$msiDataType,
              "HR" = updateSliderInput(inputId = "massResolution", min = 1, max = 20, value = 10, step = 1),
-             "LR" = updateSliderInput(inputId = "massResolution", min = 20, max = 200, value = 50, step = 5)
+             "LR" = updateSliderInput(inputId = "massResolution", min = 20, max = 400, value = 50, step = 5)
              )
     })
 
@@ -205,7 +205,7 @@ mod_readImzML_server <- function(id, global, export_msiDataType = FALSE){
       shiny::validate(
         need(filePath$imzmlPath != "", message = ("imzML file missing!")),
         need(filePath$imzmlPath != "", message = "ibd file missing!"),
-        need(length(filePath$imzmlPath) == length(filePath$ibdPath), message = "The number of imzML and idb files are not equal!")
+        need(length(filePath$imzmlPath) == length(filePath$ibdPath), message = "The number of imzML and idb files is not equal!")
       )
       if(input$setMass == "No"){
         selectedMassRange = NULL

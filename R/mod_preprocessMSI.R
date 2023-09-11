@@ -103,7 +103,7 @@ mod_preprocessMSI_ui <- function(id){
                          label = "Choose peak aligment tolerance (ppm)",
                          min = 1,
                          max = 20,
-                         value = 5,
+                         value = 15,
                          step = 1
                          ),
              actionButton(inputId = ns("getRefPeaks"),
@@ -184,7 +184,7 @@ mod_preprocessMSI_ui <- function(id){
                          label = "Choose peak binning tolerance (ppm)",
                          min = 1,
                          max = 20,
-                         value = 5,
+                         value = 15,
                          step = 1
                          ),
              strong("5. (optional) Choose number of workers for parallel computation"),

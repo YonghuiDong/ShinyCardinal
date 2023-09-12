@@ -25,7 +25,8 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
                div(
                  p(style = "color:#0d4aa1;", shiny::icon("bell"), strong("Warning:")),
                  p(style = "color:#0d4aa1;", "1. This module is solely for MSI data verification."),
-                 p(style = "color:#0d4aa1;", "2. MSI image generation can be very slow for unpreprocessed data.")
+                 p(style = "color:#0d4aa1;", "2. Plotting images/spectra can be very slow for unpreprocessed data."),
+                 p(style = "color:#0d4aa1;", "3. Feel free to skip this module."),
                 )
               },
              selectInput(inputId = ns("msiRun"),

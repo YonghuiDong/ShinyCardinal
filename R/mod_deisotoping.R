@@ -26,7 +26,7 @@ mod_deisotoping_ui <- function(id){
              p(style = "color:#C70039;", "2. It is for 13C deisotoping only."),
              radioButtons(inputId = ns("msiDataType"),
                           label = "Choose MSI data type",
-                          choices = c("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
+                          choices = list("High-mass-resolution" = "HR", "Low-mass-resolution" = "LR"),
                           selected = "HR",
                           inline = TRUE
                           ),

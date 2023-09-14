@@ -18,7 +18,7 @@
 #' x <- simulateImage(preset = 1, nruns = 2, npeaks = 10)
 #' res <- getSSC(x, r = 1, k = 2, s = 0, msiRun = "All")
 
-getSSC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive", dist = "chebyshev", msiRun = "All"){
+getSSC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive", dist = "chebyshev", msiRun = "All", workers = 1){
   if(msiRun != "All"){
     msiData <- msiData[Cardinal::run(msiData) == msiRun]
   }
@@ -28,6 +28,7 @@ getSSC <- function(msiData, r = 1, s = 0, k = 2, method = "adaptive", dist = "ch
     s = s,
     k = k,
     method = method,
-    dist = dist
+    dist = dist,
+    BPPARAM = BiocParallel::SnowParam(workers = workers, progressbar = FALSE)
   )
 }

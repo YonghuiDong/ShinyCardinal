@@ -29,72 +29,10 @@ mod_network_ui <- function(id){
 
       #(1) Optional: upload MSI rds Data =======================================
       mod_readRDS_ui(ns("readRDS_1")),
+
       #(2) Network Analysis for all features ===================================
       column(width = 12, h6("Network Analysis for All Features")),
-      column(width = 4,
-             box(
-               width = 12,
-               title = strong("Input Parameters"),
-               status = "primary",
-               solidHeader = TRUE,
-               collapsible = TRUE,
-               collapsed = TRUE,
-               closable = FALSE,
-               p(style = "color:#C70039;", "1. Perform network analysis"),
-               selectInput(inputId = ns('msiRunAll'),
-                           label = "(optional) Select a MSI run for network analysis",
-                           choices = NULL,
-                           selected = NULL
-                           ),
-               sliderInput(inputId = ns("nthAll"),
-                           label = "(optional) Subset MSI data by using every nth pixels",
-                           min = 1,
-                           max = 10,
-                           value = 1,
-                           step = 1
-                           ),
-               shiny::actionButton(inputId = ns("colocAll"),
-                                   label = "Go",
-                                   icon = icon("paper-plane"),
-                                   style = "color: #fff; background-color: #67ac8e; border-color: #67ac8e"
-                                   ),
-               br(),
-               br(),
-               p(style = "color:#C70039;", "2. Modify network"),
-               sliderInput(inputId = ns("allLabelSize"),
-                           label = "Set label size",
-                           min = 10,
-                           max = 100,
-                           value = 40,
-                           step = 5
-                           ),
-               sliderInput(inputId = ns("pccAllThreshold"),
-                           label = "Set Network threshould",
-                           min = 0.5,
-                           max = 1,
-                           value = 0.9,
-                           step = 0.01
-                           )
-             )
-            ),
-      #(2.2) Network Analysis for all features result --------------------------
-      column(width = 8,
-             box(
-               width = 12,
-               title = strong("Result"),
-               status = "success",
-               solidHeader = TRUE,
-               collapsible = TRUE,
-               collapsed = TRUE,
-               closable = FALSE,
-               shinycssloaders::withSpinner(
-                 image = 'www/img/cardinal.gif',
-                 shiny::verbatimTextOutput(outputId = ns("allNetworkInfo"))
-               ),
-               shiny::uiOutput(outputId = ns("downloadAllNetworkButton")),
-               visNetwork::visNetworkOutput(outputId = ns("showAllNetwork"), height = "800px")
-               )
-             ),
+      mod_networkAll_ui(ns("networkAll_1")),
 
       #(3) Network Analysis for single feature =================================
       column(width = 12, h6("Network Analysis for Single Feature")),
@@ -252,62 +190,9 @@ mod_network_server <- function(id, global = global){
     ns <- session$ns
     #(1) Load MSI rds Data =====================================================
     mod_readRDS_server("readRDS_1", global = global)
+
     #(2) Network analysis for all features =====================================
-    #(2.1) Update MSI run ------------------------------------------------------
-    observeEvent(global$processedMSIData, {
-      if(is.null(global$cleanedMSIData)){
-        global$cleanedMSIData <- global$processedMSIData
-      }
-      updateSelectInput(session = session,
-                        inputId = "msiRunAll",
-                        choices = levels(Cardinal::run(global$cleanedMSIData)),
-                        selected = levels(Cardinal::run(global$cleanedMSIData))[1]
-                        )
-
-    })
-
-    #(2.2) Get network object --------------------------------------------------
-    allNetwork <- reactiveValues(PCC = NULL, plot = NULL)
-    output$allNetworkInfo <- renderPrint({
-      shiny::validate(need(!is.null(global$cleanedMSIData), message = "MSI data not found!"))
-      allNetwork$PCC <- getPCC(msiData = global$cleanedMSIData,
-                               nth = input$nthAll,
-                               msiRun = input$msiRunAll
-                               )
-      cat("You can navigate the network using mouse or the zoom and movement buttons below.")
-    }) |>
-      bindCache(input$nthAll, input$msiRunAll) |>
-      bindEvent(input$colocAll)
-
-    #(2.3) Show network --------------------------------------------------------
-    output$showAllNetwork <- visNetwork::renderVisNetwork({
-      shiny::req(allNetwork$PCC)
-      allNetwork$plot <- plotAllNetwork(PCC = allNetwork$PCC,
-                                        threshold = input$pccAllThreshold,
-                                        labelSize = input$allLabelSize
-                                        )
-      allNetwork$plot
-    })
-
-    #(2.4) Download all Network -------------------------------------------------
-    output$downloadAllNetworkButton <- renderUI({
-      shiny::req(allNetwork$plot)
-      downloadButton(
-        outputId = ns("downloadAllNetwork"),
-        label = "Download Network",
-        icon = icon("download"),
-        style="color: #fff; background-color: #a077b5; border-color: #a077b5"
-      )
-    })
-
-    output$downloadAllNetwork <- downloadHandler(
-        filename = function(){
-          paste0("allNetwork", ".html")
-        },
-        content = function(file){
-          visNetwork::visSave(graph = allNetwork$plot, file = file)
-        }
-    )
+    mod_networkAll_server("networkAll_1", global = global)
 
     #(3) Network analysis for single feature ===================================
     #(3.1) Update MSI run ------------------------------------------------------

@@ -38,6 +38,7 @@ golem::add_module(name = "preprocessMSI", with_test = FALSE)
 golem::add_module(name = "deisotoping", with_test = FALSE)
 golem::add_module(name = "rmBackground", with_test = FALSE)
 golem::add_module(name = "imageAnalysis", with_test = FALSE)
+golem::add_module(name = "PCA", with_test = FALSE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*

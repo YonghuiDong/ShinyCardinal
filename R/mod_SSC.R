@@ -59,6 +59,14 @@ mod_SSC_ui <- function(id){
                           selected = "chebyshev",
                           inline = FALSE
                           ),
+             # strong("6. (optional) Choose number of workers for parallel computation"),
+             # sliderInput(inputId = ns("workers"),
+             #             label = "",
+             #             min = 1,
+             #             max = maxCores(),
+             #             value = 1,
+             #             step = 1
+             #             ),
              actionButton(inputId = ns("viewSSC"),
                           label = "Plot",
                           icon = icon("paper-plane"),

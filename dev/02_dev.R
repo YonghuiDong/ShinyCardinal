@@ -43,6 +43,7 @@ golem::add_module(name = "SSC", with_test = FALSE)
 golem::add_module(name = "networkAll", with_test = FALSE)
 golem::add_module(name = "networkSingle", with_test = FALSE)
 golem::add_module(name = "dbSearch", with_test = FALSE)
+golem::add_module(name = "exportMSI", with_test = FALSE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*

@@ -27,7 +27,7 @@ roiStat <- function(roiMSIData){
     transform(mz = round(mz, 4))
 
   #(2) Remove rows with all means == 0 -----------------------------------------
-  roiMean <- roiMean[rowSums(roiMean[, -which(names(roiMean) == "mz")], na.rm = TRUE) > 0, ]
+  #roiMean <- roiMean[rowSums(roiMean[, -which(names(roiMean) == "mz")], na.rm = TRUE) > 0, ]
 
   #(3) Round mean intensity apart from mz column -------------------------------
   roiMean[, -1] <- round(roiMean[, -1], 2)
@@ -92,7 +92,7 @@ getFC <- function(x, Group = NULL){
 
   #(3) remove NaN in f_change Matrix -------------------------------------------
   f_change <- rbind(f_change1, f_change2)
-  f_change[is.nan(f_change)] <- 0
+  # f_change[is.nan(f_change)] <- 0
   rownames(f_change) <- c(paste0("FoldChange_", j[1,], "_vs_", j[2,]), paste0("FoldChange_", j[2,], "_vs_", j[1,]))
   ret <- as.data.frame(t(f_change))
   return(round(ret, 2))

@@ -38,7 +38,7 @@ mod_uploadData_ui <- function(id){
 
       #(2) Plot MSI images =====================================================
       column(width = 12, h5("Check MSI images (optional)")),
-      mod_plotMSI_ui(ns("plotMSI_1"), inputWidth = 5, showNote = TRUE, showMassWindow = TRUE),
+      mod_plotMSI_ui(ns("plotMSI_1"), inputWidth = 5, showNote = TRUE),
 
       #(3) Preprocess MSI ======================================================
       mod_preprocessMSI_ui(ns("preprocessMSI_1"))

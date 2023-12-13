@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE, showMassWindow = FALSE){
+mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
   ns <- NS(id)
   tagList(
     #(1.1) Input ---------------------------------------------------------------
@@ -38,23 +38,19 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE, showMassWindow 
                        label = "1. Enter m/z values to visualize",
                        placeholder = "For multiple m/z values, separate them by a comma."
                       ),
-             if(isTRUE(showMassWindow)){
-               div(
-                 strong("2. Set mass tolerance window (Da)"),
-                 br(),
-                 br(),
-                 p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
-                 p(style = "color:#C70039;", "1. Without mass tolerance, exact m/z is displayed."),
-                 p(style = "color:#C70039;", "2. Otherwise, entered m/z +/- tolerance is displayed."),
-                 numericInput(inputId = ns("massWindow"),
-                              label = NULL,
-                              min = 0,
-                              max = 10,
-                              value = NA,
-                              step = 0.001
-                              )
-               )
-             },
+             strong("2. Set mass tolerance window (Da)"),
+             br(),
+             br(),
+             p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+             p(style = "color:#C70039;", "1. Without mass tolerance, exact m/z is displayed."),
+             p(style = "color:#C70039;", "2. Otherwise, entered m/z +/- tolerance is displayed."),
+             numericInput(inputId = ns("massWindow"),
+                          label = NULL,
+                          min = 0,
+                          max = 10,
+                          value = NA,
+                          step = 0.001
+                          ),
              sliderInput(inputId = ns("zlim"),
                          label = "3. Set the range of intensity bar",
                          min = 0,

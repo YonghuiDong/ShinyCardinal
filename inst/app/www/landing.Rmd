@@ -6,7 +6,7 @@ output:
     css: custom.css
 ---
 
-<b><span style="color:#6682c4; font-size:30px;">Welcome to ShinyCardinal (v0.2.5)</span></b>
+<b><span style="color:#6682c4; font-size:30px;">Welcome to ShinyCardinal (v0.3.0)</span></b>
 
 <img src='img/logo.png' height="180" style = "float: right; margin: 20px;"/>
 
@@ -100,16 +100,6 @@ Please note that the following data sets are distributed under the <a href="http
 > <b><span style="color:#d17789;">Credit</span></b>: Swales, John G., Nicole Strittmatter, James W. Tucker, Malcolm R. Clench, Peter JH Webborn, and Richard JA Goodwin. "Spatial quantitation of drugs in tissues using liquid extraction surface analysis mass spectrometry imaging." Scientific reports 6, no. 1 (2016): 37648.
 >
 > <b><span style="color:#d17789;">Download Link</span></b>: (1) imzML format <a href="https://metaspace2020.eu/dataset/2016-12-09_10h16m23s" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>; (2) RDS format <a href="https://www.dropbox.com/s/vgi2yc0wusi9fqt/DESI_MouseLiver.rds?dl=0" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
->
-> <b><span style="color:#d17789;">Note</span></b>:
-
-<b><span style="color:#5c5d61;">Data Set 4: SIMS Imaging</span></b>
-
-> <b><span style="color:#d17789;">Description</span></b>: 
->
-> <b><span style="color:#d17789;">Credit</span></b>: MSI unit, Weizmann Institute of Science.
->
-> <b><span style="color:#d17789;">Download Link</span></b>:
 >
 > <b><span style="color:#d17789;">Note</span></b>:
 

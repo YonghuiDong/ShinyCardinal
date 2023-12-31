@@ -8,8 +8,10 @@
 #' library(Cardinal)
 #' set.seed(2020)
 #' mse <- simulateImage(preset = 1, npeaks = 10, nruns = 1, baseline = 1, representation = "centroid")
-#' pixelDF <- data.frame(x = c(1, 2, 3), y = c(1, 100, 10))
+#' mse2 <- simulateImage(preset = 1, npeaks = 10, nruns = 1, baseline = 1, representation = "profile")
+#' pixelDF <- data.frame(x = c(1, 2, 3), y = c(1, 10, 10))
 #' plotPixelSpec(msiData = mse, pixelDF = pixelDF)
+#' plotPixelSpec(msiData = mse2, pixelDF = pixelDF)
 
 plotPixelSpec <- function(msiData, pixelDF){
   #(1) Prepare df --------------------------------------------------------------
@@ -28,16 +30,18 @@ plotPixelSpec <- function(msiData, pixelDF){
   colnames(df)[1] <- "mz"
   df <- df[, colMeans(is.na(df)) != 1, drop = FALSE]
 
-  if(ncol(df) > 1){
-    #(2) Set the last pixel negative when there are over 1 pixels --------------
-    if(ncol(df) > 2){
-      df[, ncol(df)] <- -df[, ncol(df)]
-    }
+  #(2) Set the last pixel negative when there are over 1 pixels --------------
+  if(ncol(df) > 2){
+    df[, ncol(df)] <- -df[, ncol(df)]
+  }
 
-    #(3) Plot spectrum ---------------------------------------------------------
-    pixelNames <- names(df)[-1]
+  #(3) Plot spectrum ---------------------------------------------------------
+  pixelNames <- names(df)[-1]
+
+  ##(3.1) for centroid data
+  if(isTRUE(Cardinal::centroided(msiData))){
     p <- plotly::plot_ly(data = df)
-    for(k in 1:length(pixelNames)) {
+    for(k in 1:length(pixelNames)){
       dfk <- data.frame(mz = df$mz, Intensity = df[[pixelNames[k]]])
       p <- plotly::add_segments(p,
                                 data = dfk,
@@ -48,10 +52,25 @@ plotPixelSpec <- function(msiData, pixelDF){
                                 name = pixelNames[k]
                                 )
     }
+  } else{
+    ##(3.2) for profile data
+    p <- plotly::plot_ly(data = df, type = 'scatter', mode = 'lines')
+    for(k in 1:length(pixelNames)){
+      dfk <- data.frame(mz = df$mz, Intensity = df[[pixelNames[k]]])
+      p <- plotly::add_trace(p,
+                             data = dfk,
+                             x = ~ mz,
+                             y = ~ Intensity,
+                             name = pixelNames[k]
+                             )
+    }
+  }
+
+    minMZ <- max(0, min(df$mz) + 10)
+    maxMZ <- max(df$mz + 20)
     p <- p %>%
-      plotly::layout(xaxis = list(title = 'm/z', range = c(min(df$mz) - 5, max(df$mz) + 5))) %>%
+      plotly::layout(xaxis = list(title = 'm/z', range = c(minMZ, maxMZ))) %>%
       plotly::config(toImageButtonOptions = list(format = "svg", filename = "pxielSpec"))
     return(p)
-  }
 }
 

@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
+mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE, showMassWindow = FALSE){
   ns <- NS(id)
   tagList(
     #(1.1) Input ---------------------------------------------------------------
@@ -44,13 +44,29 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE){
              p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
              p(style = "color:#C70039;", "1. Without mass tolerance, exact m/z is displayed."),
              p(style = "color:#C70039;", "2. Otherwise, entered m/z +/- tolerance is displayed."),
-             numericInput(inputId = ns("massWindow"),
-                          label = NULL,
-                          min = 0,
-                          max = 10,
-                          value = NA,
-                          step = 0.001
-                          ),
+             p(style = "color:#C70039;", "3. Mass tolerance is disabled for preprocessed data."),
+             if(isTRUE(showMassWindow)){
+               div(
+                 numericInput(inputId = ns("massWindow"),
+                              label = NULL,
+                              min = 0,
+                              max = 10,
+                              value = NA,
+                              step = 0.001
+                              )
+               )
+             } else{
+               div(
+               style = "display: none;",
+               numericInput(inputId = ns("massWindow"),
+                            label = NULL,
+                            min = 0,
+                            max = 0,
+                            value = NA,
+                            step = 0
+                            )
+               )
+             },
              sliderInput(inputId = ns("zlim"),
                          label = "3. Set the range of intensity bar",
                          min = 0,

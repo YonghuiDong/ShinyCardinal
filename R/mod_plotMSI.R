@@ -41,7 +41,12 @@ mod_plotMSI_ui <- function(id, inputWidth = 4, showNote = FALSE, showMassWindow 
              strong("2. Set mass tolerance window (Da)"),
              br(),
              br(),
-             p(style = "color:#C70039;", shiny::icon("bell"), strong("Note: Mass tolerance is disabled for preprocessed data")),
+             p(style = "color:#C70039;", shiny::icon("bell"), strong("Note:")),
+             if(isFALSE(showMassWindow)){
+               div(
+                 p(style = "color:#C70039;", "1. Mass tolerance is disabled for preprocessed data"),
+               )
+             },
              div(
                p(style = "color:#C70039;", "1. Without mass tolerance, exact m/z is displayed."),
                p(style = "color:#C70039;", "2. Otherwise, entered m/z +/- tolerance is displayed."),

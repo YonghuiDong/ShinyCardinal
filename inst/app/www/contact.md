@@ -1,4 +1,4 @@
-<b><span style="color:#6682c4; font-size:30px;">𓅫 Contact </span></b>
+<b><span style="color:#6682c4; font-size:30px;"> Contact </span></b>
 
 <img src='www/img/logo.png' height="180" style = "float: right; margin: 20px;"/>
 

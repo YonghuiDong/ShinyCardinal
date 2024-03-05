@@ -29,11 +29,10 @@ If you need any help, please visit [Cardinal google help group](https://groups.g
 
 If you use ShinyCardinal, please cite the following references:
 
-> <b><span style="color:#d17789;">1</span></b>. Dong.Y., Heinig, W., 2024. ShinyCardinal: a comprehensive framework for mass spectrometry imaging data analysis.
+> <b><span style="color:#d17789;">1</span></b>. Dong.Y., and Heinig, W., 2024. ShinyCardinal: a comprehensive framework for mass spectrometry imaging data analysis.
 >
-> <b><span style="color:#d17789;">2</span></b>. Bemis, K.D., Harry, A., Eberlin, L.S., Ferreira, C., van de Ven, S.M., Mallick, P., Stolowitz, M. and Vitek, O., 2015. Cardinal: an R package for statistical analysis of mass spectrometry-based imaging experiments. Bioinformatics, 31(14), pp.2418-2420. <a href="https://doi.org/10.1093/bioinformatics/btv146" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
+> <b><span style="color:#d17789;">2</span></b>. Bemis, K.A., Föll, M.C., Guo, D., Lakkimsetty, S.S., and Vitek, O., 2023. Cardinal v.3: a versatile open-source software for mass spectrometry imaging analysis. **Nature Methods** 20, 1883–1886. <a href="https://doi.org/10.1038/s41592-023-02070-z" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
 > 
-> <b><span style="color:#d17789;">3</span></b>. Bemis, K.D., Harry, A., Eberlin, L.S., Ferreira, C.R., van de Ven, S.M., Mallick, P., Stolowitz, M. and Vitek, O., 2016. Probabilistic segmentation of mass spectrometry (MS) images helps select important ions and characterize confidence in the resulting segments. Molecular & Cellular Proteomics, 15(5), pp.1761-1772. <a href="https://doi.org/10.1074/mcp.O115.053918" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
 
 ---
 <a href= 'https://www.weizmann.ac.il'><img src='img/WIS.png' alt='WIS' title='Weizmann Institute of Science' width='400'/></a>

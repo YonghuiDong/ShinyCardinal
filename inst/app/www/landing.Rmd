@@ -16,6 +16,10 @@ Mass spectrometry imaging (MSI) is a well-established analytical technique that 
 
 <b><span style="color:#d17789; font-size:20px;">ShinyCardinal</span></b> is the web application, built on the basis of the R package <a href="https://cardinalmsi.org" target="_new">Cardinal</a>. Alongside incorporating most of the existing features in Cardinal, ShinyCardinal has also introduced many additional functions (Fig.1). It is designed to aid researchers in reading, processing, visualizing and analyzing their MSI data. With its structured and intuitive workflow, ShinyCardinal offers a flexible and user-friendly tool suitable for users of all levels.
 
+> **Note**
+>
+> For the best performance, we recommend using a secure, modern, standards-compliant browser other than Internet Explorer.
+
 ---
 
 <b><span style="color:#5c5d61; font-size:22px;">Workflow</span></b>

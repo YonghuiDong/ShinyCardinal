@@ -38,7 +38,7 @@ If you use ShinyCardinal, please cite the following references:
 
 > Cardinal: 3.5.0 
 > 
-> CardinalIO: 1.0.0 
+> CardinalIO: 1.1.1 
 > 
 > ShinyCardinal: 0.3.1
 > 

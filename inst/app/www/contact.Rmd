@@ -29,7 +29,7 @@ If you need any help, please visit [Cardinal google help group](https://groups.g
 
 If you use ShinyCardinal, please cite the following references:
 
-> <b><span style="color:#d17789;">1</span></b>. Dong.Y., and Heinig, W., 2024. ShinyCardinal: a comprehensive framework for mass spectrometry imaging data analysis (not published).
+> <b><span style="color:#d17789;">1</span></b>. Dong.Y., and Heinig, W., 2024. Mass Spectrometry Imaging Data Analysis with ShinyCardinal.
 >
 > <b><span style="color:#d17789;">2</span></b>. Bemis, K.A., Foell, M.C., Guo, D., Lakkimsetty, S.S., and Vitek, O., 2023. Cardinal v.3: a versatile open-source software for mass spectrometry imaging analysis. **Nature Methods**, 20, 1883-1886. <a href="https://doi.org/10.1038/s41592-023-02070-z" target="_new"><i class="fa fa-link" aria-hidden="true"></i></i></a>
 > 

@@ -16,50 +16,30 @@ Shiny App for Mass Spectrometry Imaging.
 
 >**Note**
 >
->1. This is the easiest way to install and use ShinyCardinal.
->2. It does not required any addition soeftware.
+>1. This is the easiest way to install and use ShinyCardinal, highly recommended.
+>2. It does not required any addition software.
 >3. No programming skills needed.
 
-- #### ![](https://img.shields.io/badge/Windows-grey?style=for-the-badge&logo=microsoft)
-
-  
-- #### ![](https://img.shields.io/badge/macOS-grey?style=for-the-badge&logo=apple)
+#### [Download Link](https://sourceforge.net/projects/shinycardinal/)
 
 
 ### (b) Inatall as an R package
 
+```r
+remotes::install_github("YonghuiDong/ShinyCardinal")
+```
 >**Note**
 >
->1. You need to have [R](https://www.r-project.org) pre-installed.
->2. After installing ShinyCardinal, you can use `library(ShinyCardinal); run_app()` or `ShinyCardinal::run_app()` to start the app.
+> 1. After installation, you can use `library(ShinyCardinal); run_app()` or `ShinyCardinal::run_app()` to start the app.
 
-- #### Install from GitHub
-```r
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("YonghuiDong/ShinyCardinal")
-```
-- #### Install from BioConductor
+### (c) Use online web version
 
-```r
- if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("ShinyCardinal")
-```
-
-### (c) Install as a Docker image
+https://gincpm.shinyapps.io/ShinyCardinal
 
 >**Note**
 >
 >1. You can use the web version directly.
->2. It can be slowly and it does not work for MSI data over 4GB.
-
-### (d) Use online web version
-
->**Note**
->
->1. You can use the web version directly.
->2. It can be slowly and it does not work for MSI data over 4GB.
+>2. It can be slowly and it may not work for MSI data over 2GB.
 
 ## Usage
 

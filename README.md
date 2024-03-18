@@ -53,5 +53,7 @@ You are very welcome to contribute by submitting new features, pull requests, an
 
 ## Acknowledgements
 
+ShinyCardinal wouldn't be possible without the solid foundation laid by [Cardinal](https://cardinalmsi.org). My heartfelt gratitude to the developers of Cardinal.
+
 ## Cite
 

@@ -12,7 +12,9 @@ Shiny App for Mass Spectrometry Imaging.
 
 ## Installation
 
-### (a) Install as a standalone App
+You can use one of the following ways to use and install ShinyCardinal.
+
+#### (a) Install as a standalone App
 
 >**Note**
 >
@@ -20,10 +22,10 @@ Shiny App for Mass Spectrometry Imaging.
 >2. It does not required any addition software.
 >3. No programming skills needed.
 
-#### [Download Link](https://sourceforge.net/projects/shinycardinal/)
+[Download Link](https://sourceforge.net/projects/shinycardinal/)
 
 
-### (b) Inatall as an R package
+#### (b) Inatall as an R package
 
 ```r
 remotes::install_github("YonghuiDong/ShinyCardinal")
@@ -32,7 +34,7 @@ remotes::install_github("YonghuiDong/ShinyCardinal")
 >
 > 1. After installation, you can use `library(ShinyCardinal); run_app()` or `ShinyCardinal::run_app()` to start the app.
 
-### (c) Use online web version
+#### (c) Use online web version
 
 https://gincpm.shinyapps.io/ShinyCardinal
 

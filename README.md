@@ -55,5 +55,12 @@ You are very welcome to contribute by submitting new features, pull requests, an
 
 ShinyCardinal wouldn't be possible without the solid foundation laid by [Cardinal](https://cardinalmsi.org). My heartfelt gratitude to the developers of Cardinal.
 
-## Cite
+## Citation
+
+If you use ShinyCardinal, please cite the following references:
+
+1. Dong.Y., and Heinig, W., 2024. Mass Spectrometry Imaging Data Analysis with ShinyCardinal. [Link](https://doi.org/10.21203/rs.3.rs-4072606/v1)
+   
+3. Bemis, K.A., Foell, M.C., Guo, D., Lakkimsetty, S.S., and Vitek, O., 2023. Cardinal v.3: a versatile open-source software for mass spectrometry imaging analysis. **Nature Methods**, 20, 1883-1886. [Link](https://doi.org/10.1038/s41592-023-02070-z)
+
 

@@ -18,9 +18,7 @@ You can use one of the following ways to use and install ShinyCardinal.
 
 >**Note**
 >
->1. This is the easiest way to install and use ShinyCardinal, highly recommended.
->2. It does not required any addition software.
->3. No programming skills needed.
+> This is the easiest way to install and use ShinyCardinal (recommended)
 
 [Download Link](https://sourceforge.net/projects/shinycardinal/)
 
@@ -32,7 +30,7 @@ remotes::install_github("YonghuiDong/ShinyCardinal")
 ```
 >**Note**
 >
-> 1. After installation, you can use `library(ShinyCardinal); run_app()` or `ShinyCardinal::run_app()` to start the app.
+> After installation, you can use `library(ShinyCardinal); run_app()` or `ShinyCardinal::run_app()` to start the app.
 
 #### (c) Use online web version
 
@@ -40,7 +38,7 @@ https://gincpm.shinyapps.io/ShinyCardinal
 
 >**Note**
 >
->1. You can use the web version directly.
+>1. No installation needed; you can use the web version directly.
 >2. It can be slowly and it may not work for MSI data over 2GB.
 
 ## Usage

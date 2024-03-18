@@ -8,7 +8,7 @@ Shiny App for Mass Spectrometry Imaging.
 * [Usage](#usage)
 * [Acknowledgements](#acknowledgements)
 * [Contribution](#contribution)
-* [Cite](#cite)
+* [Citation](#citation)
 
 ## Installation
 

@@ -19,8 +19,11 @@ You can use one of the following ways to use and install ShinyCardinal.
 >**Note**
 >
 > This is the easiest way to install and use ShinyCardinal (recommended)
+>
 
-<img src="https://edent.github.io/SuperTinyIcons/images/svg/windows.svg" width="50" title="Windows">[Download](https://sourceforge.net/projects/shinycardinal/)
+<img align="center" height="50" src="https://edent.github.io/SuperTinyIcons/images/svg/windows.svg"> [Download](https://sourceforge.net/projects/shinycardinal/)
+
+
 
 
 #### (b) Inatall as an R package
@@ -43,7 +46,7 @@ https://gincpm.shinyapps.io/ShinyCardinal
 
 ## Usage
 
-<img src="https://edent.github.io/SuperTinyIcons/images/svg/youtube.svg" width="50" title="YouTube"> Please watch our [YouTube Tutorial Videos](https://www.youtube.com/@MSI_WIS/videos)
+<img align="center" height="50" src="https://edent.github.io/SuperTinyIcons/images/svg/youtube.svg"> Please watch our [Tutorial Videos](https://www.youtube.com/@MSI_WIS/videos).
 
 ## Contribution
 

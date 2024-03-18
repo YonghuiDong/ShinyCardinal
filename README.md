@@ -20,7 +20,7 @@ You can use one of the following ways to use and install ShinyCardinal.
 >
 > This is the easiest way to install and use ShinyCardinal (recommended)
 
-[Download Link](https://sourceforge.net/projects/shinycardinal/)
+<img src="https://edent.github.io/SuperTinyIcons/images/svg/windows.svg" width="50" title="Windows">[Download](https://sourceforge.net/projects/shinycardinal/)
 
 
 #### (b) Inatall as an R package
@@ -43,9 +43,7 @@ https://gincpm.shinyapps.io/ShinyCardinal
 
 ## Usage
 
-<i class="fa fa-youtube" aria-hidden="true"></i> 
-
-Please watch our [YouTube Tutorial Videos](https://www.youtube.com/@MSI_WIS/videos)
+<img src="https://edent.github.io/SuperTinyIcons/images/svg/youtube.svg" width="50" title="YouTube"> Please watch our [YouTube Tutorial Videos](https://www.youtube.com/@MSI_WIS/videos)
 
 ## Contribution
 
@@ -53,14 +51,14 @@ You are very welcome to contribute by submitting new features, pull requests, an
 
 ## Acknowledgements
 
-ShinyCardinal wouldn't be possible without the solid foundation laid by [Cardinal](https://cardinalmsi.org). My heartfelt gratitude to the developers of Cardinal.
+ShinyCardinal wouldn't be possible without the solid foundation laid by [Cardinal](https://cardinalmsi.org). My heartfelt gratitude to the developers of Cardinal. :heart: :heart: :heart:
 
 ## Citation
 
 If you use ShinyCardinal, please cite the following references:
 
-1. Dong.Y., and Heinig, W., 2024. Mass Spectrometry Imaging Data Analysis with ShinyCardinal. [Link](https://doi.org/10.21203/rs.3.rs-4072606/v1)
-   
-3. Bemis, K.A., Foell, M.C., Guo, D., Lakkimsetty, S.S., and Vitek, O., 2023. Cardinal v.3: a versatile open-source software for mass spectrometry imaging analysis. **Nature Methods**, 20, 1883-1886. [Link](https://doi.org/10.1038/s41592-023-02070-z)
+- Dong.Y., and Heinig, W., 2024. Mass Spectrometry Imaging Data Analysis with ShinyCardinal. [Link](https://doi.org/10.21203/rs.3.rs-4072606/v1)
+
+- Bemis, K.A., Foell, M.C., Guo, D., Lakkimsetty, S.S., and Vitek, O., 2023. Cardinal v.3: a versatile open-source software for mass spectrometry imaging analysis. **Nature Methods**, 20, 1883-1886. [Link](https://doi.org/10.1038/s41592-023-02070-z)
 
 

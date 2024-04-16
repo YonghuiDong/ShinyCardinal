@@ -1,6 +1,6 @@
 <img src="https://github.com/YonghuiDong/ShinyCardinal/blob/main/inst/app/www/img/logo.png" align="right" alt="" width="400" />
 
-# ShinyCardinal
+# ShinyCardinal v0.3.3
 Shiny App for Mass Spectrometry Imaging.
 
 # TOC

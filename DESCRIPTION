@@ -20,6 +20,7 @@ Imports:
     shiny (>= 1.7.4),
     shinycssloaders,
     shinydashboard,
+    shinyFiles,
     sp,
     stats,
     utils,

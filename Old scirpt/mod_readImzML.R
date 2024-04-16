@@ -29,7 +29,7 @@ mod_readImzML_ui <- function(id){
              p(style = "color:#C70039;", "1. Use method 1 when running ShinyCardinal locally. It's fast."),
              p(style = "color:#C70039;", "2. Please choose the directory where MSI files are located."),
              p(style = "color:#C70039;", "3. For multiple MSI runs (files), place them in the same directory."),
-             shinyFiles::shinyDirButton(id = ns("chooseMSI"), label = 'Choose Directory', title = "Select Folder", icon = icon("sitemap")),
+             actionButton(ns("chooseMSI"), label = "Choose Directory", icon = icon("sitemap")),
              br(),
              br(),
              strong("Method 2: Read uploaded MSI files."),
@@ -40,7 +40,7 @@ mod_readImzML_ui <- function(id){
              fileInput(inputId = ns("imzmlFile"),
                        label = "",
                        multiple = TRUE,
-                       placeholder = "Please select both .imzMl and .ibd files",
+                       placeholder = "Pleaae select both .imzMl and .ibd files",
                        accept = c(".imzML", ".ibd")
                        ),
              hr(),
@@ -114,19 +114,81 @@ mod_readImzML_ui <- function(id){
 mod_readImzML_server <- function(id, global, export_msiDataType = FALSE){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+
+    filePath <- reactiveValues(root = "~", current = "~", imzmlPath = NULL, ibdPath = NULL)
+    #(1.1) Option 1 ------------------------------------------------------------
+    observeEvent(input$chooseMSI, {
+      showModal(
+        modalDialog(
+          title = p(style = "color:#C70039;", "Select the directory (not MSI file)"),
+          p("Current directory: ", textOutput(outputId = ns("current_path"), inline = TRUE)),
+          fluidRow(
+            column(width = 2,
+                   actionButton(inputId = ns("button_back"),
+                                label = "Back",
+                                icon = icon("undo"),
+                                style = "color: #fff; background-color: #a077b5; border-color: #a077b5"
+                                )
+                   ),
+            column(width = 10,
+                   selectInput(inputId = ns("dir"),
+                               label = NULL,
+                               choices = "Please select",
+                               width = "100%"
+                               )
+                   )
+            ),
+          size = "l",
+          footer = tagList(
+            actionButton(inputId = ns("ok"),
+                         label = "OK",
+                         icon = icon("check"),
+                         style = "color: #fff; background-color: #a077b5; border-color: #a077b5"
+                         )
+          )
+        )
+      )
+      new_choices <- c("Please select", dir(filePath$current))
+      updateSelectInput(inputId = "dir", choices = new_choices)
+    })
+
+    ## update directory
+    observeEvent(input$dir, {
+      if(input$dir != "Please select"){
+        filePath$current <- file.path(filePath$current, input$dir)
+      }
+      new_choices <- c("Please select", dir(filePath$current))
+      updateSelectInput(inputId = "dir", choices = new_choices)
+    })
+
+    ## display directory
+    output$current_path = renderText({filePath$current})
+
+    ## back button
+    observeEvent(input$button_back, {
+      if(filePath$current != filePath$root){
+        filePath$current <- dirname(filePath$current)
+        new_choices = c("Please select", dir(filePath$current))
+        updateSelectInput(inputId = "dir", choices = new_choices)
+      }
+    })
+
+    ## OK button
+    observeEvent(input$ok, {
+      ## Get imzML and ibd file path
+      filePath$imzmlPath <- unique(list.files(path = filePath$current, pattern = ".imzML", full.names = TRUE, ignore.case = TRUE))
+      filePath$ibdPath <- unique(list.files(path = filePath$current, pattern = ".ibd", full.names = TRUE, ignore.case = TRUE))
+      removeModal()
+    })
+
     observe({
       switch(EXPR = input$msiDataType,
              "HR" = updateSliderInput(inputId = "massResolution", min = 1, max = 20, value = 10, step = 1),
              "LR" = updateSliderInput(inputId = "massResolution", min = 20, max = 400, value = 50, step = 5)
              )
     })
-    filePath <- reactiveValues(imzmlPath = NULL, ibdPath = NULL)
-    #(1.1) Option 1 ------------------------------------------------------------
-    shinyFiles::shinyDirChoose(input, id = "chooseMSI", roots = c(wd = "/", home = "~"))
+
     output$msiDataInfo <- renderPrint({
-      folder_path <- shinyFiles::parseDirPath(roots = c(wd = "/", home = "~"), input$chooseMSI)
-      filePath$imzmlPath <- unique(list.files(path = folder_path, pattern = ".imzML", full.names = TRUE, ignore.case = TRUE))
-      filePath$ibdPath <- unique(list.files(path = folder_path, pattern = ".ibd", full.names = TRUE, ignore.case = TRUE))
       if(identical(filePath$imzmlPath, character(0)) | is.null(filePath$imzmlPath)){
         #(1.2) Option 2 --------------------------------------------------------
         shiny::validate(need(input$imzmlFile$datapath != "", message = "No MSI files found."))

@@ -6,7 +6,7 @@ output:
     css: custom.css
 ---
 
-<b><span style="color:#6682c4; font-size:30px;">Welcome to ShinyCardinal (v0.3.2)</span></b>
+<b><span style="color:#6682c4; font-size:30px;">Welcome to ShinyCardinal (v0.3.3)</span></b>
 
 <img src='img/logo.png' height="180" style = "float: right; margin: 20px;"/>
 
@@ -108,6 +108,9 @@ Please note that the following data sets are distributed under the <a href="http
 > <b><span style="color:#d17789;">Note</span></b>:
 
 ---
-<a href= 'https://www.weizmann.ac.il'><img src='img/WIS.png' alt='WIS' title='Weizmann Institute of Science' width='400'/></a>
+
+<a href="https://www.weizmann.ac.il">
+  <img src="img/FAFU.png" alt="WIS" title="Weizmann Institute of Science" width="1050"/>
+</a>
 
 <br></br>

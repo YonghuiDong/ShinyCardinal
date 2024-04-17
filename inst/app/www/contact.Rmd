@@ -36,13 +36,13 @@ If you use ShinyCardinal, please cite the following references:
 
 <b><span style="color:#5c5d61; font-size:22px;">Software Version Info</span></b>
 
-> Cardinal: 3.5.0 
+> Cardinal: 3.5.2 
 > 
-> CardinalIO: 1.1.1 
+> CardinalIO: 1.1.5 
 > 
-> ShinyCardinal: 0.3.1
+> ShinyCardinal: 0.3.3
 > 
-> R version: 4.3.2
+> R version: 4.3.3
 
 ---
 <a href="https://hbmc.fafu.edu.cn">

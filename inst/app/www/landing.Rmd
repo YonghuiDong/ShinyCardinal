@@ -110,7 +110,7 @@ Please note that the following data sets are distributed under the <a href="http
 ---
 
 <a href="https://hbmc.fafu.edu.cn">
-  <img src="img/FAFU.png" alt="WIS" title="Weizmann Institute of Science" width="1050"/>
+  <img src="img/FAFU.png" alt="WIS" title="FAFU" width="1050"/>
 </a>
 
 <br></br>

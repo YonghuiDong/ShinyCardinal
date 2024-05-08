@@ -39,6 +39,8 @@ If you use ShinyCardinal, please cite the following references:
 > Cardinal: 3.5.1 
 > 
 > CardinalIO: 1.1.1 
+>
+> matter: 2.3.18
 > 
 > ShinyCardinal: 0.3.3
 > 
@@ -46,7 +48,7 @@ If you use ShinyCardinal, please cite the following references:
 
 ---
 <a href="https://hbmc.fafu.edu.cn">
-<img src="img/FAFU.png" alt="WIS" title="Weizmann Institute of Science" width="1050"/>
+<img src="img/FAFU.png" alt="WIS" title="FAFU" width="1050"/>
 </a>
 
 <br></br>

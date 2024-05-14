@@ -6,7 +6,7 @@ output:
     css: custom.css
 ---
 
-<b><span style="color:#6682c4; font-size:30px;">Welcome to ShinyCardinal (v0.3.3)</span></b>
+<b><span style="color:#6682c4; font-size:30px;">Welcome to ShinyCardinal (v0.3.4)</span></b>
 
 <img src='img/logo.png' height="180" style = "float: right; margin: 20px;"/>
 

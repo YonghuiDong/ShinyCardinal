@@ -178,7 +178,7 @@ mod_imageAnalysis_ui <- function(id){
              closable = FALSE,
              shiny::plotOutput(outputId = ns("ionImageROI"),
                                hover = hoverOpts(id = ns("hover"),
-                                                 delay = 100,
+                                                 delay = 300,
                                                  delayType = "throttle",
                                                  clip = TRUE,
                                                  nullOutside = TRUE

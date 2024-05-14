@@ -1,14 +1,21 @@
 <img src="https://github.com/YonghuiDong/ShinyCardinal/blob/main/inst/app/www/img/logo.png" align="right" alt="" width="400" />
 
-# ShinyCardinal v0.3.3
+# ShinyCardinal v0.3.4
 Shiny App for Mass Spectrometry Imaging.
 
 # TOC
+* [News](#news)
 * [Installation](#installation)
 * [Usage](#usage)
 * [Acknowledgements](#acknowledgements)
 * [Contribution](#contribution)
 * [Citation](#citation)
+
+## News
+
+2024-05-14: Release of v0.3.4
+
+- This version makes it easier for users to select MSI files using method 1.
 
 ## Installation
 

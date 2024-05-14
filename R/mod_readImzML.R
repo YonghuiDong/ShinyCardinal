@@ -122,9 +122,10 @@ mod_readImzML_server <- function(id, global, export_msiDataType = FALSE){
     })
     filePath <- reactiveValues(imzmlPath = NULL, ibdPath = NULL)
     #(1.1) Option 1 ------------------------------------------------------------
-    shinyFiles::shinyDirChoose(input, id = "chooseMSI", roots = c(wd = "/", home = "~"))
+    volumes <- shinyFiles::getVolumes()()
+    shinyFiles::shinyDirChoose(input, id = "chooseMSI", roots = volumes)
     output$msiDataInfo <- renderPrint({
-      folder_path <- shinyFiles::parseDirPath(roots = c(wd = "/", home = "~"), input$chooseMSI)
+      folder_path <- shinyFiles::parseDirPath(roots = volumes, input$chooseMSI)
       filePath$imzmlPath <- unique(list.files(path = folder_path, pattern = ".imzML", full.names = TRUE, ignore.case = TRUE))
       filePath$ibdPath <- unique(list.files(path = folder_path, pattern = ".ibd", full.names = TRUE, ignore.case = TRUE))
       if(identical(filePath$imzmlPath, character(0)) | is.null(filePath$imzmlPath)){

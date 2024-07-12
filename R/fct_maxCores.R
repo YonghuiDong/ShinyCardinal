@@ -6,5 +6,5 @@
 #' maxCores()
 
 maxCores <- function(){
-  return(ifelse(parallel::detectCores() == 1, 1, parallel::detectCores()-1))
+  return(ifelse(parallel::detectCores() == 1, 1, parallel::detectCores(logical = F)-1))
 }

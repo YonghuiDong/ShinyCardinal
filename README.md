@@ -1,6 +1,6 @@
-<img src="https://github.com/YonghuiDong/ShinyCardinal/blob/main/inst/app/www/img/logo.png" align="right" alt="" width="400" />
+<img src="https://github.com/YonghuiDong/ShinyCardinal/blob/main/inst/app/www/img/logo.png" align="right" alt="" width="300" />
 
-# ShinyCardinal v0.3.4
+# ShinyCardinal v0.3.5
 Shiny App for Mass Spectrometry Imaging.
 
 # TOC
@@ -13,9 +13,14 @@ Shiny App for Mass Spectrometry Imaging.
 
 ## News
 
+2024-07-21: Release of v0.3.5
+
+- Fix bug in calculating of number of workers.
+
 2024-05-14: Release of v0.3.4
 
 - This version makes it easier for users to select MSI files using method 1.
+
 
 ## Installation
 

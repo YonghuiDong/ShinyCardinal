@@ -47,15 +47,6 @@ remotes::install_github("YonghuiDong/ShinyCardinal")
 >
 > After installation, you can use `library(ShinyCardinal); run_app()` or `ShinyCardinal::run_app()` to start the app.
 
-#### (c) Use online web version
-
-https://gincpm.shinyapps.io/ShinyCardinal
-
->**Note**
->
->1. No installation needed; you can use the web version directly.
->2. It can be slowly and it may not work for MSI data over 2GB.
-
 ## Usage
 
 <img align="center" height="50" src="https://edent.github.io/SuperTinyIcons/images/svg/youtube.svg"> Please watch our [Tutorial Videos](https://www.youtube.com/@MSI_WIS/videos).
